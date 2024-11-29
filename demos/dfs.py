@@ -1,11 +1,15 @@
 """
-demos.simple_binary_tree - create a simple binary tree maze
+demos.dfs - create a depth-first search maze
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
-    Here we use the simple binary tree algorithm to create a maze.
+    Here we use depth-first search to create a maze.  (When depth-first
+    search (or DFS) is used to carve a maze, the algorithn is sometimes
+    called recursive backtracker.  Since this is a stack-based implementation
+    that does not use recursive programming, I prefer to stick with DFS.
+
     The result is displayed using the matplotlib spider graphics
     module
 
@@ -26,29 +30,36 @@ LICENSE
 import mazes
 from mazes.Grids.oblong import OblongGrid
 from mazes.maze import Maze
-from mazes.Algorithms.simple_binary_tree import BinaryTree
+from mazes.Algorithms.dfs import DFS
 from mazes.Graphics.oblong1 import Phocidae
 
 def make_grid(rows, columns) -> Maze:
     """returns a maze object that is ready for passage carving"""
     return Maze(OblongGrid(rows, columns))
 
-def make_binary_tree(maze, onward="east", upward="north",
-                     bias=0.5) -> BinaryTree.Status:
+def make_dfs(maze, edge_based:bool=True, shuffle:bool=True) -> DFS.Status:
     """carve the maze"""
-    return BinaryTree.on(maze, onward=onward, upward=upward, bias=bias)
+    return DFS.on(maze, edge_based=edge_based, shuffle=shuffle)
 
 def main(rows:int, cols:int, color, output=None,
          tree_args:dict={}, console:bool=False, gui:bool=True):
     """the main entry point"""
     maze = make_grid(rows, cols)
-    print(make_binary_tree(maze, **tree_args))
+    print(make_dfs(maze, **tree_args))
     if (rows <= 10 and cols <= 15) or console:
         print(maze)
 
     spider = Phocidae(maze)
     spider.setup(color=color)
-    spider.title("Simple Binary Tree")
+    title = "Depth-first search"
+    if not tree_args["edge_based"]:
+        if tree_args["shuffle"]:
+            title += " (frontier)"
+        else:
+            title += " (frontier, no shuffle)"
+    elif not tree_args["shuffle"]:
+        title += " (no shuffle)"
+    spider.title(title)
     spider.draw_maze()
     spider.fig.tight_layout()
     if output:
@@ -61,10 +72,9 @@ def parse_args(argv):
     """parse the command line arguments"""
     import argparse
 
-    DESC = "Simple binary tree demonstration"
+    DESC = "Depth-first search (DFS) tree demonstration"
     EPI = ""
     default_dim = (8, 13)
-    default_ways = ('east', 'north')
     parser = argparse.ArgumentParser(description=DESC, epilog=EPI)
 
     parser.add_argument('-d', '--dim', type=int, nargs=2, \
@@ -73,13 +83,14 @@ def parse_args(argv):
         + f'  (Default: {default_dim}.)')
 
     maze = parser.add_argument_group('maze options')
-    maze.add_argument('-w', '--ways', type=str, nargs=2, \
-        default=default_ways, metavar=('ONWARD', 'UPWARD'), \
-        help='The onward and upward directions.' \
-        + f'  (Default: {default_ways}.)')
-    maze.add_argument('-b', '--bias', type=float, default=0.5, \
-        help='the probability of the toss being a head.' \
-        + '  (Default: 0.5)')
+    maze.add_argument('-f', '--frontier', action='store_true', \
+        help='set this option for a frontier-based run.  The' \
+        + f' default is edge-based.')
+    maze.add_argument('-X', '--no-shuffle', action='store_true', \
+        help='set this option to suppress shuffling when accessing' \
+        + ' the neighborhoods.  This will typically result in a simpler' \
+        + ' maze, but the actual effect will depend on how dictionaries' \
+        + ' are implemented in your Python distribution.')
 
     graphics = parser.add_argument_group('graphics options')
     maze.add_argument('-p', '--pen', type=str, default='black', \
@@ -105,10 +116,8 @@ def parse_args(argv):
         print(f"    {args=}")
     rows, cols = args.dim
     tree_args ={}
-    onward, upward = args.ways
-    tree_args['onward'] = onward
-    tree_args['upward'] = upward
-    tree_args['bias'] = args.bias
+    tree_args['edge_based'] = not args.frontier
+    tree_args['shuffle'] = not args.no_shuffle
     main(rows, cols, args.pen, args.output,
          tree_args, args.console, not args.no_gui)
 
@@ -116,4 +125,4 @@ if __name__ == "__main__":
     import sys
     parse_args(sys.argv[1:])
 
-# end module mazes.Algorithms.simple_binary_tree
+# end module mazes.Algorithms.dfs

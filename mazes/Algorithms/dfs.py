@@ -1,5 +1,5 @@
 """
-mazes.dfs - the depth-first search maze carving algorithm
+mazes.Algorithms.dfs - the depth-first search maze carving algorithm
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
@@ -69,21 +69,23 @@ import mazes
 from mazes import rng, Algorithm
 
 class DFS(Algorithm):
-    """the simple binary tree maze carving algorithm"""
+    """the depth-first search maze carving algorithm"""
 
     class Status(Algorithm.Status):
         """this is where most of the work is done"""
 
         NAME = "Depth-first Search (DFS)"
 
-        __slots__ = ("__stack", "__unvisited", "__shuffle")
+        __slots__ = ("__stack", "__maxlen", "__unvisited", "__shuffle")
 
                 # STACK OPERATIONS
 
         def push(self, *args):
             """push the data onto the stack"""
             self.__stack.append(args)           # pack and append
-            self.store_item("maximum stack depth", len(self.__stack))
+            if len(self.__stack) > self.__maxlen:
+                self.__maxlen = len(self.__stack)
+                self.store_item("maximum stack depth", self.__maxlen)
 
         def pop(self):
             """pop and return the top of the stack"""
@@ -125,6 +127,7 @@ class DFS(Algorithm):
             self.store_item("start cell", start_cell.index)
             self.__unvisited = set(unvisited)   # hash
             self.__stack = list()
+            self.__maxlen = 0
             if edge_based:
                 self.push(None, start_cell)     # two cells
             else:
@@ -167,6 +170,7 @@ class DFS(Algorithm):
             if cell in self.__unvisited:
                 self.link(nbr, cell)
                 self.__unvisited.remove(cell)
+                self.increment_item("cells")
 
             if not self.__shuffle:
                     # first come, first served (into the stack)
@@ -193,6 +197,7 @@ class DFS(Algorithm):
                     nbr = rng.choice(visited)
                     self.maze.link(nbr, cell)
                 self.__unvisited.remove(cell)
+                self.increment_item("cells")
 
                     # process the unvisited neighbors
             if not unvisited:

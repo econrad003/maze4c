@@ -1,5 +1,5 @@
 """
-mazes.sidewinder - the sidewinder maze carving algorithm
+mazes.Algorithms.sidewinder - the sidewinder maze carving algorithm
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 

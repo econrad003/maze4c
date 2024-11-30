@@ -1,5 +1,5 @@
 """
-mazes.inwinder - the inwinder maze carving algorithm
+mazes.Algorithms.inwinder - the inwinder maze carving algorithm
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 

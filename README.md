@@ -29,7 +29,7 @@ For example, for *demos/simple\_binary\_tree.py* run it from the folder that con
 ```
 Note that the slashes are replaced by dots and the *.py* extension is discarded.  The demonstration modules use *argparse* for argument parsing -- the *-h* option will display usage information.  The *gallery* folder contains at least one output image from each demonstration program.
 
-> [!NOTE:]
+> [!NOTE]  
 > I don't recommend modifying the Python path as this is a great way to break things.  Unfortunately there does not seem to be *simple* way of using Python 3 to write scripts which are not stored in the current working directory.
 
 For the time being, the graphics drivers use *matplotlib* and *numpy*.  These will need to be installed if you don't already have them.

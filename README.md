@@ -1,6 +1,8 @@
 # maze4c
 Mazes in Python 3
 
+Latest revision: 29 November 2024
+
 After some false starts, I think I have things set up as I need them.  This is still preliminary, but it should be workable.
 
 **FAQ**:
@@ -45,6 +47,7 @@ The only graphics driver is a crude matplotlib driver (*oblong1*) for oblong gri
 ## Algorithms
 
 The following algorithms have been implemented:
+
 * module *simple\_binary\_tree* (class *BinaryTree*) - the elementary binary tree algorithm (heads-go north; tails-go east) described in the Jamis Buck book.  (Note that this is just one algorithm for carving a binary spanning tree and it is very speciaized -- there are more general algorithms that produce more interesting binary tree mazes.)  It is implemented here as a passage carver.
 * module *sidewinder* (class *Sidewinder*) - the sidewinder algorithm (heads-go north from somewhere in the current run; tails-continue the run eastward), also described in the Jamis Buck book.  It is a true generalization of the simple binary tree algorithm.  The spanning trees that it produces are not in general binary trees, but it isn't hard to restrict the run choice for a head in ways that produce a binary tree.  In particular, always choosing the last cell in the run to carve north yields the simple binary tree algorithm.  Choosing the first or the last at random in a sort of cocktail shaker fashion yields a more general spanning binary tree.
 * module *inwinder* (class *Inwinder*) - This is a variant of the sidewinder algorithm that uses rings instead of rows for the runs and carves inward from a run instead of northward when the coin toss is a head.  (It is a variant, not a generalization.)  Because the corner cells in a rectangular ring do not have inward neighbors, and because the rings are circuits (as opposed to rows which are paths), it is slightly more complicated than sidewinder.
@@ -52,4 +55,13 @@ The following algorithms have been implemented:
 
  > Note that *inwinder* has a sort of opposite (*outwinder*) which I haven't (yet?) implemented.
 
-* module *dfs* (class *DFS*) - the depth-first search (aka DFS aka recursive backtracker) maze carving algorithm.  This is described (as recursive backtracker) in the Jamis Buck book.  It produces mazes that tend to have long winding corridors.  (Depending on how dictionaries are implemented in your Python 3 distribution, you should see much longer but less meandering corridors if you suppress shuffling.)  There are essentially two variants implemented here -- an edge-based variant and a frontier-based variant -- with slighly different biases.
+### growing tree algorithms
+
+* module *dfs* (class *DFS*) - the depth-first search (aka DFS aka recursive backtracker) maze carving algorithm.  This is described (as recursive backtracker) in the Jamis Buck book.  It produces mazes that tend to have long winding corridors.  (Depending on how dictionaries are implemented in your Python 3 distribution, you should see much longer but less meandering corridors if you suppress shuffling.)  There are essentially two variants implemented here -- an edge-based variant and a frontier-based variant -- with slighly different biases.  This is really a first cut...  See the next entry...
+* module *dfs\_better* (class *DFS*) - a more efficient depth-first search.  It is implicitly edge-based, but it could be tweaked to produce a frontier-based version.
+* module *bfs* (class *BFS*) - the breadth-first search maze carving algorithm.  It produces mazes with minimum diameter.
+* module *simplified\_Prim* (class *NotPrim*) - an algorithm is superficially similar to Prim's algorithm.  It does produce nice mazes with a radial structure, sort of like spider webs.
+
+## REFERENCES
+
+1. Jamis Buck. Mazes for programmers.  Pragmatic Bookshelf, 2015.

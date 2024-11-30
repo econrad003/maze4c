@@ -1,5 +1,46 @@
 # Change Log
 
+## Release 0.2 - 30 November 2024
+
+### New modules
+
+#### depth-first search
+
+* *mazes.Algorithms.dfs_better* - a more elegant (and efficient) depth-first search (as described in the Jamis Buck book (Reference 1 in README)
+* *demos.dfs_better* - demonstration program for the more elegant depth-first search
+
+#### breadth-first search
+
+* *mazes.Algorithms.bfs* - breadth-first search
+* *demos.bfs* - demonstration program for breadth-first search
+
+#### simplified Prim
+
+* *mazes.Algorithms.simplified\_Prim* - a basic growing tree algorithm
+* *demos.simplified\_Prim* - demonstration program for simplified Prim
+
+### Gallery
+
+* 2 images for the improved DFS (*better\_dfs*)
+* 2 images for BFS
+* 2 images for simplified Prim
+
+### Updated modules
+
+#### Minor Corrections
+
+* *mazes.Algorithms.dfs*
+    1. the maximum length of the stack
+    2. corrected some docstrings
+    3. corrected the cell counter
+
+#### Cosmetic Changes
+
+* all in *mazes.Algorithms* - corrected the module docstring
+
+* all in ^demos* - corrected the tail comment
+* *demos.dfs* - corrected the module docstring and the tail comment
+
 ## Release 0.1 - November 29, 2024
 
 ### New modules

@@ -120,4 +120,4 @@ if __name__ == "__main__":
     import sys
     parse_args(sys.argv[1:])
 
-# end module mazes.Algorithms.inwinder
+# end module demos.inwinder

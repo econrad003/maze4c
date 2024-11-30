@@ -116,4 +116,4 @@ if __name__ == "__main__":
     import sys
     parse_args(sys.argv[1:])
 
-# end module mazes.Algorithms.simple_binary_tree
+# end module demos.simple_binary_tree

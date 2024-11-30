@@ -1,5 +1,5 @@
 """
-demos.dfs - create a depth-first search maze
+demos.dfs_better - create a depth-first search maze
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
@@ -10,8 +10,16 @@ DESCRIPTION
     called recursive backtracker.  Since this is a stack-based implementation
     that does not use recursive programming, I prefer to stick with DFS.
 
+    We use the better depth-first search.  (This is the version of the
+    as described in [1].)
+
     The result is displayed using the matplotlib spider graphics
-    module
+    module.
+
+REFERENCES
+
+    [1] Jamis Buck.  Mazes for Programmers.  2015 (Pragmatic Bookshelf).
+        Book (978-1-68050-055-4).
 
 LICENSE
     This program is free software: you can redistribute it and/or modify
@@ -30,16 +38,16 @@ LICENSE
 import mazes
 from mazes.Grids.oblong import OblongGrid
 from mazes.maze import Maze
-from mazes.Algorithms.dfs import DFS
+from mazes.Algorithms.dfs_better import DFS
 from mazes.Graphics.oblong1 import Phocidae
 
 def make_grid(rows, columns) -> Maze:
     """returns a maze object that is ready for passage carving"""
     return Maze(OblongGrid(rows, columns))
 
-def make_dfs(maze, edge_based:bool=True, shuffle:bool=True) -> DFS.Status:
+def make_dfs(maze, shuffle:bool=True) -> DFS.Status:
     """carve the maze"""
-    return DFS.on(maze, edge_based=edge_based, shuffle=shuffle)
+    return DFS.on(maze, shuffle=shuffle)
 
 def main(rows:int, cols:int, color, output=None,
          tree_args:dict={}, console:bool=False, gui:bool=True):
@@ -51,14 +59,8 @@ def main(rows:int, cols:int, color, output=None,
 
     spider = Phocidae(maze)
     spider.setup(color=color)
-    title = "Depth-first search"
-    if not tree_args["edge_based"]:
-        if tree_args["shuffle"]:
-            title += " (frontier)"
-        else:
-            title += " (frontier, no shuffle)"
-    elif not tree_args["shuffle"]:
-        title += " (no shuffle)"
+    title = "Depth-first search (elegant)" if tree_args["shuffle"] \
+    	else "Depth-first search (elegant, no shuffle)"
     spider.title(title)
     spider.draw_maze()
     spider.fig.tight_layout()
@@ -83,9 +85,6 @@ def parse_args(argv):
         + f'  (Default: {default_dim}.)')
 
     maze = parser.add_argument_group('maze options')
-    maze.add_argument('-f', '--frontier', action='store_true', \
-        help='set this option for a frontier-based run.  The' \
-        + f' default is edge-based.')
     maze.add_argument('-X', '--no-shuffle', action='store_true', \
         help='set this option to suppress shuffling when accessing' \
         + ' the neighborhoods.  This will typically result in a simpler' \
@@ -116,7 +115,6 @@ def parse_args(argv):
         print(f"    {args=}")
     rows, cols = args.dim
     tree_args ={}
-    tree_args['edge_based'] = not args.frontier
     tree_args['shuffle'] = not args.no_shuffle
     main(rows, cols, args.pen, args.output,
          tree_args, args.console, not args.no_gui)
@@ -125,4 +123,4 @@ if __name__ == "__main__":
     import sys
     parse_args(sys.argv[1:])
 
-# end module demos.dfs
+# end module demos.dfs_better

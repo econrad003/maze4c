@@ -1,14 +1,11 @@
 """
-demos.dfs - create a depth-first search maze
+demos.bfs - create a breadth-first search maze
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
-    Here we use depth-first search to create a maze.  When depth-first
-    search (or DFS) is used to carve a maze, the algorithn is sometimes
-    called recursive backtracker.  Since this is a stack-based implementation
-    that does not use recursive programming, I prefer to stick with DFS.
+    Here we use breadth-first search (or BFS) to create a maze.
 
     The result is displayed using the matplotlib spider graphics
     module
@@ -30,34 +27,29 @@ LICENSE
 import mazes
 from mazes.Grids.oblong import OblongGrid
 from mazes.maze import Maze
-from mazes.Algorithms.dfs import DFS
+from mazes.Algorithms.bfs import BFS
 from mazes.Graphics.oblong1 import Phocidae
 
 def make_grid(rows, columns) -> Maze:
     """returns a maze object that is ready for passage carving"""
     return Maze(OblongGrid(rows, columns))
 
-def make_dfs(maze, edge_based:bool=True, shuffle:bool=True) -> DFS.Status:
+def make_bfs(maze, shuffle:bool=True) -> BFS.Status:
     """carve the maze"""
-    return DFS.on(maze, edge_based=edge_based, shuffle=shuffle)
+    return BFS.on(maze, shuffle=shuffle)
 
 def main(rows:int, cols:int, color, output=None,
          tree_args:dict={}, console:bool=False, gui:bool=True):
     """the main entry point"""
     maze = make_grid(rows, cols)
-    print(make_dfs(maze, **tree_args))
+    print(make_bfs(maze, **tree_args))
     if (rows <= 10 and cols <= 15) or console:
         print(maze)
 
     spider = Phocidae(maze)
     spider.setup(color=color)
-    title = "Depth-first search"
-    if not tree_args["edge_based"]:
-        if tree_args["shuffle"]:
-            title += " (frontier)"
-        else:
-            title += " (frontier, no shuffle)"
-    elif not tree_args["shuffle"]:
+    title = "Breadth-first search"
+    if not tree_args["shuffle"]:
         title += " (no shuffle)"
     spider.title(title)
     spider.draw_maze()
@@ -72,7 +64,7 @@ def parse_args(argv):
     """parse the command line arguments"""
     import argparse
 
-    DESC = "Depth-first search (DFS) tree demonstration"
+    DESC = "Breadth-first search (BFS) tree demonstration"
     EPI = ""
     default_dim = (8, 13)
     parser = argparse.ArgumentParser(description=DESC, epilog=EPI)
@@ -83,9 +75,6 @@ def parse_args(argv):
         + f'  (Default: {default_dim}.)')
 
     maze = parser.add_argument_group('maze options')
-    maze.add_argument('-f', '--frontier', action='store_true', \
-        help='set this option for a frontier-based run.  The' \
-        + f' default is edge-based.')
     maze.add_argument('-X', '--no-shuffle', action='store_true', \
         help='set this option to suppress shuffling when accessing' \
         + ' the neighborhoods.  This will typically result in a simpler' \
@@ -116,7 +105,6 @@ def parse_args(argv):
         print(f"    {args=}")
     rows, cols = args.dim
     tree_args ={}
-    tree_args['edge_based'] = not args.frontier
     tree_args['shuffle'] = not args.no_shuffle
     main(rows, cols, args.pen, args.output,
          tree_args, args.console, not args.no_gui)
@@ -125,4 +113,4 @@ if __name__ == "__main__":
     import sys
     parse_args(sys.argv[1:])
 
-# end module demos.dfs
+# end module mazes.Algorithms.bfs

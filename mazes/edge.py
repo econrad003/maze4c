@@ -13,6 +13,7 @@ REFERENCES
         Book (978-1-68050-055-4).
 
 LICENSE
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -25,6 +26,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    1 December 2024 - EC
+        added unlink method, removed __delete__.
 """
 
 class Edge(object):
@@ -94,7 +100,7 @@ class Edge(object):
             cell1._link(self, cell2)
             cell2._link(self, cell1)
 
-    def __delete__(self, instance):
+    def unlink(self):
         """unlink two joined cells"""
         cells = list(self.__cells)
         for cell in cells:

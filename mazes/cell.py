@@ -26,6 +26,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+	1 December 2024 - EC
+		Corrected unlink.
 """
 
 class Cell(object):
@@ -185,9 +190,10 @@ class Cell(object):
     def _unlink(self, join:'Edge'):
         """delete an arc joining the cell
 
-        This is called by Edge.__delete__ -- there should be no need to call
+        This is called by Edge.unlink -- there should be no need to call
         this directly.
         """
+        cell = self.__passages[join]
         del self.__passages[join]
         del self.__linked[cell]
 

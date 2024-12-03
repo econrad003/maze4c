@@ -35,7 +35,7 @@ LICENSE
 from mazes import rng
 
 class ActiveList(object):
-    """Directed passages in a maze (arcs in a directed graph)"""
+    """Active lists for Simplified Prim"""
 
     __slots__ = ("__array")
 

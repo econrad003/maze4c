@@ -14,6 +14,7 @@ REFERENCES
         Book (978-1-68050-055-4).
 
 LICENSE
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -26,6 +27,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    2 December 2024 - EC
+        Added link_all and unlink_all methods.
 """
 
 from mazes.arc import Arc
@@ -139,5 +145,24 @@ class Maze(object):
         Join = Arc if directed else Edge
         join = Join(self, cell1, cell2, label=label, weight=weight)
         self[join.index] = join
+
+    def unlink(self, join):
+        """delete a join"""
+        index = join.index
+        del self[index]
+        join.unlink()
+
+    def link_all(self, label:str="link_all"):
+        """creates a passage between every pair of unlinked neighbors"""
+        for cell in self.grid:
+            for nbr in cell.neighbors:
+                if not cell.is_linked(nbr):
+                    self.link(cell, nbr, label=label)
+
+    def unlink_all(self):
+        """removes every join"""
+        joins = list(self)
+        for join in joins:
+            self.unlink(join)
 
 # end module mazes.maze

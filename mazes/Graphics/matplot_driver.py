@@ -13,6 +13,7 @@ DESCRIPTION
             analogy.)
 
 LICENSE
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -25,6 +26,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    30 November 2024 - EC
+        Added method draw_arrow.
 """
 
 import matplotlib.pyplot as plt
@@ -110,6 +116,17 @@ class Spider(object):
         """draw a line segment to the new position, then raise the pen"""
         self.down()
         self.goto(x, y, color, **kwargs)
+        self.up()
+
+    def draw_arrow(self, x, y, color=None, **kwargs):
+        """ draw an arrow to the new position, then raise the pen"""
+        if not color:
+            color = self.__color
+        # self.down()
+        dx, dy = 0.8*(x - self.__x), 0.8*(y - self.__y)
+        self.__ax.arrow(self.__x, self.__y, dx, dy, color=color,
+                        head_width=0.1, **kwargs)
+        self.__x, self.__y = x, y
         self.up()
 
     def save_image(self, filename="maze.png"):

@@ -12,6 +12,7 @@ DESCRIPTION
         Pholcidae -- named after the family of daddy long-leg spiders.
 
 LICENSE
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -109,4 +110,4 @@ class Phocidae(Spider):
                 self.goto(x, y)
                 self.draw_segment(x, y+1)
 
-# end module mazes.Graphics.matplot_driver
+# end module mazes.Graphics.oblong1

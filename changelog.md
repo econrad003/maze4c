@@ -1,5 +1,34 @@
 # Change Log
 
+## Release 0.3 - 3 December 2024
+
+There is quite a bit here, so this summary may be imcomplete.  Documentation is not up to date.
+
+### New module folders
+
+* *mazes.Queues* - for queuing classes (includes modules defining classes *Stack*, *Queue*, *RandomQueue* and *PriorityQueue*)
+* *mazes.AGT* - for arc-based growing tree algorithms (4 new modules)
+* *mazes.VGT* - for vertex-based growing tree algorithms (4 new modules)
+
+### New modules
+
+* *mazes.gqueue* - generalized queue virtual class (*GeneralizedQueue*)
+* *mazes.Graphics.oblong2* (class *SpiderWeb*) - a linewise graphics driver for oblong grids that inherits from class *Spider* in the *matplotlib* driver
+* *mazes.Algorithms.growing\_tree1* (class *VertexGrowingTree*) - a growing tree family of algorithms using queuing classes.  This algorithm generalizes DFS (aka: recursive backtracker" -- using a stack), BFS (using a queue), "simplified Prim" (using a random queue) and "vertex Prim" (using a priority queue). This version of growing tree places cells (vertices) on the queuing structure.
+* *mazes.Algorithms.growing\_tree2* (class *ArcGrowingTree*) - a growing tree family of algorithms using queuing classes.  This algorithm generalizes Prim's algorithm.  It places grid arcs (ordered pairs of neighboring cells on the queuing structure.
+
+### Enhancements
+
+* *mazes.Graphics.matplot\_driver* - added method *draw_arrow* to the *Spider* class
+
+### Corrections
+
+* *cell*/*edge*/*arc*/*maze* in *mazes* folder - corrected the unlink sequence
+
+### Cosmetic corrections
+
+* corrected docstrings and formatting in a number of places
+
 ## Release 0.2 - 30 November 2024
 
 ### New modules

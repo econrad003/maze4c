@@ -73,7 +73,7 @@ from mazes.Queues.priority_queue import PriorityQueue
 
 def vprim(maze:Maze, start_cell:Cell=None,
           shuffle=True, cell_map:dict={},
-          action="unstable") -> VGT.Status:
+          action="unstable", cache=True) -> VGT.Status:
     """a Prim-like algorithm using the vertex-growing tree module
 
     In addition to the maze, an optional starting cell, and a flag to use or
@@ -91,13 +91,16 @@ def vprim(maze:Maze, start_cell:Cell=None,
             'stable'.  Similarly, 'Ultraman' and 'Underdog' are 'unstable';
             'Aquaman' and 'antimony' are 'antistable'; and 'Batman' and
             'Robin' both raise ValueError exceptions.
-        priority - a dictionary that maps a cell to a priority.  This
+        cell_map - a dictionary that maps a cell to a priority.  This
             dictionary can be empty or incomplete.  The priority queue
             class assigns uniformly distributed float values in the interval
             [0,1) for any missing entries.
+        cache - (default: True) if this option is set to False, the priority
+            queue cache will be disabled, and the cell_map must cover every
+            cell.
     """
     pr = lambda cell: cell_map.get(cell, None)
-    init = ((), {"action":action})
+    init = ((), {"action":action, "cache":cache})
     return VGT.on(maze, start_cell=start_cell,
                   QueueClass=PriorityQueue,
                   priority=pr, init=init)

@@ -211,8 +211,8 @@ All three algorithms have essentially the same structure.  So why three differen
 | **algorithm family** | **implementation**  | **documentation**  |
 | :------------------- | :------------------ | :----------------- |
 |                      | *mazes/Algorithms*  | *doc/Algorithms*   |
-| vertex-based         | *growing\_tree1.py* | *growing\_tree1.md |
-| arc-based            | *growing\_tree2.py* | *growing\_tree2.md |
+| vertex-based         | *growing\_tree1.py* | *growing\_trees1.md |
+| arc-based            | *growing\_tree2.py* | *growing\_trees2.md |
 
 Table 1. Growing tree algorithm families.
 

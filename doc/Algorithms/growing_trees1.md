@@ -319,9 +319,8 @@ In this example, the weights are hidden with the priority queue in the *VertexGr
 We can simplify the setup using the module *mazes.VGT.vprim*.  If we don't need to access the weight, we can just use the priority queue cache as in Example 4B.  But using *vprim* the setup is simplified:
 
 ```
-eric@purple-cow:~/repositories/maze4c$ python
-Python 3.10.12 (main, Nov  6 2024, 20:22:13) [GCC 11.4.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
+    maze4c$ python
+    Python 3.10.12.
     1> from mazes.VGT.vprim import vprim, init_maze
     2> maze = init_maze(8, 13)
     3> print(vprim(maze))
@@ -350,4 +349,65 @@ Type "help", "copyright", "credits" or "license" for more information.
     |           |           |   |   |           |       |
     +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
+
+### Example 4d - Vertex "Prim", explicit priorities (no caching)
+
+If we need to access the priorities afterward, then we must establish them beforehand.  This can be done in *vprim* by setting the *cache* option to *False* and supplying a dictionary containing all the cell weights.  (If the *cache* option is *True*, *i.e.* the default value, the priority queue will cache any missing weights...)
+
+Here's what will happen if you set the *cache* option to False and forget to supply one or more of the cell weights...
+```
+    $ python
+    Python 3.10.12.
+    1> from mazes.VGT.vprim import init_maze, vprim
+    2> maze = init_maze(8, 13)
+    3> weights = {}     # some of the weights are missing
+    4> print(vprim(maze, cell_map=weights, cache=False))
+    Traceback (most recent call last):
+      File "<stdin>", line 1, in <module>
+      ... <lots of lines deleted>
+      File ".../maze4c/mazes/Queues/priority_queue.py", line 117, in _lookup
+        raise ValueError("priority lookup failed")
+    ValueError: priority lookup failed
+```
+
+This time, let's supply *all* the needed weights...  Here we'll simply weight the cells in dictionary order...
+
+```
+    maze4c$ python
+    Python 3.10.12.
+    1> from mazes.VGT.vprim import init_maze, vprim
+    2> maze = init_maze(8, 13)
+    3> weights = {}
+    4> w = 0
+    5> for cell in maze.grid:
+    ...     w += 1
+    ...     weights[cell] = w
+    ...
+    6> print(vprim(maze, cell_map=weights, cache=False))
+          Vertex Growing Tree (statistics)
+                            visits      207
+                        start cell  (1, 5)
+                             cells      104
+                          passages      103
+    6> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    +   +   +   +   +   +   +   +   +   +   +   +   +   +
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    +   +   +   +   +   +   +   +   +   +   +   +   +   +
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    +   +   +   +   +   +   +   +   +   +   +   +   +   +
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    +   +   +   +   +   +   +   +   +   +   +   +   +   +
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    +   +   +   +   +   +   +   +   +   +   +   +   +   +
+    |   |   |   |   |   |   |   |   |   |   |   |   |   |
+    +   +   +   +   +   +   +   +   +   +   +   +   +   +
+    |   |   |   |   |       |   |   |   |   |   |   |   |
+    +   +   +   +   +   +---+   +   +   +   +   +   +   +
+    |                                                   |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+(This is no surprise.  Dictionary order in Python 3 is not very random.)
 

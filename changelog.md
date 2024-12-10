@@ -1,5 +1,11 @@
 # Change Log
 
+## Release 0.4 - 9 December 2024
+
+I've started using *git* for updates.  Since 0.3, I've been organizing and reorganizing documentation.
+
+Apart from getting the documentation organized and written, there is one update.  Module *VGT.vprim* now supports the *cache* option.  If you don't want the priority queue to create vertex weights on the fly, you can specify *cache=False*.  This is covered in the *doc/Algorithms/growing\_trees1.md* documentation.  In the next update, I will start removing some of the older entries in the changelog.
+
 ## Release 0.3 - 3 December 2024
 
 There is quite a bit here, so this summary may be imcomplete.  Documentation is not up to date.

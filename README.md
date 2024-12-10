@@ -1,8 +1,6 @@
 # maze4c
 Mazes in Python 3
 
-Latest revision: 29 November 2024
-
 After some false starts, I think I have things set up as I need them.  This is still preliminary, but it should be workable.
 
 **FAQ**:
@@ -12,9 +10,12 @@ After some false starts, I think I have things set up as I need them.  This is s
 **Folders**:
 
 *  *demos* - demonstration modules
+*  *doc* - documentation
 *  *gallery* - sample image files from demonstration runs
 *  *mazes* - the package; the modules in this folder are base classes
     +  *mazes/Algorithms* - algorithm implementations
+    +  *mazes/VGT* - vertex-based growing tree algorithm implementations
+    +  *mazes/AGT* - arc-based growing tree algorithm implementations
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazesGraphics* - graphics drivers
 *  *tests* - testing to make sure things work as expected
@@ -38,29 +39,65 @@ At some point, I will put up a *turtle* driver at some point using Python's nati
 
 ## Grids
 
+### Oblong (rectangular) grids
+
 Currently the only grid that is ready is the standard N/S/E/W rectangular (or *oblong*) grid in module *oblong* as class *OblongGrid*.  A support class for ring-like tiers is supported in module *oblong\_rings*.
 
 ## Graphics
 
-The only graphics driver is a crude matplotlib driver (*oblong1*) for oblong grids.
+### Oblong (rectangular) grids
+
+* *oblong1* - a crude matplotlib driver (*oblong1*) for oblong grids.  Arcs are not supported.  It only handles the Von Neumann neighborhood (N/S/E/W), but glued edges (cylinder, Moebius strip, torus, Klein bottle, projective plane) are not a problem.
+* *oblong2* - a matplotlib driver (*oblong2*) for oblong grids which creates linewise maps of mazes.  I can handle both (undirected) edges and (directed) arcs.  It works best in Moore neighborhoods (nearest neighbor in up to eight compass directions, no glued edges).
 
 ## Algorithms
 
-The following algorithms have been implemented:
+### Maze generation
 
-* module *simple\_binary\_tree* (class *BinaryTree*) - the elementary binary tree algorithm (heads-go north; tails-go east) described in the Jamis Buck book.  (Note that this is just one algorithm for carving a binary spanning tree and it is very speciaized -- there are more general algorithms that produce more interesting binary tree mazes.)  It is implemented here as a passage carver.
-* module *sidewinder* (class *Sidewinder*) - the sidewinder algorithm (heads-go north from somewhere in the current run; tails-continue the run eastward), also described in the Jamis Buck book.  It is a true generalization of the simple binary tree algorithm.  The spanning trees that it produces are not in general binary trees, but it isn't hard to restrict the run choice for a head in ways that produce a binary tree.  In particular, always choosing the last cell in the run to carve north yields the simple binary tree algorithm.  Choosing the first or the last at random in a sort of cocktail shaker fashion yields a more general spanning binary tree.
-* module *inwinder* (class *Inwinder*) - This is a variant of the sidewinder algorithm that uses rings instead of rows for the runs and carves inward from a run instead of northward when the coin toss is a head.  (It is a variant, not a generalization.)  Because the corner cells in a rectangular ring do not have inward neighbors, and because the rings are circuits (as opposed to rows which are paths), it is slightly more complicated than sidewinder.
-  > This particular maze carving algorithm was inspired by the story of Theseus and the Minotaur -- place the Minotaur in the innermost ring and have Theseus enter somewhere in the outermost ring.  (The princess Ariadne gave him a sword to slay the Minotaur and a ball of yarn to find his way back to the entrance.  For thanks, Theseus abandoned Ariadne on an island somewhere between her home in Crete and his home in Athens.)  The algorithm is not mentioned in the Jamis Buck book, but is briefly implied in an exercise in the polar (!) mazes section.
+The following maze generation algorithms have been implemented:
 
- > Note that *inwinder* has a sort of opposite (*outwinder*) which I haven't (yet?) implemented.
+* module *simple\_binary\_tree* (class *BinaryTree*)
+* module *sidewinder* (class *Sidewinder*)
+* module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
+* module *growing\_tree1* (class *VertexGrowingTree*) - vertex-based
+* module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
 
-### growing tree algorithms
+The growing tree algorithms have stand-alone vertex-based versions.
+* modules *dfs* and *dfs\_better* (class *DFS*) - depth first search.  The first is a naive version, the second a version that generalizes in a practical way
+* module *bfs* (class *BFS*) - breadth first search.
+* module *sprim* (class *SimplifiedPrim*) - another growing tree algorithm (like DFS and BFS) implemented in a stand-alone module
 
-* module *dfs* (class *DFS*) - the depth-first search (aka DFS aka recursive backtracker) maze carving algorithm.  This is described (as recursive backtracker) in the Jamis Buck book.  It produces mazes that tend to have long winding corridors.  (Depending on how dictionaries are implemented in your Python 3 distribution, you should see much longer but less meandering corridors if you suppress shuffling.)  There are essentially two variants implemented here -- an edge-based variant and a frontier-based variant -- with slighly different biases.  This is really a first cut...  See the next entry...
-* module *dfs\_better* (class *DFS*) - a more efficient depth-first search.  It is implicitly edge-based, but it could be tweaked to produce a frontier-based version.
-* module *bfs* (class *BFS*) - the breadth-first search maze carving algorithm.  It produces mazes with minimum diameter.
-* module *simplified\_Prim* (class *NotPrim*) - an algorithm is superficially similar to Prim's algorithm.  It does produce nice mazes with a radial structure, sort of like spider webs.
+Planned but not implemented:
+
+* *outwinder* - an outward version of *inwinder - it won't be as interesting, but it's needed for completeness.
+* Eller's algorithm.  The basic algorithm is a generalization of sidewinder.  It should come with inward and outward variations corresponding to inwinder and outwinder, but the outward variety should be pretty cool.
+* Kruskal's algorithm
+* Aldous/Broder and Wilson's Algorithm
+* Hunt and kill
+* Recursive division
+* An algorithm based on cellular automata
+
+These are documented in *doc/Algorithms*.
+
+## Helper methods for growing trees
+
+### The VGT folder (vertex-based growing trees)
+
+The *mazes/VGT* folder contains several helper methods intended to simplify the setup for *mazes.Algorithms.growing\_tree1* (class *VertexGrowingTree*).  Each of these contains two methods.  Method *init\_maze* sets up a rectangular maze.  The other method has the same name as the module name -- it runs the algorithm.  See *doc/Algorithms/growing\_trees1.md* for examples of usage.
+
+* module *mazes.VGT.dfs* - method *dfs* - depth-first search
+* module *mazes.VGT.bfs* - method *bfs* - breadth-first search
+* module *mazes.VGT.sprim* - method *sprim* - simplified "Prim"
+* module *mazes.VGT.vprim* - method *vprim* - vertex "Prim"
+
+### The AGT folder (arc-based growing trees)
+
+The *mazes/AGT* folder contains several helper methods intended to simplify the setup for *mazes.Algorithms.growing\_tree2* (class *ArcGrowingTree*).  Each of these contains two methods.  Method *init\_maze* sets up a rectangular maze.  The other method has the same name as the module name -- it runs the algorithm.  See *doc/Algorithms/growing\_trees2.md* for examples of usage.
+
+* module *mazes.VGT.dfs* - method *dfs* - depth-first search
+* module *mazes.VGT.bfs* - method *bfs* - breadth-first search
+* module *mazes.VGT.sprim* - method *sprim* - simplified "Prim"
+* module *mazes.VGT.primic* - method *primic* - a Prim's algorithm mimic which can do Prim's algorithm and lots of other stuff.
 
 ## REFERENCES
 

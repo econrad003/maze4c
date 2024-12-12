@@ -29,8 +29,8 @@ LICENSE
 
 MODIFICATIONS
 
-	1 December 2024 - EC
-		Corrected unlink.
+    1 December 2024 - EC
+        Corrected unlink.
 """
 
 class Cell(object):
@@ -206,7 +206,7 @@ class Cell(object):
         return self.__linked.get(cell, None)
 
     def cell_for(self, join:'Edge') -> 'Cell':
-        """return the edge or arc, if any"""
+        """return the joined cell"""
         return self.__passages.get(join, None)
 
     @property

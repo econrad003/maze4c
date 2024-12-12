@@ -6,6 +6,8 @@ This folder contains small miscellaneous programs that might be useful in demons
 * *flipflop* - class FlipFlop creates an alternating two-state *value* method
 * *counter* - class Counter creates an counting multiple state *value* method
 
+* *automaton1* - a two-rule cellular automaton (b:123/d:04).  (It was used in preparing Example 4 in the documentation of Kruskal's algorithm.)
+
 # Examples
 
 * *const*
@@ -43,4 +45,3 @@ This folder contains small miscellaneous programs that might be useful in demons
     print(counter.value())    # zero
     print(counter.value())    # one
 ```
-

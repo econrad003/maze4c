@@ -66,7 +66,7 @@ Bear in mind that inwinder is just sidewinder with a couple of twists.
 
 Instead of proceeding in a row, we proceed in a ring.  Whether we go clockwise or counterclockwise doesn't actually matter.  For no particular reason except that "clockwise" is shorter than "counterclockwise" or "anticlockwise", we will go clockwise.  It's a completely arbitrary choice.
 
-Next we ramdomly pick a cell in the ring.  This cell is now the first cell in the ring, and its counterclockwise neighbor is now the last cell.
+Next we randomly pick a cell in the ring.  This cell is now the first cell in the ring, and its counterclockwise neighbor is now the last cell.
 
 If we are not in a corner cell and not in the last cell, we flip a coin.  If it lands face down, we continue clockwise, extending our run by carving a passage clockwise.  If it lands face up, we choose a cell in the current run (but not a corner cell!) and carve a passage inward.
 

@@ -1,12 +1,12 @@
 """
-tests.simple_binary_tree - test the simple binary tree algorithm
+tests.sidewinder - test the sidewinder algorithm
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
-    The simple binary tree algorithm is a passage carver based on a coin flip:
-    head -- carve northward or tail -- carve eastward.
+    The sidewinder algorithm is a passage carver based on a coin flip:
+    head - carve northward from the run or tail - extend the run  eastward.
 
 LICENSE
     This program is free software: you can redistribute it and/or modify
@@ -64,7 +64,7 @@ def test1(rows:int, cols:int, onward:str, upward:str):
     vertically = "north" if "north" in {onward, upward} else "south"
     horizontally = "east" if "east" in {onward, upward} else "west"
     print(f"    {vertically=}, {horizontally=}")
-        
+
     maze = Maze(OblongGrid(rows, cols))
     maze.grid.set_format("leader", "    ")
     status = Sidewinder.on(maze, onward=onward, upward=upward)
@@ -166,4 +166,4 @@ if __name__ == "__main__":
     import sys
     main(sys.argv[1:])
 
-# end module tests.simple_binary_tree
+# end module tests.sidewinder

@@ -59,25 +59,20 @@ The following maze generation algorithms have been implemented:
 * module *simple\_binary\_tree* (class *BinaryTree*)
 * module *sidewinder* (class *Sidewinder*)
 * module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
+* *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.
 * module *growing\_tree1* (class *VertexGrowingTree*) - vertex-based
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
+* Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
 
-The growing tree algorithms have stand-alone vertex-based versions.
-* modules *dfs* and *dfs\_better* (class *DFS*) - depth first search.  The first is a naive version, the second a version that generalizes in a practical way
-* module *bfs* (class *BFS*) - breadth first search.
-* module *sprim* (class *SimplifiedPrim*) - another growing tree algorithm (like DFS and BFS) implemented in a stand-alone module
+These are documented in *doc/Algorithms*.
 
-Planned but not implemented:
+## Planned but not yet implemented:
 
-* *outwinder* - an outward version of *inwinder - it won't be as interesting, but it's needed for completeness.
 * Eller's algorithm.  The basic algorithm is a generalization of sidewinder.  It should come with inward and outward variations corresponding to inwinder and outwinder, but the outward variety should be pretty cool.
-* Kruskal's algorithm
 * Aldous/Broder and Wilson's Algorithm
 * Hunt and kill
 * Recursive division
-* An algorithm based on cellular automata
-
-These are documented in *doc/Algorithms*.
+* An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
 
 ## Helper methods for growing trees
 

@@ -1,5 +1,13 @@
 # Change Log
 
+## Release 0.6 - 19 December 2024
+
+### New algorithms
+
+1.  Dijkstra's shortest path algorithm
+2.  Eller's algorithm
+3.  Outward Eller's - working in rings from the center out using Eller's algorithm.
+
 ## Release 0.5 - 12 December 2024
 
 ### New algorithms

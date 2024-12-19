@@ -62,13 +62,21 @@ The following maze generation algorithms have been implemented:
 * *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.
 * module *growing\_tree1* (class *VertexGrowingTree*) - vertex-based
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
-* Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
+* module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
+* module *eller* (class *Eller*) - Eller's algorithm.  The basic algorithm is a generalization of sidewinder with a few tricks which are adapted from Kruskal's algorithm.  In addition, an outward variant (generalizing outwinder) has been implemented.
+* module *outward\_eller* (class *OutwardEller*) - outward variant of Eller's algorithm.
 
 These are documented in *doc/Algorithms*.
 
+### Other algorithms
+
+In addition to the maze generation algorithms above, the following algorithms are found in the *mazes/Algorithms* folder:
+
+* module *dijkstra* - Dijkstra's shortest path algorithm.  This is a *Swiss army knife* -- it can find path lengths, distances, and shortest paths in a maze.  In trees, it can be used to find the diameter (length of a longest shortest path) as well as a longest shortest path. (For mazes which aren't trees, finding the diameter and finding a longest shortest path are both much harder problems. When finding distances or minimum distance paths, the algorithm will fail there are negative edge weights.)
+
 ## Planned but not yet implemented:
 
-* Eller's algorithm.  The basic algorithm is a generalization of sidewinder.  It should come with inward and outward variations corresponding to inwinder and outwinder, but the outward variety should be pretty cool.
+* Eller's algorithm should come with an inward variants corresponding to inwinder.
 * Aldous/Broder and Wilson's Algorithm
 * Hunt and kill
 * Recursive division

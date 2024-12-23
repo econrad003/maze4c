@@ -633,23 +633,402 @@ The results below reflect an optional merge rate of 50% (head:tail odds are 1:1)
     |   | *   * | *   *   *   *   *   * |   |   |       |
     +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
+
+### 2L - Outward Eller
+
+Eller's algorithm, like sidewinder, is not confined to rows and columns.  It can be adapted to other two-tiered grid arrangements.  Outward Eller is one such adaptation.  Here we generally expect a path to run from a ringing in the interior outward from one point and then back inward.  But, as in the example below, the result can meander.
+
+This particular example is intriguing (and, T thought, surprising!) -- it started and ended in neighboring cells just outside the innermost ring.  It passed through the outermost ring twice and made its way into the innermost ring.  In its second pass through the outermost ring, it covered about half of the ring, taking full advantage of little shortcuts. It was a little longer than the example for outwinder (2D) and in third place (so far!) to our examples for depth-first search (2E) and hunt and kill (2Q).
+
+```
+    maze4c$ python
+    Python 3.10.12.
+    1> from mazes.Grids.oblong import OblongGrid
+    2> from mazes.maze import Maze
+    3> maze = Maze(OblongGrid(8,13))
+    4> from mazes.Algorithms.outward_eller import OutwardEller
+    5> print(OutwardEller.on(maze))
+          Outward Eller (statistics)
+                            visits        4
+                             cells      104
+                          passages      103
+               optional merge left       50
+               required merge left       13
+             required carve upward       25
+             optional carve upward       15
+                            onward  clockwise
+                            upward  outward
+    6> from mazes.Algorithms.dijkstra import test
+    7> dijkstra = test(maze)
+    Dijkstra: starting at (2, 6)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (5, 2), farthest at (4, 2)
+    The results may mislead if the maze is not a tree.
+    diameter=51
+    8> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    | *   *   *             |                   |       |
+    +   +---+   +---+---+---+   +---+   +   +   +   +   +
+    | *     | *   *   *   *   *     |   |   |       |   |
+    +   +---+---+   +---+---+   +---+---+---+---+---+---+
+    | *   *   S |   |     *   *     | *   *   *   * |   |
+    +   +---+---+---+---+   +---+---+   +---+---+   +   +
+    |   | *   T |         *   *   *   * |   | *   *     |
+    +---+   +---+   +---+---+---+---+---+   +   +---+---+
+    | *   *     |       |   |   |           | *         |
+    +   +---+---+---+   +   +   +---+   +   +   +---+   +
+    | *   *     |   |       |   |       |   | *   * |   |
+    +---+   +---+   +---+   +   +   +---+---+   +   +---+
+    | *   * |   |           | *   * |   |       | *   * |
+    +   +---+   +---+---+---+   +   +   +---+---+---+   +
+    | *   *   *   *   *   *   * | *   *   *   *   *   * |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### 2M1 - Aldous/Broder (first entrance random walk)
+
+We next consider three unbiased algorithms.  (The implementations will have some biases that result from biases in the underlying pseudorandom number generator.  Here we are using Python's Mersenne twister-based *random* module.) To get a better sense of random variation in spanning trees, we should really run the algorithm several times and look at the mean and standard deviation of the diameters.  (Here we are just looking at a sample of size 1.)
+
+```
+    9> from mazes.Algorithms.aldous_broder import AldousBroder
+    10> maze = Maze(OblongGrid(8,13))
+    11> print(AldousBroder.on(maze))
+          First Entrance Random Walk (Aldous/Broder) (statistics)
+                            visits     1370
+                             cells      104
+                          passages      103
+                     starting cell  (4, 8)
+    12> dijkstra = test(maze)
+    Dijkstra: starting at (4, 0)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (3, 11), farthest at (0, 2)
+    The results may mislead if the maze is not a tree.
+    diameter=50
+    13> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |               |       |               | *   *   * |
+    +---+   +---+   +---+   +---+   +   +   +   +---+   +
+    |       |   |       |   |       |   | *   * | *   * |
+    +---+   +   +---+---+   +---+---+---+   +---+   +---+
+    |   | *   * | *   * |           |     * |   | *   * |
+    +   +   +   +   +   +   +---+   +---+   +   +   +   +
+    | *   * | *   * | *     |       |     *     |   | * |
+    +   +---+---+---+   +---+---+---+---+   +   +---+   +
+    | * |       |   | *     |       |     * |   | S | * |
+    +   +---+   +   +   +---+   +   +---+   +---+   +   +
+    | *     |       | * |       |         * |   | * | * |
+    +   +---+---+   +   +   +---+---+   +   +   +   +   +
+    | *   * |     *   * |   |       |   | *   * | * | * |
+    +   +   +---+   +---+---+---+   +---+---+   +   +   +
+    |   | *   T | *   *   *   *   *   *   *   * | *   * |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### 2M2 - reverse Aldous/Broder (last exit random walk)
+
+Our sample of one for reverse Aldous/Broder returned a maze with much smaller diameter.  (This suggests that there is wide expected variation in spanning tree diameters for a rectangular grid.)
+
+```
+    14> from mazes.Algorithms.reverse_aldous_broder import ReverseAldousBroder
+    15> maze = Maze(OblongGrid(8,13))
+    16> print(ReverseAldousBroder.on(maze))
+          Last Exit Random Walk (Reverse Aldous/Broder) (statistics)
+                            visits      773
+                             cells      104
+                          passages      103
+                     starting cell  (5, 0)
+    17> dijkstra = test(maze)
+    Dijkstra: starting at (3, 9)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (0, 12), farthest at (2, 11)
+    The results may mislead if the maze is not a tree.
+    diameter=31
+    18> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |           |       |                               |
+    +---+---+   +   +   +---+---+---+---+   +---+---+---+
+    |           |   | *   *   * | *   *   * |   |       |
+    +---+---+   +---+   +---+   +   +---+   +   +---+   +
+    |               | * |   | *   * |     *   *   *     |
+    +---+   +---+---+   +   +---+---+   +---+---+   +---+
+    |   |           | * |   |   |               | *   * |
+    +   +   +---+   +   +   +   +   +   +   +---+---+   +
+    |   |   |   |     *   *     |   |   |       | *   * |
+    +   +   +   +---+   +   +---+---+   +---+---+   +   +
+    |               |   | *   *   * |   |       | T |   |
+    +   +---+   +---+   +---+---+   +---+---+   +---+---+
+    |       |   |           |   | *   *     |   | *   * |
+    +---+   +---+---+   +---+   +---+   +---+   +   +   +
+    |               |   |             *   *   *   * | S |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### 2M3 Wilson's algorithm (circuit-eliminated random walk)
+
+Our third theoretically unbiased example uses Wilson's algorithm.  With a diameter of 40, this example lends some support to the conjecture that expected variation (*e.g.* in variance or standard deviation) for unbiased spanning tree diameters (for a rectangular grid with some given dimensions) is fairly large.
+
+```
+    19> from mazes.Algorithms.wilson import Wilson
+    20> maze = Maze(OblongGrid(8,13))
+    21> print(Wilson.on(maze))
+          Circuit-Eliminated Random Walk (Wilson) (statistics)
+                            visits       50
+                             cells      104
+                          passages      103
+                 paths constructed       50
+                     cells visited      487
+                          circuits      131
+                    markers placed      306
+                   markers removed      203
+                     starting cell  (6, 9)
+    22> dijkstra = test(maze)
+    Dijkstra: starting at (1, 5)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (2, 5), farthest at (1, 12)
+    The results may mislead if the maze is not a tree.
+    diameter=40
+    23> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |       |   | *   *   * |   |   |   |               |
+    +   +   +   +   +---+   +   +   +   +   +---+---+---+
+    |   | *   *   *     | *   * |   |           |       |
+    +---+   +---+   +---+---+   +   +   +---+   +   +   +
+    |     * |           |     *   *   *   * |       |   |
+    +   +   +---+---+---+---+---+---+---+   +---+---+---+
+    |   | *   *             |     *   *   * |           |
+    +---+---+   +---+   +   +---+   +   +---+---+   +---+
+    |   | *   * |       |   |     * |   |     *   *   * |
+    +   +   +   +---+---+---+   +   +   +   +   +---+   +
+    |     * |   | *   *   S |   | * |   |   | *     | * |
+    +   +   +---+   +---+---+---+   +---+---+   +   +   +
+    |   | *     | * |   |         *   *   *   * |   | T |
+    +   +   +---+   +   +   +   +---+   +---+   +   +---+
+    |   | *   *   *     |   |       |   |       |       |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### 2N1 - Houston's algorithm
+
+Although Houston's algorithm might not produce uniform spanning trees, it probably comes close. (I don't know whether there is any available proof which decides whethe Houston's algorithm is biased, unbiased or perhaps "quasi-unbiased".) We will run a few examples using a few different parameters to control when the algorithm switches from Aldous/Broder to Wilson.
+
+Our first example uses the defaults (cutoff at 2/3, failure rate at 90%).  The switch was triggered when the unvisited area was reduced to 69 cells (roughly 2/3 of 104).
+
+```
+    24> from mazes.Algorithms.houston import Houston
+    25> maze = Maze(OblongGrid(8,13))
+    26> print(Houston.on(maze))
+          Hybrid Random Walk (Houson) (statistics)
+                            visits      117
+                             cells      104
+                          passages      103
+                 cuttoff threshold       69
+                      failure rate        0.9000
+                 paths constructed       37
+                     cells visited      212
+                          circuits       46
+                    markers placed      129
+                   markers removed       60
+                     starting cell  (7, 5)
+                           trigger  cutoff threshold
+    27> dijkstra = test(maze)
+    Dijkstra: starting at (4, 7)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (5, 1), farthest at (3, 2)
+    The results may mislead if the maze is not a tree.
+    diameter=37
+    28> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    | *   *   *   *   *   *   * |   |   |               |
+    +   +---+---+   +---+   +   +   +   +---+---+---+   +
+    | *     |   |       |   | *   *   *         |       |
+    +   +---+   +   +   +---+---+---+   +---+---+---+   +
+    | *   S |       |   |       |     *   *   *         |
+    +---+---+---+---+---+---+   +---+   +---+   +---+   +
+    | *   * |               |   |   |   |   | * |   |   |
+    +   +   +---+   +---+   +   +   +---+   +   +   +---+
+    | * | *   T |   |   |               |     *     |   |
+    +   +---+---+   +   +   +   +---+---+---+   +---+   +
+    | *   * |   |       |   |   |   |   | *   *         |
+    +---+   +   +   +---+---+   +   +   +   +---+---+---+
+    |     * |   |   | *   *   *   *   *   *         |   |
+    +   +   +   +---+   +---+   +---+   +---+   +---+   +
+    |   | *   *   *   * |       |           |           |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### 2N2 - Houston's algorithm (cutoff rate 1/2)
+
+In our second example, the switch was triggered when the unvisited area was reduced to 52 cells.
+
+```
+    29> maze = Maze(OblongGrid(8,13))
+    30> print(Houston.on(maze, cutoff_rate=1/2))
+          Hybrid Random Walk (Houson) (statistics)
+                            visits      227
+                             cells      104
+                          passages      103
+                 cuttoff threshold       52
+                      failure rate        0.9000
+                 paths constructed       27
+                     cells visited      115
+                          circuits       17
+                    markers placed       71
+                   markers removed       19
+                     starting cell  (4, 0)    
+                           trigger  cutoff threshold
+    31> dijkstra = test(maze)
+    Dijkstra: starting at (2, 11)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (6, 10), farthest at (7, 5)
+    The results may mislead if the maze is not a tree.
+    diameter=32
+    32> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |   | *   *   *   * | T |               | *   *     |
+    +   +   +---+   +   +   +   +---+   +---+   +   +---+
+    |     *   * |   | *   * |   |       |   | S | *   * |
+    +   +---+   +---+---+---+   +---+---+   +---+---+   +
+    |   |   | *     |   |   |           |       | *   * |
+    +   +   +   +---+   +   +   +---+---+   +   +   +   +
+    |   |     * |       |   |   |   | *   * |   | * |   |
+    +   +---+   +---+   +   +   +   +   +   +---+   +---+
+    |       | *   *   * |     *   *   * | *   *   * |   |
+    +   +---+   +---+   +---+   +---+---+---+---+---+   +
+    |   |       |     *   *   * |           |   |       |
+    +   +---+   +---+---+   +---+   +---+---+   +   +   +
+    |   |       |   |                               |   |
+    +---+   +   +   +   +   +---+---+---+   +---+---+---+
+    |       |       |   |   |                           |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### 2N3 - Houston's algorithm (cutoff rate 1/3)
+
+Our final example used a cutoff rate of 1/3.  The switch was triggered when the unvisited area was pared down to 34 cells.
+
+```
+    33> maze = Maze(OblongGrid(8,13))
+    34> print(Houston.on(maze, cutoff_rate=1/3))
+          Hybrid Random Walk (Houson) (statistics)
+                            visits      191
+                             cells      104
+                          passages      103
+                 cuttoff threshold       34
+                      failure rate        0.9000
+                 paths constructed       23
+                     cells visited       73
+                          circuits        6
+                    markers placed       44
+                   markers removed       10
+                     starting cell  (1, 7)
+                           trigger  cutoff threshold
+    35> dijkstra = test(maze)
+    Dijkstra: starting at (1, 12)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (2, 0), farthest at (0, 0)
+    The results may mislead if the maze is not a tree.
+    diameter=36
+    36> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |           |   |           |     *   *   * |       |
+    +---+   +   +   +   +---+---+---+   +---+   +---+   +
+    |   |   |   |     *   *   *   *   * |     *   * |   |
+    +   +   +---+---+   +---+---+   +   +---+---+   +   +
+    |             *   * |       |   |   |       | *     |
+    +---+   +---+   +---+---+   +---+---+---+   +   +   +
+    |   |   | *   * |     *   *   *   *   *   *   * |   |
+    +   +---+   +---+---+   +---+   +   +---+   +---+   +
+    | *   *   * |     *   * |   |   |   |   |       |   |
+    +   +   +---+   +   +---+   +---+   +   +   +---+---+
+    | S |       |   | * |   |       |   |   |           |
+    +---+---+---+---+   +   +   +   +---+   +---+   +   +
+    | *   * | *   *   * |       |   |   |       |   |   |
+    +   +   +   +---+   +---+   +---+   +   +   +   +---+
+    | T | *   *     |           |           |           |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+Our variation in three Houston's algorithm runs was considerably smaller than that for Aldous/Broder, reverse Aldous/Broder and Wilson which implement unbiased algorithms.  Does that mean that Houston's algorithm is biased?  No.  First, it is not a mathematical proof, and second, as statistical evidence, a sample size of three is too small to be significant.
+
+### 2Q - Hunt and kill
+
+Hunt and kill 
+
+```
+    maze4c$ python
+    Python 3.10.12.
+    1> from mazes.Grids.oblong import OblongGrid
+    2> from mazes.maze import Maze
+    3> maze = Maze(OblongGrid(8,13))
+    4> from mazes.Algorithms.hunt_kill import HuntKill
+    5> print(HuntKill.on(maze))
+          Hunt and Kill (statistics)
+                            visits      103
+                             cells      104
+                          passages      103
+                              hunt       13
+                              kill       90
+                     starting cell  (0, 4)
+    6> from mazes.Algorithms.dijkstra import test
+    7> dijkstra = test(maze)
+    Dijkstra: starting at (1, 7)
+    diameter: pass 1 skipped
+    diameter: pass 2
+    diameter: start at (1, 2), farthest at (2, 12)
+    The results may mislead if the maze is not a tree.
+    diameter=55
+    8> print(maze)
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+    |           | *   *   *   * |               |       |
+    +   +   +---+   +---+---+   +   +   +---+   +   +   +
+    |   |   |     * | *   *   * |   |       |       |   |
+    +---+   +   +   +   +---+---+---+---+   +---+---+   +
+    |           | * | *   * |               | *   * |   |
+    +   +---+---+   +---+   +---+   +---+---+   +   +---+
+    |       | *   * | *   *         |     *   * | *   * |
+    +---+   +   +---+   +---+---+---+   +   +---+---+   +
+    |       | *     | *   *   *   * |   | * |     *   * |
+    +---+---+   +   +---+---+---+   +---+   +   +   +---+
+    | *   *   * |   |       | *   * | *   * |   | * | T |
+    +   +---+---+   +   +---+   +---+   +---+---+   +   +
+    | *   * | S |   |         * | *   * | *   *   * | * |
+    +---+   +   +   +---+---+   +   +---+   +---+---+   +
+    |     *   * |       |     *   * |     *   *   *   * |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
 ## Summary
 
 Here are the results for diameter sorted in ascending order:
 
-| **example** | **algorithm**  | **diameter** |
-| :-------- : | :------------  | -----------: |
-|    2E       | DFS            |           60 |
-|    2D       | Outwinder      |           47 |
-|    2B       | Sidewinder 33% |           42 |
-|    2H       | VertexPrim     |           35 |
-|    2J       | Kruskal        |           35 |
-|    2A       | BinaryTree 50% |           34 |
-|    2B       | Sidewinder 50% |           34 |
-|    2F       | BFS            |           26 |
-|    2K       | Eller 1:1 1:2  |              |
-|    2G       | SimplifiedPrim |           25 |
-|    2C       | Inwinder       |           24 |
+| **example** | **algorithm**          | **diameter** |
+| :---------: | :------------          | -----------: |
+|    2E       | DFS                    |           60 |
+|    2Q       | Hunt and Kill          |           55 |
+|    2L       | Outward Eller          |           51 |
+|    2M1      | Aldous/Broder          |           50 |
+|    2D       | Outwinder              |           47 |
+|    2B       | Sidewinder 33%         |           42 |
+|    2M3      | Wilson                 |           40 |
+|    2N1      | Houston cut=2/3        |           37 |
+|    2N2      | Houston cut=1/3        |           36 |
+|    2H       | VertexPrim             |           35 |
+|    2J       | Kruskal                |           35 |
+|    2A       | BinaryTree 50%         |           34 |
+|    2B       | Sidewinder 50%         |           34 |
+|    2N2      | Houston cut=1/2        |           32 |
+|    2K       | Eller 1:1 1:2          |           31 |
+|    2M2      | reverse Aldous/Broder  |           31 |
+|    2F       | BFS                    |           26 |
+|    2G       | SimplifiedPrim         |           25 |
+|    2C       | Inwinder               |           24 |
 
 Table 1. longest path in each example (8x13 grid)
 

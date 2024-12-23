@@ -65,6 +65,11 @@ The following maze generation algorithms have been implemented:
 * module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
 * module *eller* (class *Eller*) - Eller's algorithm.  The basic algorithm is a generalization of sidewinder with a few tricks which are adapted from Kruskal's algorithm.  In addition, an outward variant (generalizing outwinder) has been implemented.
 * module *outward\_eller* (class *OutwardEller*) - outward variant of Eller's algorithm.
+*  module *aldous\_broder* (class *AldousBroder) - the first entrance random walk algorithm, known as Aldous/Broder after two independent discoverers. The algorithm is unbiased.
+*  module *reverse\_aldous\_broder* (class *ReverseAldousBroder) - the last exit random walk algorithm, known as reverse Aldous/Broder. The algorithm is unbiased.  It's sort of like Aldous/Broder in a universe where time runs backwards.  The algorithm is unbiased.
+*  module *wilson* (class *Wilson*) - the circuit-eliminated random walk algorithm, known as Wilson's algorithm after its discoverer.  This is another unbiased algorithm.
+*  module *houston* (class Houston) - a hybrid which carves a maze like Aldous/Broder until triggered by a threshold, and completes the maze using Wilson's algorithm.  No proof (to my knowledge) has been given which settles the question of bias.  (One possibility: it converges too quickly on average to be unbiased.)
+* module *hunt\_kill* (class *HuntKill*) - the hunt and kill algorithm, a series of random paths, avoiding already visited cells; each path ends when there is no available step... A new path starts with a passage from the visited area into the frontier.  The algorithm has features reminiscent of Aldous/Broder (random walk, but restricted), Wilson (paths leading from the visited area, but working outward from the visited area instead of inward to) and DFS (you might come up with this if you wanted to avoid both a stack and recursive programming).
 
 These are documented in *doc/Algorithms*.
 
@@ -77,8 +82,6 @@ In addition to the maze generation algorithms above, the following algorithms ar
 ## Planned but not yet implemented:
 
 * Eller's algorithm should come with an inward variants corresponding to inwinder.
-* Aldous/Broder and Wilson's Algorithm
-* Hunt and kill
 * Recursive division
 * An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
 
@@ -105,3 +108,12 @@ The *mazes/AGT* folder contains several helper methods intended to simplify the 
 ## REFERENCES
 
 1. Jamis Buck. Mazes for programmers.  Pragmatic Bookshelf, 2015.
+2. Lucia Costantini.  *Algorithms for sampling spanning trees uniformly at random* (master's thesis).  Polytechnic University of Catalonia.  Web. Accessed 20 December 2024.
+URL: [https://upcommons.upc.edu/bitstream/handle/2117/328169/memoria.pdf](https://upcommons.upc.edu/bitstream/handle/2117/328169/memoria.pdf)
+3. Yiping Hu, Russell Lyons and Pengfei Tang.  *A reverse Aldous/Broder
+        algorithm.*  Preprint.  Web: arXiv.org.  24 Jul 2019.
+URL:[http://arxiv.org/abs/1907.10196v1](http://arxiv.org/abs/1907.10196v1)
+4. Jamis Buck. "Maze Generation: Wilson's algorithm" in *the Buckblog*.  Web. Accessed 21 December 2024.
+URL: [http://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm.html](http://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm.html) 
+5. Jamis Buck.  "Maze Algorithms".  Web.  Accessed 21 December 2024.
+URL: [https://www.jamisbuck.org/mazes/](https://www.jamisbuck.org/mazes/)

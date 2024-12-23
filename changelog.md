@@ -1,5 +1,19 @@
 # Change Log
 
+## Release 0.7 - 22 December 2024
+
+### New algorithms
+
+1.  Unbiased algorithms (Aldous/Broder, reverse Aldous/Broder, Wilson)
+2.  Houston's algorithm (a hybrid that starts as in Aldous/Broder and finishes as in Wilson)
+3.  Hunt and kill
+
+### Documentation
+
+1.  *unbiased.md* - documents the three unbiased maze carvers (Aldous/Broder, reverse Aldous/Broder. Wilson) and the hybrid (Houston) which might be biased.
+2.  *dijkstra.md* - add longest path examples for outward Eller and th e four algorithms documented in point 1.
+3.   *hunt\_kill.md* - documentation for hunt and kill.
+
 ## Release 0.6 - 19 December 2024
 
 ### New algorithms
@@ -36,33 +50,4 @@ Removed all through 0.2 from this changelog.
 I've started using *git* for updates.  Since 0.3, I've been organizing and reorganizing documentation.
 
 Apart from getting the documentation organized and written, there is one update.  Module *VGT.vprim* now supports the *cache* option.  If you don't want the priority queue to create vertex weights on the fly, you can specify *cache=False*.  This is covered in the *doc/Algorithms/growing\_trees1.md* documentation.  In the next update, I will start removing some of the older entries in the changelog.
-
-## Release 0.3 - 3 December 2024
-
-There is quite a bit here, so this summary may be imcomplete.  Documentation is not up to date.
-
-### New module folders
-
-* *mazes.Queues* - for queuing classes (includes modules defining classes *Stack*, *Queue*, *RandomQueue* and *PriorityQueue*)
-* *mazes.AGT* - for arc-based growing tree algorithms (4 new modules)
-* *mazes.VGT* - for vertex-based growing tree algorithms (4 new modules)
-
-### New modules
-
-* *mazes.gqueue* - generalized queue virtual class (*GeneralizedQueue*)
-* *mazes.Graphics.oblong2* (class *SpiderWeb*) - a linewise graphics driver for oblong grids that inherits from class *Spider* in the *matplotlib* driver
-* *mazes.Algorithms.growing\_tree1* (class *VertexGrowingTree*) - a growing tree family of algorithms using queuing classes.  This algorithm generalizes DFS (aka: recursive backtracker" -- using a stack), BFS (using a queue), "simplified Prim" (using a random queue) and "vertex Prim" (using a priority queue). This version of growing tree places cells (vertices) on the queuing structure.
-* *mazes.Algorithms.growing\_tree2* (class *ArcGrowingTree*) - a growing tree family of algorithms using queuing classes.  This algorithm generalizes Prim's algorithm.  It places grid arcs (ordered pairs of neighboring cells on the queuing structure.
-
-### Enhancements
-
-* *mazes.Graphics.matplot\_driver* - added method *draw_arrow* to the *Spider* class
-
-### Corrections
-
-* *cell*/*edge*/*arc*/*maze* in *mazes* folder - corrected the unlink sequence
-
-### Cosmetic corrections
-
-* corrected docstrings and formatting in a number of places
 

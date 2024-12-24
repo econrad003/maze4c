@@ -7,7 +7,11 @@ all: gallery/dcm_sbt_50.png gallery/dcm_sbt_25.png gallery/dcm_sbt_75.png \
      gallery/dcm_vgt_dfs.png gallery/dcm_vgt_bfs.png \
      gallery/dcm_vgt_sprim.png gallery/dcm_vgt_vprim.png \
      gallery/dcm_kruskal.png gallery/dcm_wilson.png gallery/dcm_houston.png \
-     gallery/dcm_eller.png gallery/dcm_eller_o.png
+     gallery/dcm_eller.png gallery/dcm_eller_o.png gallery/dcm_huntkill.png
+
+# HUNT AND KILL ALGORITHM
+gallery/dcm_huntkill.png: demos/dcm_huntkill.py mazes/Algorithms/hunt_kill.py
+	python -m demos.dcm_huntkill
 
 # ELLER'S ALGORITHM
 gallery/dcm_eller.png: demos/dcm_eller.py mazes/Algorithms/eller.py

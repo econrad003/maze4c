@@ -1,5 +1,16 @@
 # Change Log
 
+## Release 0.8 - 23 December 2024
+
+### Corrections
+
+1. Outward Eller - two lines were added to fix an error which affects grids whose smaller dimension is odd.  Grids whose smaller dimension is even are not affected by the error or the fix.
+
+### Graphics
+
+1. Added fill coloring to Graphics.oblong1
+2. Added distance colormaps - see *gallery/dcm_\*.png* for many colormaps... demo modules in *demos/dcm\*.py*
+
 ## Release 0.7 - 22 December 2024
 
 ### New algorithms
@@ -44,10 +55,4 @@ typos, docstring corrections, etc.
 ## Other changes
 
 Removed all through 0.2 from this changelog.
-
-## Release 0.4 - 9 December 2024
-
-I've started using *git* for updates.  Since 0.3, I've been organizing and reorganizing documentation.
-
-Apart from getting the documentation organized and written, there is one update.  Module *VGT.vprim* now supports the *cache* option.  If you don't want the priority queue to create vertex weights on the fly, you can specify *cache=False*.  This is covered in the *doc/Algorithms/growing\_trees1.md* documentation.  In the next update, I will start removing some of the older entries in the changelog.
 

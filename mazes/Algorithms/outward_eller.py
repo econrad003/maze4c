@@ -34,6 +34,13 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    23 December 2024 - EC
+        Pop the None indicator from the path in make_row.  The error occurred
+        in the innermost ring of mazes whose smaller dimension was odd.  Other
+        rectangular mazes are not affected by the problem or by the fix.
 """
 import mazes
 from mazes import rng, Algorithm
@@ -78,6 +85,8 @@ class OutwardEller(Algorithm):
                 """turn a ring into a path"""
                 path = rings.pathmaker(i)
                 rot = rng.randrange(len(path)) if path[-1] else None
+                if path[-1] == None:                # 23 Dec 2024
+                    path.pop()                      # 23 Dec 2024
                 path = rings.transform(path, reverse=reverse, rotate=rot)
                 for index in path:
                     cell = grid[index]

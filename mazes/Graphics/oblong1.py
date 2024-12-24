@@ -25,6 +25,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    23 December 2024 - EC
+        Added cell fill with color.
 """
 
 from mazes.maze import Maze
@@ -41,21 +46,27 @@ class Phocidae(Spider):
     day.
     """
 
-    __slots__ = ("__maze", "__grid")
+    __slots__ = ("__maze", "__grid", "__fill")
 
     def __init__(self, maze:Maze):
         """constructor"""
         super().__init__()
         self.__maze = maze
         self.__grid = maze.grid
+        self.__fill = {}
 
-    def setup(self, color='black', aspect='equal', display_axes=False):
+    def setup(self, color='black', aspect='equal', display_axes=False,
+              fillcolors=None):
         """setup for the plot"""
         self.color(color)
         if aspect:
             self.ax.set_aspect(aspect)
         if not display_axes:
             self.plt.axis('off')
+        if fillcolors:                              # 23 Dec 2024
+            if not isinstance(fillcolors, dict):
+                raise TypeError("'fillcolors' must be a dictionary {cell:fill}")
+            self.__fill = fillcolors
 
     @property
     def maze(self):
@@ -77,6 +88,13 @@ class Phocidae(Spider):
     def draw_maze(self, origin=(0,0)):
         """draws the maze"""
         h, k = origin
+        for cell in self.__fill:                    # 23 Dec 2024
+            if cell not in self.__grid:
+                continue
+            i, j = cell.index
+            x, y = j+h, i+k
+            self.fill(cell, x, y, self.__fill[cell])
+
         for cell in self.__grid:
             i, j = cell.index
             x, y = j+h, i+k
@@ -109,5 +127,12 @@ class Phocidae(Spider):
                 x, y = j+h, i+k
                 self.goto(x, y)
                 self.draw_segment(x, y+1)
+
+                # fill a cell                       # 23 Dec 2024
+    def fill(self, cell, x, y, color):
+        """fill cell with color"""
+        xs = [x, x+1, x+1, x]
+        ys = [y, y, y+1, y+1]
+        self.fill_polygon(xs, ys, color=color)
 
 # end module mazes.Graphics.oblong1

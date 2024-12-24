@@ -31,9 +31,12 @@ MODIFICATIONS
 
     30 November 2024 - EC
         Added method draw_arrow.
+    23 December 2024 - EC
+        Added method fill_polygon.
 """
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_hex
 import numpy as np
 
 class Spider(object):
@@ -128,6 +131,20 @@ class Spider(object):
                         head_width=0.1, **kwargs)
         self.__x, self.__y = x, y
         self.up()
+
+    def fill_polygon(self, xs, ys, color=None, **kwargs):
+        """draws a filled polygon without changing location information
+
+        xs and ys are arrays of x and y values that determine the vertices.
+
+        If a color is specified as a tuple, matplotlib goes crazy.
+        """
+        if color:
+            if not isinstance(color, str):
+                color = to_hex(color)           # fix a bug in plt.fill
+            self.__ax.fill(xs, ys, color, **kwargs)
+        else:
+            self.__ax.fill(xs, ys, **kwargs)
 
     def save_image(self, filename="maze.png"):
         """save the plot to a file (e.g. maze.png)"""

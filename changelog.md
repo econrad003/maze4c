@@ -1,5 +1,13 @@
 # Change Log
 
+## Release 0.8.2 - 25 December 2024 - quick update
+
+1. add distance color mapping demo *demos.colormap2* and documentation *doc/distance\_colormaps.md*
+
+## Release 0.8.1 - 24 December 2024 - quick update
+
+1. add distance colormap for hunt and kill
+
 ## Release 0.8 - 23 December 2024
 
 ### Corrections

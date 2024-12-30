@@ -1,8 +1,6 @@
 # maze4c
 Mazes in Python 3
 
-After some false starts, I think I have things set up as I need them.  This is still preliminary, but it should be workable.
-
 **FAQ**:
 
 *  Why *maze4c*? It's the third start (*c*) on my attempts (*maze4*) to put together a Python 3 rewrite of my Python 2 maze implementation (*yaMazeImp*).
@@ -10,14 +8,18 @@ After some false starts, I think I have things set up as I need them.  This is s
 **Folders**:
 
 *  *demos* - demonstration modules
+    +  *demos/polar* - demonstration modules for theta (aks: polar) mazes
 *  *doc* - documentation
+    +  *doc/Algorithms* - algorithm documentation
+    +  *doc/Grids* - grid documentation
 *  *gallery* - sample image files from demonstration runs
+    +  *gallery/theta* - demonstration images for theta (aka: polar) mazes
 *  *mazes* - the package; the modules in this folder are base classes
     +  *mazes/Algorithms* - algorithm implementations
     +  *mazes/VGT* - vertex-based growing tree algorithm implementations
     +  *mazes/AGT* - arc-based growing tree algorithm implementations
     +  *mazes/Grids* - grid implementations and grid support classes
-    +  *mazesGraphics* - graphics drivers
+    +  *mazes/Graphics* - graphics drivers
 *  *tests* - testing to make sure things work as expected
 
 ## Running the demonstration modules
@@ -41,7 +43,11 @@ At some point, I will put up a *turtle* driver at some point using Python's nati
 
 ### Oblong (rectangular) grids
 
-Currently the only grid that is ready is the standard N/S/E/W rectangular (or *oblong*) grid in module *oblong* as class *OblongGrid*.  A support class for ring-like tiers is supported in module *oblong\_rings*.
+The standard N/S/E/W rectangular (or *oblong*) grid in module *oblong* as class *OblongGrid*.  A support class for ring-like tiers is supported in module *oblong\_rings*.
+
+### Theta (or polar or circular) grids
+
+Theta (or polar or circular) grids are supported as class *ThetaGrid* in module *polar*.
 
 ## Graphics
 
@@ -49,6 +55,11 @@ Currently the only grid that is ready is the standard N/S/E/W rectangular (or *o
 
 * *oblong1* - a crude matplotlib driver (*oblong1*) for oblong grids.  Arcs are not supported.  It only handles the Von Neumann neighborhood (N/S/E/W), but glued edges (cylinder, Moebius strip, torus, Klein bottle, projective plane) are not a problem.
 * *oblong2* - a matplotlib driver (*oblong2*) for oblong grids which creates linewise maps of mazes.  I can handle both (undirected) edges and (directed) arcs.  It works best in Moore neighborhoods (nearest neighbor in up to eight compass directions, no glued edges).
+
+### Theta (polar/circular) grids
+
+* *polar1* - a basic graphics driver for theta (or polar) mazes.
+* *polar2* - a basic graphics driver for linewise representation of theta mazes.
 
 ## Algorithms
 

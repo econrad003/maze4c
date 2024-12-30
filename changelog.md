@@ -1,5 +1,14 @@
 # Change Log
 
+## Release 0.9.1 - 30 December 2024
+
+1. demonstration modules for theta mazes
+2. update change log and README
+
+## Release 0.9 - 30 December 2024
+
+1. theta (or polar or circular) mazes
+
 ## Release 0.8.2 - 25 December 2024 - quick update
 
 1. add distance color mapping demo *demos.colormap2* and documentation *doc/distance\_colormaps.md*
@@ -40,27 +49,4 @@
 1.  Dijkstra's shortest path algorithm
 2.  Eller's algorithm
 3.  Outward Eller's - working in rings from the center out using Eller's algorithm.
-
-## Release 0.5 - 12 December 2024
-
-### New algorithms
-
-1.  Kruskal's algorithm
-2.  Outwinder
-
-See folder doc/algorithms for documentation.
-
-## New modules
-
-1.  mazes.components - connected component management
-2.  mazes.tools.automaton1 - a simple cellular automaton
-3.  tests.components - for checking mazes.components
-
-## Minor and cosmetic changes
-
-typos, docstring corrections, etc.
-
-## Other changes
-
-Removed all through 0.2 from this changelog.
 

@@ -33,6 +33,8 @@ MODIFICATIONS
         Added method draw_arrow.
     23 December 2024 - EC
         Added method fill_polygon.
+    29 December 2024 - EC
+        Simplified method fill_polygon
 """
 
 import matplotlib.pyplot as plt
@@ -140,9 +142,9 @@ class Spider(object):
         If a color is specified as a tuple, matplotlib goes crazy.
         """
         if color:
-            if not isinstance(color, str):
-                color = to_hex(color)           # fix a bug in plt.fill
-            self.__ax.fill(xs, ys, color, **kwargs)
+#            if not isinstance(color, str):
+#                color = to_hex(color)           # fix a bug in plt.fill
+            self.__ax.fill(xs, ys, color=color, **kwargs)   # 29 Dec 2024
         else:
             self.__ax.fill(xs, ys, **kwargs)
 

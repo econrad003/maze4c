@@ -9,7 +9,7 @@ DESCRIPTION
     and the spider graphics driver.  It does not support one-way connections
     or insets. One class is defined:
 
-        Pholcidae -- named after the family of daddy long-leg spiders.
+        Phocidae -- named after the family of daddy long-leg spiders.
 
 LICENSE
 
@@ -30,6 +30,8 @@ MODIFICATIONS
 
     23 December 2024 - EC
         Added cell fill with color.
+    28 December 2024 - EC
+        Correct a typo in the docstring.
 """
 
 from mazes.maze import Maze

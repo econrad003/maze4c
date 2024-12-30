@@ -1,17 +1,17 @@
 """
-mazes.Graphics.oblong2 - another simple graphics driver for the oblong grid
+mazes.Graphics.polar2 - another simple graphics driver for the theta grid
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
-    This module plots the edges and arcs of an oblong maze using matplotlib
+    This module plots the edges and arcs of a theta maze using matplotlib
     and the spider graphics driver.  It supports one-way and diagonal
     connections. Parallel edges are not supported.  In addition, edges and arcs
     between cells that are not geometrically one unit away orthogonally or
     diagonally will simply make a mess.  In particular, weaving and gluing are
-    not supported.  The resulting maze has a weblike structure -- we call the
-    class SpiderWeb.
+    not supported.  The resulting maze has a weblike structure -- as with its
+    oblong counterpart we call the class SpiderWeb.
 
     The idea is from a suggestion found on Jamis Buck's web blog.  In an
     article [1] on how to create Minecraft-like mazes, he begins the
@@ -32,6 +32,8 @@ REFERENCES
         October 2015.  Web. Accessed 30 November 2024.
         http://weblog.jamisbuck.org/2015/10/31/mazes-blockwise-geometry.html
 
+    [2] Jamis Buck.  Mazes for Programmers.  2015, Pragmatic Bookshelf.
+
 LICENSE
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -45,17 +47,13 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-MODIFICATIONS
-
-    28 December 2024 - EC
-        corrected typos in the the docstring.
 """
 
 from mazes.arc import Arc
 from mazes.edge import Edge
 from mazes.maze import Maze
 from mazes.Graphics.matplot_driver import Spider
+from mazes.Grids.polar import xy
 
 class SpiderWeb(Spider):
     """The spider web of drivers
@@ -101,8 +99,12 @@ class SpiderWeb(Spider):
 
     def get_location_of(self, cell, h, k):
         """get the coordinates for the cell's location"""
-        i, j = cell.index                   # row, column
-        x, y = j+h, i+k
+        if cell.pole:
+            return (h, k)
+        r = cell.r + 0.5
+        theta = (cell.theta0 + cell.theta1) / 2
+        u, v = xy(r, theta)                     # convert to Cartesian
+        x, y = u+h, v+k                         # translation
         return x, y
 
     def draw_edge(self, join:Edge, h, k):
@@ -133,4 +135,4 @@ class SpiderWeb(Spider):
         for join in self.__maze:
             self.draw_join(join, h, k)
 
-# end module mazes.Graphics.oblong2
+# end module mazes.Graphics.polar2

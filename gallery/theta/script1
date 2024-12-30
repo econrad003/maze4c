@@ -1,0 +1,50 @@
+#
+# script for doc/Grids/polar.md
+#
+
+    # create the empty maze
+from mazes.Grids.polar import ThetaGrid
+from mazes.maze import Maze
+maze = Maze(ThetaGrid(5))
+
+    # carve the maze using Simplified "Prim"
+from mazes.Algorithms.simplified_Prim import NotPrim
+cell1 = maze.grid[0,0]
+print(NotPrim.on(maze, start_cell=cell1))
+
+    # display the maze as a linewise graph
+from mazes.Graphics.polar2 import SpiderWeb
+spider = SpiderWeb(maze)
+spider.title('Simplified "Prim"')
+spider.setup()
+spider.draw_maze()
+# spider.save_image('gallery/theta/linewise_maze1.png')
+spider.show()
+
+    # display the maze in monochrome
+from mazes.Graphics.polar1 import Phocidae
+spider = Phocidae(maze)
+spider.title('Simplified "Prim"')
+spider.setup()
+spider.draw_maze()
+# spider.save_image('gallery/theta/areawise_maze1_bw.png')
+spider.show()
+
+    # display the maze in color
+
+fills = {}
+for cell in maze.grid:
+     fills[cell] = None
+
+fills[cell1] = "goldenrod"
+fills[cell1.counterclockwise] = "limegreen"
+fills[cell1.clockwise] = "seagreen"
+fills[cell1.outward(0)] = "antiquewhite"
+fills[cell1.outward(1)] = "gray"
+spider = Phocidae(maze)
+spider.title('Simplified "Prim"')
+spider.setup(fillcolors=fills)
+spider.draw_maze()
+# spider.save_image('gallery/theta/areawise_maze1_color.png')
+spider.show()
+

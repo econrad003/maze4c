@@ -25,7 +25,7 @@ IMPLEMENTATION
 
         BinaryTree - a subclass of Algorithm.
 
-        BinartTree.Status - a subclass of Algorithm.Status
+        BinaryTree.Status - a subclass of Algorithm.Status
 
     In addition, the following default coin flip method is defined:
 

@@ -84,6 +84,22 @@ The following maze generation algorithms have been implemented:
 
 These are documented in *doc/Algorithms*.
 
+#### Specialized maze generation algorithms
+
+Some of the algorithms listed above (simple binary tree, sidewinder and Eller's algorithms, as well as their variants like inwinder and outward Eller) are specialized to work on an oblong grid in a Von Neumann (N/S/E/W) neighborhood.  They simply won't work on most grids. Others (like the growing tree family, Kruskal, hunt and kill, Wilson, Aldous/Broder, and Houston) will work on any connected grid.
+
+The specialized algorithms can sometimes be adapted to work on other grids.  The variants mentioned above, such as inwinder, can be thought of as clues.  The basic algorithms generally organize an oblong grid into rows and columns.  Inwinder plays by analogy on a row/column arrangement.  The rows in inwinder are rectangular rings.  The columns are essentially vectors of cells starting from the outermost ring and proceeding inward.  It isn't a perfect analogy, as the corner cell vectors are not well-defined, and the rings don't have a definite stop cell. But the analogy is sufficiently close -- the problems can be surmounted.
+
+Adaptations of algorithms for other classes of grids are contained in subfolders.  The variants for other grids, as they become available, are found in:
+
+*   *mazes/Algorithms/polar* - for theta (or polar) grid variants
+
+Documentation, as it becomes available, is found in:
+
+*   *doc/Algorithms/theta* - for theta (or polar) grid variants
+
+In addition to variants, other grids will certainly have their own specialized algorithms that might not have practical oblong counterparts.  These will also go in the above subfolders.
+
 ### Other algorithms
 
 In addition to the maze generation algorithms above, the following algorithms are found in the *mazes/Algorithms* folder:
@@ -92,7 +108,7 @@ In addition to the maze generation algorithms above, the following algorithms ar
 
 ## Planned but not yet implemented:
 
-* Eller's algorithm should come with an inward variants corresponding to inwinder.
+* Eller's algorithm should come with an inward variant corresponding to inwinder.
 * Recursive division
 * An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
 

@@ -1,5 +1,9 @@
 # Change Log
 
+## Release 0.9.2 - 31 December 2024
+
+1. simple binary tree for theta mazes
+
 ## Release 0.9.1 - 30 December 2024
 
 1. demonstration modules for theta mazes

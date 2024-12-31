@@ -1,0 +1,1 @@
+# Algorithms adapted to and for the theta (or polar) grid

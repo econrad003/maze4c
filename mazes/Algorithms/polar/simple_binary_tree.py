@@ -36,13 +36,29 @@ IMPLEMENTATION
 
         BinaryTree.Status - a subclass of Algorithm.Status
 
-    In addition, the following default coin flip method is defined:
+    The following default coin flip method is defined:
 
-        result = cointoss(cell, bias=0.5, **kwargs)
+        result = cointoss(_, bias=0.5, **kwargs)
 
     The return value is a boolean, True for a head or false for a Tail.  The
     cell argument is ignored.  If a uniformly random value (rng.random()) is
-    less than the bias, the result is a head.
+    less than the bias, the result is a head.  The first parameter depends on
+    where the flip is used, but is not referenced in the method.
+
+    The following range selection method is implemented:
+
+        k = randint(_, n:int, **kwargs)
+
+    The return value is a uniformly random integer in range(n), i.e.
+        0 <= k < n.
+
+    Two additional methods have been supplied which can be substiuted for
+    method cointoss:
+
+        tf = true(*args, **kwargs)
+        tf = false(*args, **kwargs)
+
+    The first always returns True and the second False.
 
 REFERENCES
 

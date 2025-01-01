@@ -1,5 +1,9 @@
 # Change Log
 
+## Release 0.9.3 - 1 January 2025
+
+1. theta maze winder algorithms (inwinder and outwinder)
+
 ## Release 0.9.2 - 31 December 2024
 
 1. simple binary tree for theta mazes

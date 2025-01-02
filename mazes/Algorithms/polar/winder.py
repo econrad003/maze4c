@@ -96,22 +96,9 @@ LICENSE
 """
 import mazes
 from mazes import rng, Algorithm
-
-def cointoss(cell, bias=0.5, **kwargs) -> bool:
-    """a simple coin toss simulation
-
-    If a uniformly random value is less than the bias (default=0.5), then
-    True is returned.  The cell argument is ignored.
-    """
-    return rng.random() < bias
-
-def true(*args, **kwargs):
-    """an always True cointoss"""
-    return True
-
-def false(*args, **kwargs):
-    """an always False cointoss"""
-    return False
+from mazes.tools.coin_tossing import cointoss
+from mazes.tools.coin_tossing import all_heads as true
+from mazes.tools.coin_tossing import all_tails as false
 
 def randint(ring:int, n:int, **kwargs) -> int:
     """choose an integer in range(n)"""
@@ -199,7 +186,7 @@ class _WinderStatus(Algorithm.Status):
         grid = self.maze.grid
         for ring in range(grid.m):
             n = grid.n(ring)
-            self.__flows.append(flip2(ring, bias2, **kwargs2))
+            self.__flows.append(flip2(ring, bias=bias2, **kwargs2))
             j = randint(ring, n, **kwargs3)
             self.__privileged[ring] = j
         if not callable(choose):
@@ -287,7 +274,7 @@ class _WinderStatus(Algorithm.Status):
 
     def flip_in(self, cell) -> bool:
         """flip a coin in a cell"""
-        return self.__flip(cell, self.__bias, **self.__kwargs)
+        return self.__flip(cell, bias=self.__bias, **self.__kwargs)
 
     def close_run(self):
         """close the current run"""

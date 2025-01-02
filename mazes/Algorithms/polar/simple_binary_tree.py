@@ -52,7 +52,7 @@ IMPLEMENTATION
     The return value is a uniformly random integer in range(n), i.e.
         0 <= k < n.
 
-    Two additional methods have been supplied which can be substiuted for
+    Two additional methods have been supplied which can be substituted for
     method cointoss:
 
         tf = true(*args, **kwargs)
@@ -81,22 +81,9 @@ LICENSE
 """
 import mazes
 from mazes import rng, Algorithm
-
-def cointoss(cell, bias=0.5, **kwargs) -> bool:
-    """a simple coin toss simulation
-
-    If a uniformly random value is less than the bias (default=0.5), then
-    True is returned.  The cell argument is ignored.
-    """
-    return rng.random() < bias
-
-def true(*args, **kwargs):
-    """an always True cointoss"""
-    return True
-
-def false(*args, **kwargs):
-    """an always False cointoss"""
-    return False
+from mazes.tools.coin_tossing import cointoss
+from mazes.tools.coin_tossing import all_heads as true
+from mazes.tools.coin_tossing import all_tails as false
 
 def randint(ring:int, n:int, **kwargs) -> int:
     """choose an integer in range(n)"""
@@ -127,26 +114,26 @@ class BinaryTree(Algorithm):
             KEYWORD ARGUMENTS
 
                 flip1 - a True/False function of two arguments.  The calling
-                    sequence flip1(cell, bias1, **kwargs1).  The default is
+                    sequence flip1(cell, bias=bias1, **kwargs1).  The default is
                     a coin toss with a probability p=bias1 of heads.  This
                     function determines whether we carve outward (head) or
                     onward (tail) from a non-privileged cell.
 
-                bias1 - a Bernoulli probability (default 0.5) passed as the
-                    second argument to flip1
+                bias1 - a Bernoulli probability (default 0.5) passed as a
+                    keyword argument ('bias') to flip1
 
                 kwargs1 - keyword arguments (as a dictionary) for flip1
 
                 flip2 - a True/False function of two arguments.  The calling
-                    sequence flip2(ring, bias1, **kwargs1).  The default is
+                    sequence flip2(ring, bias=bias2, **kwargs1).  The default is
                     a coin toss with a probability p=bias2 of heads.  This
                     function determines the direction of flow for the given
                     ring.
 
                     Also accepted are the strings "cw" and "ccw".
 
-                bias1 - a Bernoulli probability (default 0.5) passed as the
-                    second argument to flip2
+                bias1 - a Bernoulli probability (default 0.5) passed as a
+                    keyword argument ('bias') to flip2
 
                 kwargs2 - keyword arguments (as a dictionary) for flip2
 
@@ -177,7 +164,7 @@ class BinaryTree(Algorithm):
             grid = self.maze.grid
             for ring in range(grid.m):
                 n = grid.n(ring)
-                self.__flows.append(flip2(ring, bias2, **kwargs2))
+                self.__flows.append(flip2(ring, bias=bias2, **kwargs2))
                 j = randint(ring, n, **kwargs3)
                 self.__privileged.add(grid[ring, j])
 
@@ -214,7 +201,7 @@ class BinaryTree(Algorithm):
 
         def flip_in(self, cell) -> bool:
             """flip a coin in a cell"""
-            return self.__flip(cell, self.__bias, **self.__kwargs)
+            return self.__flip(cell, bias=self.__bias, **self.__kwargs)
 
         def visit_cell(self, cell):
             """process the cell"""

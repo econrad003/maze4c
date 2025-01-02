@@ -1,5 +1,5 @@
 """
-mazes.Algorithms.outward_eller - Eller's algorithm (ouward ring version)
+mazes.Algorithms.outward_eller - Eller's algorithm (outward ring version)
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 

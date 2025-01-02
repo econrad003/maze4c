@@ -1,5 +1,9 @@
 # Change Log
 
+## Release 0.9.4 - 2 January 2025 - corrections
+
+1. theta maze binary tree and winder algorithms corrections - handling of bias arguments
+
 ## Release 0.9.3 - 1 January 2025
 
 1. theta maze winder algorithms (inwinder and outwinder)

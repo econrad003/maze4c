@@ -1,5 +1,9 @@
 # Change Log
 
+## Release 0.9.5 - 25 July 2025
+
+1. Added polar versions of Eller's algorithm.
+
 ## Release 0.9.4 - 2 January 2025 - corrections
 
 1. theta maze binary tree and winder algorithms corrections - handling of bias arguments

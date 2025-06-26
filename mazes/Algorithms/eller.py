@@ -116,6 +116,15 @@ IMPLEMENTATION
     In this implementation, we take the normal directions only: runs in rows
     from west to east and rises in columns from south to north.
 
+MODIFICATION HISTORY
+
+    26 June 2025 - EC
+        method upward_carve
+          Added code to complete a forced merge.
+          Also fixed typo in debug message (merged forced -> merge forced).
+        __debug level
+          Can now be accessed using the debugging property.
+
 LICENSE
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -412,8 +421,10 @@ class Eller(Algorithm):
                 pass                            # need to merge
                     # forced merge
             k2 = registryp.component_for(nbr)
+            self.maze.link(cell, nbr)           # carve up      # 26 June 2025
+            self.increment_item("passages")                     # 26 June 2025
             registry.merge(k1, k2)
-            self.debug(1, f"merged forced by carve up from {cell.index}")
+            self.debug(1, f"merge forced by carve up from {cell.index}")
 
         def maybe_carve_upward(self, registry, registryp, cell, nbr):
             """flip for carve from the given cell to the given neighbor"""
@@ -533,6 +544,11 @@ class Eller(Algorithm):
             self.complete_a_row(*self.__current_run)    # out-of-row actions
             if self.__labels:
                 self.__relabel(*self.__current_run)
+
+        @property
+        def debugging(self) -> int:
+            """determine the debugging level"""
+            return self.__debug
 
         def debug(self, level, *msg):
             """display a debugging message"""

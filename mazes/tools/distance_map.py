@@ -65,6 +65,8 @@ class DistanceColoring(object):
             distance = dijkstra.distance(cell)
             if isnan(distance):
                 continue
+            if distance == float('inf'):            # 21 June 2025
+                continue
             self.distances[cell] = distance
             self.max_distance = max(distance, self.max_distance)
         if self.max_distance == 0:

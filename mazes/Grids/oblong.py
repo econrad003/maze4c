@@ -196,4 +196,9 @@ class OblongGrid(Grid):
                 s += "---+"
         return s
 
+    @property                       # added 11 Aug 2025
+    def northeastmost(self):                        
+        """coordinates of the northeast corner"""
+        return self.m - 1, self.n - 1
+
 # end module mazes.Grids.oblong

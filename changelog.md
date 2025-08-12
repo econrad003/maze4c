@@ -1,5 +1,9 @@
 # Change Log
 
+## Release 0.10.0 - 12 August 2025
+
+1. New algorithm - recursive division (as a passage carver)
+
 ## Release 0.9.5 - 25 July 2025
 
 1. Added polar versions of Eller's algorithm.

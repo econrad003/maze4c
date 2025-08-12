@@ -81,6 +81,7 @@ The following maze generation algorithms have been implemented:
 *  module *wilson* (class *Wilson*) - the circuit-eliminated random walk algorithm, known as Wilson's algorithm after its discoverer.  This is another unbiased algorithm.
 *  module *houston* (class Houston) - a hybrid which carves a maze like Aldous/Broder until triggered by a threshold, and completes the maze using Wilson's algorithm.  No proof (to my knowledge) has been given which settles the question of bias.  (One possibility: it converges too quickly on average to be unbiased.)
 * module *hunt\_kill* (class *HuntKill*) - the hunt and kill algorithm, a series of random paths, avoiding already visited cells; each path ends when there is no available step... A new path starts with a passage from the visited area into the frontier.  The algorithm has features reminiscent of Aldous/Broder (random walk, but restricted), Wilson (paths leading from the visited area, but working outward from the visited area instead of inward to) and DFS (you might come up with this if you wanted to avoid both a stack and recursive programming).
+* module *recursive\_division* (classes *Subgrid*, *RecursiveDivision*) - recursive division, implemented as a passage carver for a rectangular grid.
 
 These are documented in *doc/Algorithms*.
 
@@ -109,7 +110,6 @@ In addition to the maze generation algorithms above, the following algorithms ar
 ## Planned but not yet implemented:
 
 * Eller's algorithm should come with an inward variant corresponding to inwinder.
-* Recursive division
 * An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
 
 ## Helper methods for growing trees

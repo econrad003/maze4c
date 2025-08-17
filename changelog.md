@@ -1,5 +1,12 @@
 # Change Log
 
+## Release 0.10.1 - 17 August 2025
+
+1. New data structure - *Watershed* in *mazes.watershed*
+2. New algorithm - watershed recursive division in module *watershed\_division* in the *mazes.Algorithms* folder, a passage carver
+3. Corrections and additions to the recursive division
+4. Documentation for the above
+
 ## Release 0.10.0 - 12 August 2025
 
 1. New algorithm - recursive division (as a passage carver)

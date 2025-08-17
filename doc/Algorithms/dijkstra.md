@@ -109,7 +109,7 @@ Here is some typical code:
 
     arbitrary = rng.choice(list(maze.grid))   # pick an arbitrary start cell
     dijkstra = Dijkstra(maze, arbitrary)      # Dijkstra's algorithm
-    source = = dijkstra.farthest
+    source = dijkstra.farthest
     dijkstra.calculate(source)                # Dijkstra's algorithm
     sink = dijkstra.farthest
     longest = dijkstra.path(sink)             # a longest path

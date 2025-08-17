@@ -48,6 +48,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATION HISTORY
+
+    15 August 2025 - EC
+        1) simpliflied the carve_room method in class Subgrid
 """
 import mazes
 from mazes.Grids.oblong import OblongGrid, EAST, NORTH
@@ -103,30 +108,26 @@ class Subgrid(object):
         """returns the number of cells in the subgrid"""
         return self.rows * self.cols
 
-    def carve_room(self):
+    def carve_room(self):               # simplified -- 15 August 2025
         """link all the neighborhoods in the subgrid
 
+        The maze object must be supplied.
         returns the number of links created
         """
         links = 0
-                # link up everything except the north and east corridors
-        for i in range(self.i1, self.i2):
-            for j in range(self.j1, self.j2):
+                # link cells to their north neighbors
+        for i in range(self.i1, self.i2):       # all but top row
+            for j in range(self.j1, self.j2+1):     # all columns
                 cell = self.grid[i, j]
-                maze.link(cell, cell.east)
-                maze.link(cell, cell.north)
-                links += 2
-                # link up the east wall
-        for i in range(self.i1, self.i2):
-            cell = self.grid[i, self.j2]
-            maze.link(cell, cell.north)
-            links += 1
-                # link up the east wall
-        for j in range(self.j1, self.j2):
-            cell = self.grid[self.i2, j]
-            maze.link(cell, cell.east)
-            links += 1
-        return links
+                self.maze.link(cell, cell.north)
+                links += 1
+                # link cells to their east neighbors
+        for i in range(self.i1, self.i2+1):     # all rows
+            for j in range(self.j1, self.j2):       # all but eastmost column
+                cell = self.grid[i, j]
+                self.maze.link(cell, cell.east)
+                links += 1
+        return links        # (m-1)n + m(n-1) = 2mn - m - n links
 
     def carve_door_east(self):
         """carve a door leading out of the east wall"""
@@ -249,7 +250,7 @@ class RecursiveDivision(Algorithm):
 
         __slots__ = ("__Subgrid", "__stack", "__min_rows", "__min_cols",
                      "__cutterh", "__cutterv", "__debug", "__label_rooms",
-                     "__room_id")
+                     "__room_id", "__room_carver")
 
         @property
         def debug(self) -> bool:
@@ -299,6 +300,14 @@ class RecursiveDivision(Algorithm):
 
             self.increment_item("links", links)
             self.increment_item("doors", links)
+            if len(subgrids) == 0:              # added 15 August 2015
+                if self.__room_carver:
+                    links = subgrid.carve_room()
+                    self.increment_item("rooms", 1)
+                    self.increment_item("room links", links)
+                    self.increment_item("links", links)
+                return
+
             for subgrid in subgrids:
                 self.push(subgrid)
                 if self.__label_rooms:
@@ -308,7 +317,7 @@ class RecursiveDivision(Algorithm):
                        debug:bool=False, SubgridType:object=Subgrid,
                        vertical_cutter:callable=rng.randrange,
                        horizontal_cutter:callable=rng.randrange,
-                       label_rooms:bool=False):
+                       label_rooms:bool=False, carve_rooms:bool=False):
             """parse constructor arguments
 
             POSITIONAL ARGUMENTS
@@ -317,19 +326,27 @@ class RecursiveDivision(Algorithm):
 
             KEYWORD ARGUMENTS
 
-                min_rows (dafault=2)
+                min_rows (default=2)
                     the minimum height for a subdividable room
-                min_cols (dafault=2)
+                min_cols (default=2)
                     the minimum width for a subdividable room
                 debug (default=False)
                     set to True for detailed stack analysis
                 SubgridType (default=Subgrid defined above)
                     can be modified to change the way the algorithm
                     recursively subdivides the grid.
-                horizontal_cutter (default randrange)
+                horizontal_cutter (default=randrange)
                     finds the horizontal cut column
-                vertical_cutter (default randrange)
+                vertical_cutter (default=randrange)
                     finds the horizontal cut row
+                carve_rooms (default=False)
+                    if True, rooms will be carved when the subgrid is
+                    too small to sundivide.  This will make no difference
+                    if min_rows and min_cols are both equal to 2.
+                label_rooms (default=False)
+                    if true, the cells in a subgrid will be labelled.
+                    The labels will only be displayed in console displays,
+                    not in graphic objects.
 
             The cutter functions take two arguments, namely a starting
             row or column, and an ending row or column.  These will be
@@ -347,6 +364,7 @@ class RecursiveDivision(Algorithm):
             self.__cutterh = horizontal_cutter
             self.__label_rooms = label_rooms
             self.__room_id = 0
+            self.__room_carver = carve_rooms    # added 15 August 2015
             self.__stack = []
 
         def configure(self):
@@ -358,6 +376,9 @@ class RecursiveDivision(Algorithm):
             self.store_item("unlinks", 0)
             self.store_item("doors", 0)
             self.store_item("max stack", 0)
+            if self.__room_carver:
+                self.store_item("rooms", 0)
+                self.store_item("room links", 0)
             subgrid = self.__Subgrid(self.maze)
             self.__stack.append(subgrid)
 
@@ -392,4 +413,4 @@ class RecursiveDivision(Algorithm):
             """a single pass -- wrapper for _visit"""
             self.divide()
 
-# end module mazes.Algorithms.aldous_broder
+# end module mazes.Algorithms.recursive division

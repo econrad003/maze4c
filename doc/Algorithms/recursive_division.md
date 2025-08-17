@@ -19,6 +19,14 @@ While the stack is not empty:
 
 Note that every link between two cells is actually a door connecting two subgrids.
 
+## On the examples
+
+The examples go into some detail on programming recursive division.  There is a demonstration module (*demos.recursive_division*) which supports some of the available options, which can also produce graphics and image output.  For help, run it with the help option:
+
+```
+    maze4c$ python -m demos.recursive_division -h
+```
+
 ## Example 1
 
 Let's create a maze using the implementation of the algorithm.  We begin in the usual manner...
@@ -129,7 +137,7 @@ Now for the result:
 There is a subgrid in the upper left covering 3 rows and 5 columns, each cell having the label h.  This is one room in the room plan.  Below it is a 2 row, 5 column room with label j.  If we link up the cells in each room, we can better see the room plan:
 
 ```
-(manually clear rooms)
+(manually clear rooms - to automate, see Examples 5 and 6.)
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 | h                   O | S                 | T   R | D     |
 +                   +   +                   +   +   +       +
@@ -247,6 +255,112 @@ The resulting maze shares some similarities with a breadth-first search maze.  B
 |   |   |       |   |   |                                   |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
+
+## Example 5.  Room plans.
+
+In the Jamis Buck maze book, the recursive division algorithm is implemented as a wall builder.  This makes it convenient for producing random room plans, as when the recursion stops, no additional walls are erected.  In our passage carver version, to produce a room plan, we must carve additional passages to produce a room plan.  When the examples above were created, that feature had not yet been implemented.  A *carve_rooms* option is now available.  In this example, we proceed programmatically.  To recap, we start by bringing up the Python interpreter and importing a few classes:
+
+```
+maze4c$ python
+Python 3.10.12
+>>> from mazes.Grids.oblong import OblongGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.recursive_division import RecursiveDivision
+```
+
+Now all we need to do is create a rectangular grid, embed it in a Maze wrapper, and run *RecursiveDivision.on* with some suitable options.  We can combine the first two steps in a single statement:
+
+```
+>>> maze = Maze(OblongGrid(10, 15))
+```
+
+Next we must decide where we want to stop subdividing.  We will block vertical subdivisions when we arrive at a subgrid with fewer than 4 rows.  Similarly, horizontal subdivisions will be blocked when there are fewer than 6 columns.
+As above, we will label the rooms.
+```
+>>> print(RecursiveDivision.on(maze, min_rows=4, min_cols=6,
+...     carve_rooms=True, label_rooms=True))
+          Recursive Division (statistics)
+                            visits       45
+                             cells      150
+                          passages        0
+                             links      201
+                           unlinks        0
+                             doors       22
+                         max stack        6
+                             rooms       23
+                        room links      179
+```
+Notice the status is more complicated.  As there are 23 rooms in the final maze, we expect that there will be 22 doors that connect them.  Most of the passages (links) are interior to rooms, but a simple subtraction yields:
+```
+        links - room links = 201 - 179 = 22
+```
+
+Here is the maze, with rooms labelled:
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+| n   n   n   d   d   d   d   d | R   R   R   R   R | J   J |
++   +   +   +---+---+---+   +---+   +   +   +   +   +---+   +
+| n   n   n | h   h   h   h   h | R   R   R   R   R | L   L |
++   +   +   +   +   +   +   +   +   +   +   +   +   +   +---+
+| n   n   n | h   h   h   h   h   R   R   R   R   R   N   N |
++---+---+   +---+---+---+   +---+---+---+   +---+---+---+   +
+| r   r   r | g   g   g   g   g | Q   Q   Q   Q   Q | M   M |
++   +   +   +   +   +   +   +   +   +   +   +   +   +   +   +
+| r   r   r | g   g   g   g   g | Q   Q   Q   Q   Q | M   M |
++   +   +   +   +---+---+---+---+---+---+---+---+   +   +   +
+| r   r   r | j   j   j   j   j | O   O   O   O   O | M   M |
++   +---+---+   +   +   +   +   +   +---+---+---+---+---+---+
+| q   q   q | j   j   j   j   j | b   b   b | Z   Z   Z   V |
++   +---+---+---+---+   +---+---+   +   +   +   +---+---+   +
+| o   o   o | i   i   i   i   i | b   b   b   Y   Y   Y | V |
++   +---+---+   +   +   +   +   +   +---+---+   +   +   +   +
+| k   k   k | i   i   i   i   i | a   a   a | Y   Y   Y | V |
++   +   +   +   +   +   +   +   +   +   +   +   +   +   +   +
+| k   k   k | i   i   i   i   i | a   a   a | Y   Y   Y | U |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+## Example 6.  Room plans, again
+
+In this example, we use the demonstration program to create another room plan with the same constraints as in Example 5, but with no room labels.  The result is displayed below and has been saved in the gallery.  The demonstration module does support room labels, but only on the console display.  The graphics display and the PNG image are less cluttered as the "poles" that appear in the console display are not present on the graphics image.
+
+The gallery image is *gallery/recursive_division.png*.
+
+```
+maze4c$ python -m demos.recursive_division -m 4 6 --rooms \
+    -o gallery/recursive_division.png
+Namespace(dim=(8, 13), minimums=(4, 6), rooms=True, labels=False, pen='black', output='gallery/recursive_division.png', console=False, verbose=False, no_gui=False)
+          Recursive Division (statistics)
+                            visits       33
+                             cells      104
+                          passages        0
+                             links      139
+                           unlinks        0
+                             doors       16
+                         max stack        4
+                             rooms       17
+                        room links      123
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+|               |       |           |               |
++   +   +   +   +   +   +   +   +   +   +   +   +   +
+|               |                                   |
++   +   +   +   +   +---+   +   +   +   +   +   +   +
+|                       |           |               |
++---+---+---+   +   +   +---+---+---+---+---+---+   +
+|               |       |               |       |   |
++---+---+---+   +   +   +   +   +   +   +   +   +   +
+|               |       |               |       |   |
++---+---+   +---+---+---+   +   +   +   +   +   +   +
+|                   |   |               |       |   |
++   +   +   +   +   +   +---+   +---+---+---+   +   +
+|                   |   |               |       |   |
++   +   +   +   +   +   +---+---+   +---+   +   +   +
+|                       |                           |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+Saving to gallery/recursive_division.png
+```
+
 
 ## Implementation Notes and Possible Next Steps
 

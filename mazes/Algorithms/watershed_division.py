@@ -44,19 +44,30 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    1 Sep 2025 - detect disconnected auxiliary mazes.   
+        (a) change the default floodgate carver to Kruskal
+        (b) add an option to fix the maze
+    8 Sep 2025 - add code to place extra pumps, when needed, and,
+        optionally to save a trace of the basins formed when these
+        extra pumps are placed.
 """
 import mazes
 from mazes.grid import Grid
 from mazes.maze import Maze
 from mazes.watershed import Watershed
 from mazes import rng, Algorithm
-from mazes.Algorithms.aldous_broder import AldousBroder
+from mazes.Algorithms.kruskal import Kruskal    # 1 Sep 2025 - change default
 
 ROOM_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
     # UTILITY ROUTINES
     #       These are for any connected grid or for any connected subset
     #       of the cells in a grid.
+
+error_info = dict()
 
 class Reservoir(object):       # duck-typed replacement for Subgrid
     """subgrid"""
@@ -93,7 +104,7 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
         return links
 
     def divide(self, mincells:int, pumps:int, *args, debug:bool=False,
-               FloodgateCarver:object=AldousBroder,
+               FloodgateCarver:object=Kruskal,          # 1 Sep 2025
                WatershedType:object=Watershed, **kwargs):
         """partition a reservoir, if possible
 
@@ -109,11 +120,14 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
             debug (default: False)
                 display some comments for debugging purposes
 
-            FloodgateCarver (default: AldousBroder)
+            FloodgateCarver (default: Kruskal)
                 the algorithm for determining where floodgates are needed.
                 This only determines which pairs of reservoirs will be
                 joined by a passage (or floodgate).  Within those constraints,
                 the actual choice is random.
+
+                Kruskal's algorithm is admits disconnected grids and returns
+                the number of components in the grid.
 
             WatershedType (default: Watershed)
                 The type to be used.  Unparsed arguments will be passed as
@@ -133,7 +147,7 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
         if self.cells < mincells:
             if debug:
                 print(f"{self}: below threshold")
-            return (tuple(), 0)                 # too small
+            return (tuple(), 0, None)           # too small
 
         seeds = rng.choices(list(self.grid), k=pumps)
         watershed = WatershedType(self.grid, seeds, *args, **kwargs)
@@ -146,8 +160,10 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
 
         auxiliary_maze = watershed.initialize_maze()
         status = FloodgateCarver.on(auxiliary_maze)
+
         if debug:
             print(status)
+
         gates = watershed.doors(auxiliary_maze)
         if debug:
             print(f"{self}: {gates} floodgates")
@@ -158,7 +174,7 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
 
             # set up the return value
         reservoirs = tuple(watershed.watersheds.values())
-        return reservoirs, len(gates)
+        return reservoirs, len(gates), auxiliary_maze
 
 class WatershedDivision(Algorithm):
     """a generalized recursive division algorithm"""
@@ -170,7 +186,9 @@ class WatershedDivision(Algorithm):
 
         __slots__ = ("__Reservoir", "__stack", "__min_cells", "__pumps",
                      "__label_rooms", "__room_carver", "__room_id",
-                     "__debug", "__args", "__kwargs")
+                     "__debug", "__args", "__kwargs",
+                     "__error_action",                  # 1 Sep 2025
+                     "__eptracer", "__eptrace")         # 8 Sep 2025
 
         @property
         def debug(self) -> bool:
@@ -189,6 +207,67 @@ class WatershedDivision(Algorithm):
             for cell in reservoir:
                 cell.label = theLabel
 
+        def pump_more(self, cells:set, basins:tuple, links:int, aux_maze:'Maze'):
+            """are there cells that haven't been filled?'"""
+            filled = sum(len(basin) for basin in basins)
+            if filled >= len(cells):
+                return basins, links, aux_maze          # full!
+
+                    # more work to do...
+            basins = list(basins)
+            aux_grid = aux_maze.grid
+            visited = set()
+            for basin in basins:
+                visited.update(set(basin))
+            unvisited = cells - visited
+            # end for
+
+                    ##### THE BIG LOOP #####
+            while unvisited:
+                self.increment_item("extra pumps")
+                pump = rng.choice(list(unvisited))  # the pump
+                new_basin = set()
+                stack = [pump]
+                edges = list()
+                while stack:
+                    cell = stack.pop()
+                    new_basin.add(cell)
+                    for nbr in cell.neighbors:
+                        if nbr not in cells:
+                            continue                # not part of the reservoir
+                        if nbr in new_basin:
+                            continue                # already part of the new basin
+                        if nbr in visited:
+                            arc = (cell, nbr)       # in another basin
+                            edges.append(arc)
+                            continue
+                        stack.append(nbr)       # to be added
+                    # end for
+                # end while stack
+
+                    # update the reservoir -- we have a new filled basin
+                i = len(basins)                 # get the basin number
+                basins.append(new_basin)
+                visited.update(new_basin)
+                unvisited.difference_update(new_basin)
+                    # pick an edge to create a floodgate
+                arc = rng.choice(edges)
+                cell, nbr = arc
+                self.maze.link(cell, nbr)
+                links += 1
+                    # update the auxiliary maze
+                aux_grid[i] = aux_grid.newcell(i)
+                for j in range(len(basins)):
+                    if nbr in basins[j]:
+                        aux_maze.link(aux_grid[i], aux_grid[j])
+                        break
+                # end for
+            # end while unvisited
+
+            if self.__eptrace:
+                self.__eptracer.append(basins)
+            return tuple(basins), links, aux_maze
+
         def divide(self):
             """divide the current subdivision
 
@@ -197,8 +276,16 @@ class WatershedDivision(Algorithm):
             """
             reservoir = self.pop()
             pumps = self.__pumps(reservoir.cells)
-            basins, links = reservoir.divide(self.min_cells, pumps, \
+            basins, links, aux_maze = reservoir.divide(self.min_cells, pumps, \
                 *self.__args, **self.__kwargs)
+            if len(basins) > 0:
+#                print(len(basins), links, len(aux_maze.grid), len(aux_maze))
+                assert len(basins) == len(aux_maze.grid)
+                assert links == len(aux_maze)
+
+                    # have all cells been flooded?  -- 8 Sep 2025
+                basins, links, aux_maze = self.pump_more(reservoir.grid, \
+                    basins, links, aux_maze)
 
             # print(type(basins), links)
             self.increment_item("links", links)
@@ -211,6 +298,29 @@ class WatershedDivision(Algorithm):
                     self.increment_item("links", links)
                 return
 
+                # Added 1 Sep 2025 - detect disconnected auxiliary mazes
+            if len(basins) > links + 1:
+                if self.fetch_item("watershed errors") == 0:
+                    print("*** Warning:",
+                          "A disconnected watershed has been detected.",
+                          "***")
+                                ### DEBUGGING INFORMATION
+                    if self.__error_action == 'debug':
+                        n = 0
+                        for basin in basins:
+                            for cell in basin:
+                                cell.label = chr(n + ord('0'))
+                            n += 1
+                        error_info[0] = self
+                        error_info[1] = reservoir
+                        print("Auxiliary maze:")
+                        for cell in aux_maze.grid:
+                            for nbr in cell.neighbors:
+                                if cell.is_linked(nbr):
+                                    print(cell.index, "--", nbr.index)
+                        assert False, "Watershed error detected"
+                self.increment_item("watershed errors")
+
             for basin in basins:
                 reservoir = self.__Reservoir(self.maze, basin)
                 self.push(reservoir)
@@ -219,7 +329,9 @@ class WatershedDivision(Algorithm):
 
         def parse_args(self, min_cells:int, pumps:(int, callable), *args,
                        ReservoirType:object=Reservoir,
+                       error_action:('ignore', 'fix')='ignore',     # 1 Sep 2025
                        carve_rooms:bool=False, label_rooms:bool=False,
+                       extra_pumps_trace:bool=False,                # 8 Sep 2025
                        **kwargs):
             """parse constructor arguments
 
@@ -249,9 +361,29 @@ class WatershedDivision(Algorithm):
                     recursively subdivides the grid.
                 WatershedType (default=Watershed defined in mazes.watershed)
                     the watershed object type.
-             *  FloodgateCarver (default=AldousBroder)
+             *  FloodgateCarver (default=Kruskal)
                     a passage carving algorithm to be used to carve the
                     floodgates (doors).
+
+                    Kruskal's algorithm is preferred since it can accept
+                    a disconnected grid and reports the number of components.
+                    Use of an algorithm that forbids disconnected grids
+                    (like Aldous/Broder) may result in unpredictable
+                    failures.
+                error_action (default='ignore')
+                    the possible values are 'ignore' or 'fix'.
+                        'ignore' - if there are disconnected basins, a
+                            message will be printed but no action will
+                            be taken at the end to connect the maze.
+                        'fix' - if there are disconnected basins, a
+                            message will be printed, and Kruskal's
+                            algorithm will be used at the end to connect
+                            the maze.  This option is not available if
+                            the cell minimum is larger than two unless
+                            rooms are carved.
+                extra_pumps_trace (default=False)
+                    set to True to get basin information for extra pumps.
+                    See the documentation for more details.
              *  QueueType (default=maze.Queues.Queue)
                     a queuing type.
              *  qargs (default={})
@@ -280,13 +412,25 @@ class WatershedDivision(Algorithm):
                 self.__pumps = lambda cells: pumps
             else:
                 self.__pumps = pumps
+            if error_action not in ('ignore', 'fix', 'debug'):  # 1 Sep 2025
+                raise ValueError("'error_action' must be 'ignore' or 'fix'")
+            if error_action == 'fix':                   # 1 Sep 2025
+                if bool(carve_rooms) or self.__min_cells <= 2:
+                    pass
+                else:
+                    msg = "'error_action=fix' is incompatible with" \
+                        + " 'min_cells'>2 when 'carve_rooms' is False"
+                    raise ValueError(msg)
+            self.__error_action = error_action          # 1 Sep 2025
             self.__Reservoir = ReservoirType
-            self.__label_rooms = label_rooms
+            self.__label_rooms = bool(label_rooms)
             self.__room_id = 0
-            self.__room_carver = carve_rooms
+            self.__room_carver = bool(carve_rooms)
             self.__debug = kwargs.get("debug", False)
             self.__args = args
             self.__kwargs = kwargs
+            self.__eptrace = extra_pumps_trace
+            self.__eptracer = list()
             self.__stack = []
 
         def configure(self):
@@ -301,6 +445,8 @@ class WatershedDivision(Algorithm):
             if self.__room_carver:
                 self.store_item("rooms", 0)
                 self.store_item("room links", 0)
+            self.store_item("extra pumps", 0)
+            self.store_item("watershed errors", 0)
             reservoir = self.__Reservoir(self.maze)
             self.__stack.append(reservoir)
 
@@ -324,12 +470,33 @@ class WatershedDivision(Algorithm):
             return self.__stack[-1]
 
         @property
-        def more(self):
+        def extra_pumps_trace(self) -> list:
+            """returns the extra pumps trace, if any"""
+            return self.__eptracer
+
+        @property
+        def more(self):                 # changed: 1 Sep 2025
             """returns True if there are stack entries
 
             Overrides Algorithm.more.
             """
-            return len(self.__stack) != 0
+            if len(self.__stack) > 0:
+                return True
+
+                # this check was added
+            if self.fetch_item("watershed errors") > 0:
+                if self.__error_action == 'fix':
+                    status = Kruskal.on(self.__maze)
+                    if self.__debug:
+                        print(status)
+                    self['action'] = 'fixed, Kruskal'
+                    self['missing floodgates'] = status['components (init)'] - 1
+                    self['components'] = status.components
+                    self['passages in fix'] = status['passages']
+                else:
+                    self['action'] = 'errors ignored'
+
+            return False
 
         def visit(self):
             """a single pass -- wrapper for _visit"""

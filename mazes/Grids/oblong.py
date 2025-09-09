@@ -14,6 +14,7 @@ REFERENCES
         Book (978-1-68050-055-4).
 
 LICENSE
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -84,19 +85,22 @@ class OblongGrid(Grid):
         # CONSTRUCTION AND INITIALIZATION
 
     def _parse_args(self, rows:int, cols:int, *args, **kwargs):
-        """argument parser for OblongGrid class"""
+        """argument parser for OblongGrid class
+
+        The additional arguments are discarded, for now.
+        """
         self.__rows = rows
         self.__cols = cols
 
     def _initialize(self):
-        """initialization (stub)"""
+        """initialization"""
         for i in range(self.__rows):
             for j in range(self.__cols):
                 index = (i, j)                  # pack
                 self[index] = self.newcell(index)
 
     def _configure(self):
-        """configuration (stub)"""
+        """configuration"""
         def set_if(cell, way, nbr):
             """set the neighbor if it exists"""
             if nbr: cell[way] = nbr

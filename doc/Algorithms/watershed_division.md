@@ -4,6 +4,8 @@ The algorithm is essentially the same as rectangular recursive division, but ins
 
 In the discussion for each example below, we start with an unlinked connected grid.  We will use a rectangular grid, but the algorithm doesn't require that.  Before proceeding, we should look at the options...
 
+The algorithm is not foolproof.  See Example 6 for an indication of what can go wrong and how to fix it.
+
 ## Options
 
 The module documentation is terse:
@@ -45,9 +47,24 @@ parse_args(self, min_cells:int, pumps:(int, callable), *args,
             recursively subdivides the grid.
         WatershedType (default=Watershed defined in mazes.watershed)
             the watershed object type.
-     *  FloodgateCarver (default=AldousBroder)
+     *  FloodgateCarver (default=Kruskal)
             a passage carving algorithm to be used to carve the
             floodgates (doors).
+
+            Kruskal's algorithm is preferred since it can accept a
+            disconnected grid and reports the number of components.
+            Use of an algorithm that forbids disconnected grids
+            (like Aldous/Broder) may result in unpredictable failures.
+        error_action (default='ignore')
+            the possible values are 'ignore' or 'fix'.
+                 'ignore' - if there are disconnected basins, a message
+                      message will be printed but no action will be taken
+                      at the end to connect the maze.
+                 'fix' - if there are disconnected basins, a message will
+                      be printed, and Kruskal's algorithm will be used at
+                      the end to connect the maze.  This option is not
+                      available if the cell minimum is larger than two
+                      unless rooms are carved.
      *  QueueType (default=maze.Queues.Queue)
             a queuing type.
      *  qargs (default={})
@@ -204,7 +221,7 @@ Setting the *label\_rooms* option to True would have marked every cell in a room
 
 ## Example 3. Rooms without doors.
 
-The door carving is based on an auxiliary maze which shows how regions are connected in the grid.  By default, that maze is carved using Aldous/Broder.  (The number of cells in that maze is always the same as the number of pumps.  So the number of grid connections is small.  With two pumps, Aldous/Broder will take just one visit to carve a link.  With three or more pumps, it could in principle(!) get stuck.  But we could use any general maze carving algorithm (like Kruskal's algorithm or a growing tree algorithm) to carve the auxiliary mazes.  We could not use an algorithm like sidewinder or simple binary tree because those algorithms are restricted to specific grid types.
+The door carving is based on an auxiliary maze which shows how regions are connected in the grid.  By default, that maze is carved using Kruskal's algorithm.  (The number of cells in that maze is always the same as the number of pumps.  So the number of grid connections is small.  With two pumps, Kruskal's algorithm will take just one visit to carve a link.  (For more information, about the choice of Kruskal's algorithm for carving floodgates, see Example 6 below.)
 
 We could also simply not carve any doors at all.  It would not make sense if we set the minimum basin size to 2 cells.  But could set a larger minimum.
 
@@ -434,7 +451,7 @@ Now mark the path and display the maze.
 ```
 The longest path in the previous example tended to be bunched up like a partially coiled snake.   In this example, the path was more like a travelling snake -- not straight, but with very little coiling,
 
-# Example 5C. Comparison with depth-first search
+## Example 5C. Comparison with depth-first search
 
 For comparison, we consider depth-first search:
 
@@ -484,3 +501,156 @@ For comparison, here is a longest path produced in DFS.  That's one long snake!
 |       | *   *   *                                 |       |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
+
+## Example 6 - Extra pumps (diagnostics)
+
+For a number of reasons, it may happen that the basins produced by the pumping algorithm don't cover an entire watershed.  (Some of this may be topological in nature, but some of this is certainly a problem in coding.  At this point the only examples that I have actually looked at seem to be unresolved coding problems.  (In this example we will diagnose one coding problem -- prior to the actual release.)
+
+If the algorithm determines that the basins don't cover the reservoir, it places extra pumps as needed to fill the reservoir.  Each extra pump creates an extra basin.  These extra basins can now be tracked.
+
+We begin as usual, this time using an upsilon grid.  (Starting with the cell in the lower left, the cells in the grid alternate between "octagonal" cells which have diagonal neighbors and "square" cells which do not.)  We proceed as usual with some imports.  We then create a *Maze* object:
+```
+maze4c$ python
+Python 3.10.12
+>>> from mazes.Grids.upsilon import UpsilonGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.watershed_division import WatershedDivision
+>>> maze = Maze(UpsilonGrid(10, 15))
+```
+
+We will use a minimum reservoir size of two and 3 pumps.  We will do some diagnostics using the *extra\_pumps\_trace* option.
+
+We will need to keep the status object around in order to do some diagnostics.  Python syntax requires use of ```:=``` instead of ```=''' when an assignment is used as a function paramater:
+```
+>>> print(status := WatershedDivision.on(maze, 2, 3, extra_pumps_trace=True))
+          Watershed Recursive Division (statistics)
+                            visits      299
+                             cells      150
+                          passages        0
+                             links      149
+                           unlinks        0
+                             doors      149
+                         max stack        9
+                       extra pumps        1
+                  watershed errors        0
+```
+
+That assignment is a bit of syntactic sugar.  We could instead write two lines:
+```
+    status = WatershedDivision.on(maze, 2, 3, extra_pumps_trace=True)
+    print(status)
+```
+
+The "extra pumps" line says that there was a reservoir which was not completely filled.  We had 149 passages for 150 cells, the right number for a perfect maze (or spanning tree).  Is it connected?  One way of telling is to run Kruskal's algorithm.  If it's already connected, then no passages will be added:
+```
+>>> from mazes.Algorithms.kruskal import Kruskal
+>>> print(Kruskal.on(maze))
+          Kruskal (statistics)
+                            visits        0
+                 components (init)        1
+               queue length (init)        0
+                             cells      150
+                          passages        0
+                components (final)        1
+              queue length (final)        0
+```
+Kruskal's algorithms reports that the maze was already connected, so no passages were added.  Hence the watershed algorithm produced a perfect maze.  But at some point an extra pump was required.  Before looking at our diagnostic information, let's display the maze:
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |       |                                       |   |   |
++   /   +---+   \---+---+   +---+---+---+---+   +   /---+   +
+|   |           |   |           |       |   |   |   |       |
++   \---+   +---+---+---+---+---+   \---/---\---/---+---+   +
+|   |   |   |       |       |       |   |       |           |
++---+   +---+   \---/---\---/   +---+---+---+---+---+   +---+
+|       |       |   |   |   |           |               |   |
++   +---+   +---+   +   +   \---+---+---+---+   +   +---/---+
+|       |       |   |   |   |       |       |   |           |
++---/---+---+   +---/---+   +   +---/   +---/---+---+---+   +
+|           |           |   |   |   |               |       |
++---+---/   +---+---+   +---+---+   +---+---+   +---+---+   +
+|       |   |       |   |       |   |   |           |       |
++   +   \---+---+   +---+   +---+   +   +   +   +   +   \---+
+|   |   |       |       |       |   |   |   |   |   |   |   |
++   +   +---+   +---+   +   +   +   +   +   +---/---+---/---+
+|   |   |           |   |   |       |       |       |       |
++---+   +---+   +   +   \   +---+   +---+   +   +   +---+---+
+|           |   |       |       |       |   |   |           |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+We can see that some of the diagonal grid connections were used to form passages.  These are marked by slashes "/" and backslashes "\\".
+
+Now let's look at the diagnostic information:
+
+```
+>>> len(status.extra_pumps_trace)
+1
+```
+This length will always be less than or equal to the number of extra pumps.  (It is possible that more than one extra pump might be needed to fill a reservoir.)
+
+```
+>>> basins = status.extra_pumps_trace[0]
+>>> print(len(basins))
+2
+```
+We have a total of two basins.  This suggests a coding problem instead of a topological issue.  (We have three pumps, but apparently only one of these was placed.)
+
+```
+>>> print(basins)
+[{OctagonalCell object}, {OctagonalCell object}]
+```
+The original basin consists of a single cell, and the extra pump was used to create a second basin consisting of a single cell...
+
+Let's label the two basins:
+```
+>>> n = len(basins)
+>>> for i in range(n):
+...     basin = basins[i]
+...     for cell in basin:
+...         cell.label = str(i)
+...
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |       |                                       |   |   |
++   /   +---+   \---+---+   +---+---+---+---+   +   /---+   +
+|   |           |   |           |       |   |   |   |       |
++   \---+   +---+---+---+---+---+   \---/---\---/---+---+   +
+|   |   |   | 0     |       |       |   |       |           |
++---+   +---+   \---/---\---/   +---+---+---+---+---+   +---+
+|       |       | 1 |   |   |           |               |   |
++   +---+   +---+   +   +   \---+---+---+---+   +   +---/---+
+|       |       |   |   |   |       |       |   |           |
++---/---+---+   +---/---+   +   +---/   +---/---+---+---+   +
+|           |           |   |   |   |               |       |
++---+---/   +---+---+   +---+---+   +---+---+   +---+---+   +
+|       |   |       |   |       |   |   |           |       |
++   +   \---+---+   +---+   +---+   +   +   +   +   +   \---+
+|   |   |       |       |       |   |   |   |   |   |   |   |
++   +   +---+   +---+   +   +   +   +   +   +---/---+---/---+
+|   |   |           |   |   |       |       |       |       |
++---+   +---+   +   +   \   +---+   +---+   +   +   +---+---+
+|           |   |       |       |       |   |   |           |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+The two cells are:
+1. row 7, column 3
+2. row 6, column 4
+
+That's a suspicious configuration.  Let's have a closer look:
+```
+>>> cell1 = maze.grid[7,3]
+>>> cell2 = maze.grid[6,4]
+>>> print(cell1.label, cell2.label)
+0 1
+>>> cell1.southeast == cell2
+False
+>>> cell2.northwest == cell1
+True
+```
+
+And there is the coding issue...  It's in the upsilon grid implementation.  (The upsilon grid code wasn't released when this example was created.)
+
+Well, actually the problem was in the implementation of class *OctagonalCell* in module *mazes.Grids.Oblong8*.  The second of two corrected lines dated 8 September 2025 fixed the detected error.  (The first of these two dated fixes was detected in a similar manner.)  Neither error had been released at this point.
+

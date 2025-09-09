@@ -1,1 +1,5 @@
+# ignore the python caches
 **/__pycache__/
+
+# ignore backup copies
+**/*.py~

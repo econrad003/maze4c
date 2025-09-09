@@ -153,6 +153,27 @@ class Algorithm(object):
                 s += fmt % (stat, value)
             return s
 
+                # Added 1 September 2025:
+                #   dunder methods: __contains__, __getitem__, __setitem__
+
+        def __contains__(self, name:str):
+            """check for the existence of a statistic"""
+            return name in self.__statistics
+
+        def __getitem__(self, name:str):
+            """return the value of a statistic, or return None
+
+            Like Status.fetch_item, but no error if the item does not exist.
+            """
+            return self.__statistics.get(name)
+
+        def __setitem__(self, name:str, value:any):
+            """set the value of a statistic
+
+            Same as Status.store_item.
+            """
+            self.__statistics[name] = value
+
         # RUN
 
     @classmethod

@@ -134,7 +134,12 @@ class Watershed(object):
                 self.q[watershed] = Q(**qargs)          # default queue type
             self.watersheds[watershed] = set()          # the watersheds
             for j in range(watershed+1, len(self.seeds)):
-                self.frontiers[(watershed, j)] = set()      # the borders
+                self.frontiers[(watershed, j)] = set()
+                    # added 1 Sep 2025
+                seed2 = self.seeds[j]
+                if seed2 in seed.neighbors:
+                    join = frozenset([seed, seed2])
+                    self.frontiers[(watershed, j)].add(join)    # the borders
 
     def configure(self):
         """default configuration"""

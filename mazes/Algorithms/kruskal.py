@@ -105,6 +105,11 @@ class Kruskal(Algorithm):
 
                 # QUEUE OPERATIONS (enter/leave/empty)
 
+        @property
+        def components(self):                       # 1 Sep 2025
+            """return the number of components"""
+            return self.__k
+
         def enter(self, edge):
             """push the data into the queue"""
             if self.__pr:

@@ -1,5 +1,11 @@
 # Change Log
 
+## Release 0.10.2 - 24 August 2025
+
+1. New module *console\_tools* - display rectangular mazes with Unicode block characters using method *unicode\_str*.
+2. See *doc/console\_tools.md* for details.
+3. 
+
 ## Release 0.10.1 - 17 August 2025
 
 1. New data structure - *Watershed* in *mazes.watershed*

@@ -45,6 +45,10 @@ At some point, I will put up a *turtle* driver at some point using Python's nati
 
 The standard N/S/E/W rectangular (or *oblong*) grid in module *oblong* as class *OblongGrid*.  A support class for ring-like tiers is supported in module *oblong\_rings*.
 
+Several variants are now available: torus, Moebius strip, cylinder, projective plane, Klein bottle.
+
+Moore neighborhoods (including diagonal compass directions) are available on the console.  **These will need graphical support.**  They are: Moore grid, 6-connected (hexagonal), 8-connected (octagonal), upsilon (alternating 4- and 8-connected).
+
 ### Theta (or polar or circular) grids
 
 Theta (or polar or circular) grids are supported as class *ThetaGrid* in module *polar*.

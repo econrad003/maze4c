@@ -4,7 +4,9 @@
 
 1. New module *console\_tools* - display rectangular mazes with Unicode block characters using method *unicode\_str*.
 2. See *doc/console\_tools.md* for details.
-3. 
+3. Corrections and enhancements to the watershed recursive division algorithm.
+4. New grids: torus, cylinder, Moebius strip, projective plane, Klein bottle.  (These *might* require some graphical enhancements)
+5. New grids: Moore grid, upsilon grid, 6-connected, 8-connected.  (These *will* need some graphical support.)
 
 ## Release 0.10.1 - 17 August 2025
 

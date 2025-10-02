@@ -20,6 +20,7 @@ Mazes in Python 3
     +  *mazes/AGT* - arc-based growing tree algorithm implementations
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazes/Graphics* - graphics drivers
+    +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
 *  *tests* - testing to make sure things work as expected
 
 ## Running the demonstration modules
@@ -87,6 +88,7 @@ The following maze generation algorithms have been implemented:
 * module *hunt\_kill* (class *HuntKill*) - the hunt and kill algorithm, a series of random paths, avoiding already visited cells; each path ends when there is no available step... A new path starts with a passage from the visited area into the frontier.  The algorithm has features reminiscent of Aldous/Broder (random walk, but restricted), Wilson (paths leading from the visited area, but working outward from the visited area instead of inward to) and DFS (you might come up with this if you wanted to avoid both a stack and recursive programming).
 * module *recursive\_division* (classes *Subgrid*, *RecursiveDivision*) - recursive division, implemented as a passage carver for a rectangular grid.
 * module *watershed\_division* (classes *Reservoir*, *WatershedDivision*) - a generalized recursive division algorithm for arbitrary connected grids, implemented as a passage carver using the *Watershed* class.
+* module *dff* (for *depth-first forest*; class *DFF*) is the first of a family of *growing forest* algorithm.  Using class *Task* in the same module, it is possible to implement other growing forest algorithms, such as a breadth-first forest, or even a growing forest built from a depth-first tree and a breadth-first tree.  (See the documentation for some examples.  Jamis Buck's name for DFF is *recursive backtracker with parallel seeds*.)
 
 These are documented in *doc/Algorithms*.
 
@@ -112,10 +114,14 @@ In addition to the maze generation algorithms above, the following algorithms ar
 
 * module *dijkstra* - Dijkstra's shortest path algorithm.  This is a *Swiss army knife* -- it can find path lengths, distances, and shortest paths in a maze.  In trees, it can be used to find the diameter (length of a longest shortest path) as well as a longest shortest path. (For mazes which aren't trees, finding the diameter and finding a longest shortest path are both much harder problems. When finding distances or minimum distance paths, the algorithm will fail there are negative edge weights.)
 
+In the *mazes* folder are a couple of scheduling algorithms.  Module *tournament* implements a weighted task scheduler (class *Tournament*, while *round\_robin* implements a simple change of turns scheduler (class *RoundRobin*) which can be used as a drop-in alternative.  Class *Tournament* chooses the next task randomly based on its weight, while the next task in *RoundRobin* is completely determined by its place in the task list.
+
 ## Planned but not yet implemented:
 
 * Eller's algorithm should come with an inward variant corresponding to inwinder.
 * An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
+* Class *Tournament* is currently used as the default scheduler in the implementation of the depth-first forest algorithm.  I plan to replace the hard-coded round-robin scheduler in the watershed division algorithm with class *Tournament* at some point in the future.
+* I hope to add some helper methods to simplify setup of growing *forest* algorithms to the growing tree folders described below.
 
 ## Helper methods for growing trees
 
@@ -132,10 +138,25 @@ The *mazes/VGT* folder contains several helper methods intended to simplify the 
 
 The *mazes/AGT* folder contains several helper methods intended to simplify the setup for *mazes.Algorithms.growing\_tree2* (class *ArcGrowingTree*).  Each of these contains two methods.  Method *init\_maze* sets up a rectangular maze.  The other method has the same name as the module name -- it runs the algorithm.  See *doc/Algorithms/growing\_trees2.md* for examples of usage.
 
-* module *mazes.VGT.dfs* - method *dfs* - depth-first search
-* module *mazes.VGT.bfs* - method *bfs* - breadth-first search
-* module *mazes.VGT.sprim* - method *sprim* - simplified "Prim"
-* module *mazes.VGT.primic* - method *primic* - a Prim's algorithm mimic which can do Prim's algorithm and lots of other stuff.
+* module *mazes.AGT.dfs* - method *dfs* - depth-first search
+* module *mazes.AGT.bfs* - method *bfs* - breadth-first search
+* module *mazes.AGT.sprim* - method *sprim* - an arc-based simplified "Prim"
+* module *mazes.AGT.primic* - method *primic* - a Prim's algorithm mimic which can do Prim's algorithm and lots of other stuff.
+
+## Queuing methods
+
+These are implementations of various queuing methods derived from the *GeneralizedQueue* virtual class defined in module *mazes.gqueue*.  These are found in the *mazes/Queues* folder.
+
+* class *Stack* in *mazes.Queues.stack* implements a LIFO (last-in first-out) queue, usually known simply as a "stack"; the most recent entry is the top element and is first to leave the queue.
+* class *Queue* in *mazes.Queues.queue* implements a FIFO (first-in first-out) queue, usually known simply as a "queue"; the least recent entry is the top element and is first to leave the queue.
+* class *RandomQueue* in *mazes.Queues.random\_queue* implements a random-in first-out queue; a randomly chosen entry is the top element and is first to leave the queue.
+* class *PriorityQueue* in *mazes.Queues.priority\_queue* implements a min-priority queue; the entry which is currently lowest in priority is the top entry and leaves the queue first.
+
+The property *q.is\_empty* returns *True* if there are no entries in the queue.  The length function *len(q)*, when defined, returns the number of entries in the queue.  The queue methods described above all define the length function.
+
+In addition, *q.enter()* and *q.leave()* methods add and remove entries from the queue.
+
+The *q.top()* methods returns the top entry without removing it.  The *q.jettison()* entry removes the most recent *q.top()* element providing the queue has not changed.  (A *JettisonError* exception is raised by *jettison* if the queue has changed in the interim.  The *top-jettison* pair is needed to that the top entry of a FIFO queue can be inspected without disturbing the current order.)
 
 ## REFERENCES
 

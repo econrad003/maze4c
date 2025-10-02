@@ -1,5 +1,16 @@
 # Change Log
 
+## Release 0.10.4 - TBA 2025 - Growing forest algorithms
+
+1. New module *mazes.tournament* for task management.
+2. New module *mazes.round_robin* for task management.
+3. New module *mazes.Algorithms.dff* for depth-first forest maze carving (*aka* recursive backtracking with parallel seeds).
+
+## Release 0.10.3 - 26 September 2026 - Tessellation
+
+1. New module *Algorithms.dihedral* for generating certain dihedral group orbits.
+2.  New module *Algorithms.fractal\_tess* for generating fractal mazes (and other mazes) by tessellation of tiles which are themselves mazes.  It works with classes *OblongGrid* and (with a small tweak *MooreGrid*.
+
 ## Release 0.10.2 - 24 August 2025
 
 1. New module *console\_tools* - display rectangular mazes with Unicode block characters using method *unicode\_str*.

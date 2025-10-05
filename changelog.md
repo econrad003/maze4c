@@ -1,6 +1,14 @@
 # Change Log
 
-## Release 0.10.4 - TBA 2025 - Growing forest algorithms
+## Release 0.10.5 - 5 October 2025 - Moore grid graphics / save / load
+
+1. Spider graphics for the Moore grid (neighbors in the corners as well as the sides of the square cell) - see the *Graphics.moore* module's *Huntsman* class.
+2. Save maze passages to a CSV file - see the *save\_maze* module.
+3. Load maze passages from a CSV file - see the *load\_maze* module.
+4. Documentation for the above, along with a demo for #1 and a test module for #2 and #3.
+5. Gallery images to go with the documentation of #1.
+
+## Release 0.10.4 - 1 October 2025 - Growing forest algorithms
 
 1. New module *mazes.tournament* for task management.
 2. New module *mazes.round_robin* for task management.

@@ -33,7 +33,7 @@ class Grid(object):
 
     CELL = Cell                             # default cell type
 
-    __slots__ = ("__cells", "__fmt")
+    __slots__ = ("__cells", "__fmt", "__cons")
 
         # CONSTRUCTION AND INITIALIZATION
 
@@ -49,9 +49,18 @@ class Grid(object):
         """
         self.__cells = dict()               # index : cell
         self.__fmt = dict()
+        self.__cons = dict()                # save constructor information
+        self.__cons["cls"] = self.__class__.__name__
+        self.__cons["args"] = args
+        self.__cons["kwargs"] = kwargs
         self._parse_args(*args, **kwargs)           # pass remaining arguments
         self._initialize()
         self._configure()
+
+    @property
+    def _cons(self):
+        """constructor information"""
+        return self.__cons
 
     def _parse_args(self):
         """argument parser for Grid class (stub)

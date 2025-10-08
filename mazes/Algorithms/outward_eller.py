@@ -193,4 +193,4 @@ class OutwardEller(Algorithm):
             self.__rings = ConcentricOblongs(self.maze.grid)
             super().initialize()
 
-# end module mazes.Algorithms.eller
+# end module mazes.Algorithms.outward_eller

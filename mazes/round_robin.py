@@ -21,6 +21,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    6 Oct 2025 - E Conrad
+        Add __len__ magic method to count active tasks
 """
 
 from mazes import rng
@@ -36,6 +41,10 @@ class RoundRobin(Tournament):
         self.__table = dict()
         self.__tasks = list()       # task vector
         self.__index = 0
+
+    def __len__(self):
+        """return the number of tasks"""
+        return len(self.__table)
 
     @property
     def isempty(self):

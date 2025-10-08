@@ -27,6 +27,8 @@ MODIFICATIONS
     28 Sep 2025 - E Conrad
         1) refactor to facilitate derivation of class RoundRobin.
         2) correction: add "else" clause after "yield None"
+    6 Oct 2025 - E Conrad
+        Add __len__ magic method to count active tasks
 """
 
 from mazes import rng
@@ -37,7 +39,7 @@ class Tournament(object):
 
     def __init__(self):
         """constructor"""
-        self.__table = {}           # task -> weight
+        self.__table = dict()       # task -> weight
         self.__tasks = tuple()      # task vector
         self.__cum_wgts = tuple()   # cumulative weights vector
         self.__clean = True
@@ -54,6 +56,10 @@ class Tournament(object):
             cum_wgts.append(cum_wgt)
         self.__cum_wgts = tuple(cum_wgts)
         self.__clean = True
+
+    def __len__(self):
+        """return the number of tasks"""
+        return len(self.__table)
 
     @property
     def isempty(self):

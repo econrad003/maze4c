@@ -1,5 +1,13 @@
 # Change Log
 
+## Release 0.10.6 - 8 October 2025 - minor fixes / statistics
+
+1. New folders: *stats* and *csv* - statistical experiments
+2. New algorithm: multiple seed random walk, a generalization of the Aldous/Broder first entrance random walk (no the mazes are not uniform).  Module *mazes.Algorithms.mt\_random\_walk*.  Colormap demo module: *demos.dcm\_mt\_random\_walk*  Gallery image: *gallery/mt\_random\_walk.png*
+3. Minor module fixes: *mazes.tournament*, *mazes.round\_robin*
+4. Cosmetic module fix: *mazes.Algorithms.outward\_eller*
+5. Statistical experiments: 7 October 2025.  See the *stats* and *csv* folders.  22 algorithms run 100 times each, extracting some summary statistics.
+
 ## Release 0.10.5 - 5 October 2025 - Moore grid graphics / save / load
 
 1. Spider graphics for the Moore grid (neighbors in the corners as well as the sides of the square cell) - see the *Graphics.moore* module's *Huntsman* class.

@@ -200,20 +200,19 @@ class DFF(Algorithm):
             maze = self.maze
             grid = self.grid
             unvisited = list(grid)
+            rng.shuffle(unvisited)
             
             if not seeds:
                 seeds = tuple()
             if len(seeds) > n:
                 raise ValueError("too many seeds")
-            more_seeds = list(rng.choices(unvisited, k=n))
-            visited = set()
             k = 0
             for seed in seeds:
                 self._seed_task(k, seed)
                 k += 1
             while k < n:
-                seed = more_seeds.pop()
-                if seed in visited:
+                seed = unvisited.pop()
+                if seed in self.__visited:
                     continue            # one of the given seeds
                 self._seed_task(k, seed)
                 k += 1
@@ -271,7 +270,6 @@ class DFF(Algorithm):
                 for cell in self.__visited:
                     task = self.__visited[cell]
                     cell.label = str(task.taskID)
-
 
         @property
         def more(self):

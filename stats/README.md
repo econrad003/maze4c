@@ -9,3 +9,8 @@ In this experiment, the degree sequences and diameters produced by a given algor
 Each mazes in the experiment was a perfect maze (*i.e.* a spanning tree) on a 21×34 rectangular grid with Von Neumann neighborhoods (*i.e.* up to 4 neighbors in the principal compass directions - type *OblongGrid(21, 34)).
 
 The pseudorandom number generator used to produce the mazes was the native Python (v3.12) *random* module.  The Mersenne twister implementation reportedly avoids poor distribution in two dimensions.
+
+## Degree Sequences - 8 October 2025
+
+This is a repeat of the 7 October experiment.  In the report, I look for significant changes (more than one standard deviation) in results.
+

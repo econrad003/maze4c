@@ -64,6 +64,17 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    9 Oct 2025 - E Conrad
+        corrected method "single_pass" - now uses the group that was
+        passed. Also added "verbose" option to "on" method with
+        default True -- False removes the two print statements.
+    10 Oct 2025 - E Conrad
+        corrected "test" method -- it was returning the wrong number
+        of columns.  This caused the expected message to display
+        wrong dimensions, but otherwise had no effect. (cosmetic error)
 """
 from mazes import rng
 from mazes.Grids.oblong import OblongGrid
@@ -225,6 +236,10 @@ class FractalTessellation(object):
                 DihedralGroup in mazes.Algorithms.dihedral) which
                 purports to generate the orbit of a group (of symmetries)
                 on a maze.
+
+                Methods used are "__init__" and "build_table",  In addition,
+                after build_table is run, the attribute or property
+                "symmetries" should contain a list of seeds.
         """
             # HOUSEKEEPING
         if len(seeds) == 0:
@@ -248,7 +263,7 @@ class FractalTessellation(object):
         self.status["passes"] += 1
         maze = self.create_maze_object(GridType, m, n)
         if symmetry:
-            group = DihedralGroup(seeds[0])
+            group = SymmetryGroup(seeds[0])         # 9 October 2025
             group.build_table()
             seeds = group.symmetries
         for i in range(self.rows):
@@ -286,11 +301,12 @@ class FractalTessellation(object):
             n = seed.grid.n
         self.test_warning(GridType)
         p = m * (self.rows ** passes)
-        q = m * (self.cols ** passes)
+        q = n * (self.cols ** passes)       # 10 Oct 2025
         return GridType, p, q
 
     def on(self, seed:Maze=None, passes:int=3,
-           SymmetryGroup:callable=DihedralGroup) -> Maze:
+           SymmetryGroup:callable=DihedralGroup,
+           verbose:bool=True) -> Maze:
         """run the algorithm throug several passes
 
         If no seed is specified, the current value of self.maze
@@ -306,13 +322,15 @@ class FractalTessellation(object):
         defaults here and for rows and columns in the constructor.
         """
         _, p, q = self.test(seed=seed, passes=passes)
-        print(f"Expected result: {p} rows, {q} columns")
+        if verbose:                             # 10 Oct 2025
+            print(f"Expected result: {p} rows, {q} columns")
         if seed == None:
             seed = self.maze
         self.status["passes"] = 0
         for i in range(passes):
             seed = self.single_pass(seed, SymmetryGroup=SymmetryGroup)
         p, q = seed.grid.m, seed.grid.n
-        print(f"Actual result: {p} rows, {q} columns")
+        if verbose:                             # 10 Oct 2025
+            print(f"Actual result: {p} rows, {q} columns")
         return seed
 

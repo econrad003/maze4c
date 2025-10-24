@@ -32,6 +32,8 @@ MODIFICATIONS
         Added cell fill with color.
     28 December 2024 - EC
         Correct a typo in the docstring.
+    23 Oct 2025 - EC
+        correct name of fill routine
 """
 from math import sqrt
 from mazes.maze import Maze
@@ -323,7 +325,7 @@ class Huntsman(Spider):
                 continue
             i, j = cell.index
             x, y = j+h, i+k
-            self.fill8(cell, x, y, self.__fill[cell])
+            self.fill_cell8(cell, x, y, self.__fill[cell])  # 23 Oct 2025
 
         for cell in self.__grid:
             i, j = cell.index

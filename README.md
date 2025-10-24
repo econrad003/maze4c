@@ -7,6 +7,7 @@ Mazes in Python 3
 
 **Folders**:
 
+*  *csv* - gathered statistics (csv spreadsheets and analyses)
 *  *demos* - demonstration modules
     +  *demos/polar* - demonstration modules for theta (aks: polar) mazes
 *  *doc* - documentation
@@ -21,6 +22,7 @@ Mazes in Python 3
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazes/Graphics* - graphics drivers
     +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
+*  *stats* - tools and one-shot modules for gathering statistics.  The one-shot modules have date stamps in their filenames. Gathered statistics are found in the *csv* folder.
 *  *tests* - testing to make sure things work as expected
 
 ## Running the demonstration modules
@@ -48,7 +50,7 @@ The standard N/S/E/W rectangular (or *oblong*) grid in module *oblong* as class 
 
 Several variants are now available: torus, Moebius strip, cylinder, projective plane, Klein bottle.
 
-Moore neighborhoods (including diagonal compass directions) are available on the console.  **These will need graphical support.**  They are: Moore grid, 6-connected (hexagonal), 8-connected (octagonal), upsilon (alternating 4- and 8-connected).
+Moore neighborhoods (including diagonal compass directions) are available on the console.  They are: Moore grid, 6-connected (hexagonal), 8-connected (octagonal), upsilon (alternating 4- and 8-connected).
 
 ### Theta (or polar or circular) grids
 
@@ -56,15 +58,20 @@ Theta (or polar or circular) grids are supported as class *ThetaGrid* in module 
 
 ## Graphics
 
+* *matplot\_driver* - a base class for drivers based on *matplotlib*. Defines class *Spider*.
+
 ### Oblong (rectangular) grids
 
-* *oblong1* - a crude matplotlib driver (*oblong1*) for oblong grids.  Arcs are not supported.  It only handles the Von Neumann neighborhood (N/S/E/W), but glued edges (cylinder, Moebius strip, torus, Klein bottle, projective plane) are not a problem.
-* *oblong2* - a matplotlib driver (*oblong2*) for oblong grids which creates linewise maps of mazes.  I can handle both (undirected) edges and (directed) arcs.  It works best in Moore neighborhoods (nearest neighbor in up to eight compass directions, no glued edges).
+* *oblong1* - a crude matplotlib driver (*oblong1*) for oblong grids.  Arcs are not supported.  It only handles the Von Neumann neighborhood (N/S/E/W), but glued edges (cylinder, Moebius strip, torus, Klein bottle, projective plane) are not a problem.  Defines class *Phocidae* (sic!).
+    + (The class name is misspelled -- it should be '*Pholcidae*' -- the daddy long-legs family.  *Phocidae* is the family which includes the true seals (mammals. not spiders).)
+* *oblong2* - a matplotlib driver (*oblong2*) for oblong grids which creates linewise maps of mazes.  I can handle both (undirected) edges and (directed) arcs.  It works best in Moore neighborhoods (nearest neighbor in up to eight compass directions, no glued edges). Defines class *SpiderWeb*.
+* *moore* - a matplotlib driver for rectangular grids with Moore neighborhoods (neighbors on both diagonals as well as the orthogonal neighbors). Again, arcs are not supported.  As diagonal passages may cross in the plane, this is a rudimentary weaving driver.  Defines class *Huntsman*.
+    + Huntsman spiders are really cool. They are unfortunately not native to North America.  (They are native to Australia.)
 
 ### Theta (polar/circular) grids
 
-* *polar1* - a basic graphics driver for theta (or polar) mazes.
-* *polar2* - a basic graphics driver for linewise representation of theta mazes.
+* *polar1* - a basic graphics driver for theta (or polar) mazes.  Defines variant class *Phocidae* (sic!) for polar mazes.
+* *polar2* - a basic graphics driver for linewise representation of theta mazes. Defines variant class *SpiderWeb* for polar mazes.
 
 ## Algorithms
 
@@ -77,6 +84,8 @@ The following maze generation algorithms have been implemented:
 * module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
 * *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.
 * module *growing\_tree1* (class *VertexGrowingTree*) - vertex-based
+   + module *dfs_better* (class *DFS*) - a simple vertex-based depth-first search implementation.  Commonly known as 'recursive backtracker'.
+   + module *bfs* (class *BFS*) - a simple vertex-based breadth-first search implementation.
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
 * module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
 * module *eller* (class *Eller*) - Eller's algorithm.  The basic algorithm is a generalization of sidewinder with a few tricks which are adapted from Kruskal's algorithm.  In addition, an outward variant (generalizing outwinder) has been implemented.
@@ -89,6 +98,7 @@ The following maze generation algorithms have been implemented:
 * module *recursive\_division* (classes *Subgrid*, *RecursiveDivision*) - recursive division, implemented as a passage carver for a rectangular grid.
 * module *watershed\_division* (classes *Reservoir*, *WatershedDivision*) - a generalized recursive division algorithm for arbitrary connected grids, implemented as a passage carver using the *Watershed* class.
 * module *dff* (for *depth-first forest*; class *DFF*) is the first of a family of *growing forest* algorithm.  Using class *Task* in the same module, it is possible to implement other growing forest algorithms, such as a breadth-first forest, or even a growing forest built from a depth-first tree and a breadth-first tree.  (See the documentation for some examples.  Jamis Buck's name for DFF is *recursive backtracker with parallel seeds*.)
+* module *fractal\_tess* (class *FractalTessellation*) - a fractal-based algorithm which is neither a passage carver nor a wall builder as it does not start with a configured grid.  It might be better described as a recursive tiler as it assembles tiles recursively to produce larger tiles.  Some passage carving is used to glue tiles together.
 
 These are documented in *doc/Algorithms*.
 

@@ -42,6 +42,11 @@ class Phocidae(Spider):
     and west neighbors.  The passages are wide with no insets, perfect for
     the daddy long-legs to seek its prey.  Simplicity is the order of the
     day.
+
+        *** This is a misspelling ***
+
+    Apparently Phocidae is actually a family of seals.  Pholcidae is the
+    family of spiders which includes the daddy long-legs.
     """
 
     __slots__ = ("__maze", "__grid", "__fill")

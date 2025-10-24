@@ -1,5 +1,19 @@
 # Change Log
 
+## Release 0.10.8 part 2 - masked mazes
+1. corrections (cell module, Moore grid module)
+2. new tool (image to mask - for creating masks from images)
+3. demos and documentation
+
+The infrastructure for masking was built into the cell and grid modules back in 2024.  Text and image masks are new.
+
+## Release 0.10.8 part 1 - 9-10 October 2025 - statistics, rotation group
+1. More statistical analyses
+2. Rotation group module (for fractal tessellation)
+
+## Release 0.10.7 - 9 October 2025 - more statistics
+* minor additions to the stats folder and a new csv.
+
 ## Release 0.10.6 - 8 October 2025 - minor fixes / statistics
 
 1. New folders: *stats* and *csv* - statistical experiments

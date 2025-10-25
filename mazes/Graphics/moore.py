@@ -9,7 +9,8 @@ DESCRIPTION
     and the spider graphics driver.  It does not support one-way connections
     or insets. One class is defined:
 
-        Phocidae -- named after the family of daddy long-leg spiders.
+        Huntsman -- named for a large Australian spider that makes a
+            great household pet.
 
 LICENSE
 
@@ -32,8 +33,10 @@ MODIFICATIONS
         Added cell fill with color.
     28 December 2024 - EC
         Correct a typo in the docstring.
-    23 Oct 2025 - EC
+    23 October 2025 - EC
         correct name of fill routine
+    25 October 2025 - EC
+        correct the file docstring
 """
 from math import sqrt
 from mazes.maze import Maze

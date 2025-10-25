@@ -27,7 +27,7 @@ import mazes
 from mazes.Grids.oblong import OblongGrid
 from mazes.maze import Maze
 from mazes.Algorithms.inwinder import Inwinder
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 def make_grid(rows, columns) -> Maze:
     """returns a maze object that is ready for passage carving"""
@@ -45,7 +45,7 @@ def main(rows:int, cols:int, color, output=None,
     if (rows <= 10 and cols <= 15) or console:
         print(maze)
 
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(color=color)
         # The cocktail shaker algorithm guarantees a binary tree with
         # sidewinder, but not with inwinder.  If the first or last cell

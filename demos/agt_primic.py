@@ -28,7 +28,7 @@ LICENSE
 import mazes
 from mazes import rng
 from mazes.AGT.primic import primic, init_maze
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 pr_map = dict()
 
@@ -83,7 +83,7 @@ def main(dim, start, shuffle, mapping, action, color, output, console, gui):
     if console or (dim[0] <= 10 and dim[1] <= 15):
         print(maze)
 
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(color=color)
     title = pr_map["title"] if pr_map else "Arc Prim/cache"
     title += '/' + action

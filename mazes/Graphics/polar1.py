@@ -9,7 +9,7 @@ DESCRIPTION
     driver.  It does not support one-way connections or insets. One class is
     defined:
 
-        Phocidae -- named after the family of daddy long-leg spiders.
+        Pholcidae -- named after the family of daddy long-leg spiders.
 
 LICENSE
 
@@ -25,6 +25,12 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    25 October 2025 - EC
+        Correct the spelling of the class name.  The misspelling is retained
+        as an alias.
 """
 import numpy as np
 from math import pi, ceil, sqrt
@@ -33,7 +39,7 @@ from mazes.maze import Maze
 from mazes.Graphics.matplot_driver import Spider
 from mazes.Grids.polar import xy
 
-class Phocidae(Spider):
+class Pholcidae(Spider):
     """The daddy long legs of drivers
 
     The daddy long-legs spider has long somewhat clumsy legs.  This driver
@@ -42,11 +48,6 @@ class Phocidae(Spider):
     and west neighbors.  The passages are wide with no insets, perfect for
     the daddy long-legs to seek its prey.  Simplicity is the order of the
     day.
-
-        *** This is a misspelling ***
-
-    Apparently Phocidae is actually a family of seals.  Pholcidae is the
-    family of spiders which includes the daddy long-legs.
     """
 
     __slots__ = ("__maze", "__grid", "__fill")
@@ -206,5 +207,30 @@ class Phocidae(Spider):
         Depends on the magnification, so this is just a wild guess.
         """
         return max(5, int(25 * sqrt(r) / n))
+
+class Phocidae(Pholcidae):
+    """The daddy long legs of drivers
+
+    The daddy long-legs spider has long somewhat clumsy legs.  This driver
+    works well for mazes defined on oblong grids provided all passages are
+    undirected and the only exits from a cell are to its north, south, east
+    and west neighbors.  The passages are wide with no insets, perfect for
+    the daddy long-legs to seek its prey.  Simplicity is the order of the
+    day.
+
+        *** This is a misspelling ***
+
+    Apparently Phocidae is actually a family of seals.  Pholcidae is the
+    family of spiders which includes the daddy long-legs.
+
+    This class is maintained for backward compatibility.
+    """
+
+    def __init__(self, maze:Maze):
+        """constructor"""
+        print("WARNING: The class name Phocidae is a misspelling.")
+        print("INFO: import Phocidae from 'mazes.Graphics.polar1'.")
+        print("INFO: Please change the class name and import to Pholcidae.")
+        super().__init__(maze)
 
 # end module mazes.Graphics.polar1

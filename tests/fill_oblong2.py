@@ -30,7 +30,7 @@ from mazes.Algorithms.wilson import Wilson
 from mazes.Algorithms.dijkstra import test
 
     # the new improved daddy long legs (23 Dec 2024)
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 def gradient(hot:'rgb', cold:'rgb', d:int, dmax:int) -> 'rgb':
     """compute the interpolated color"""
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     import sys
     maze, fills = parse_args(sys.argv[1:])
         # plot the maze
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(fillcolors=fills)
     spider.draw_maze()
     spider.show()

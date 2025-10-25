@@ -28,7 +28,7 @@ from mazes.maze import Maze
 from mazes.Algorithms.simple_binary_tree import BinaryTree
 
     # the new improved daddy long legs (23 Dec 2024)
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
     # create a maze
 maze = Maze(OblongGrid(5, 8))
@@ -42,7 +42,7 @@ cell4 = maze.grid[3,2]
 fills = {cell1:"red", cell2:"green", cell3:"blue", cell4:"goldenrod"}
 
 	# plot the maze
-spider = Phocidae(maze)
+spider = Pholcidae(maze)
 spider.setup(fillcolors=fills)
 spider.draw_maze()
 spider.show()

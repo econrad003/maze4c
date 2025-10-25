@@ -116,8 +116,8 @@ def title(args:argparse.Namespace):
 
 def draw_maze(maze, title:str, colors:bool, output:str):
     """sketch the maze"""
-    from mazes.Graphics.polar1 import Phocidae
-    spider = Phocidae(maze)
+    from mazes.Graphics.polar1 import Pholcidae
+    spider = Pholcidae(maze)
     if colors:
         RED = (1.0, 0, 0)
         BLUE = (0, 0, 1.0)

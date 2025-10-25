@@ -26,7 +26,7 @@ LICENSE
 """
 import mazes
 from mazes.AGT.dfs import dfs, init_maze
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 def make_maze(maze:"Maze", start_cell:"Cell", shuffle:bool=True) -> "Status":
     """carve the maze"""
@@ -44,7 +44,7 @@ def main(dim, start, shuffle, color, output, console, gui):
     if console or (dim[0] <= 10 and dim[1] <= 15):
         print(maze)
 
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(color=color)
     title = "Depth-first search "
     if shuffle:

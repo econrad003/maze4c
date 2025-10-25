@@ -113,8 +113,8 @@ The method *PE.coin\_toss* is just a *p*-distribution simulator taking no option
 
 To save and display the sketch:
 ```
-    6> from mazes.Graphics.polar1 import Phocidae
-    7> spider = Phocidae(maze)
+    6> from mazes.Graphics.polar1 import Pholcidae
+    7> spider = Pholcidae(maze)
     8> spider.setup()
     9> spider.title("My Fancy Polar Eller Maze")
     10> spider.draw_maze()

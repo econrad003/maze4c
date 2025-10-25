@@ -26,7 +26,7 @@ LICENSE
 """
 import mazes
 from mazes.VGT.vprim import vprim, init_maze
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 def make_maze(maze:"Maze", start_cell:"Cell",
               shuffle:bool=True, action:str='unstable') -> "Status":
@@ -45,7 +45,7 @@ def main(dim, start, shuffle, action, color, output, console, gui):
     if console or (dim[0] <= 10 and dim[1] <= 15):
         print(maze)
 
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(color=color)
     title = 'Vertex "Prim" '
     if shuffle:

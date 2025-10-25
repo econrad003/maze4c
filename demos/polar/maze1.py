@@ -39,7 +39,7 @@ from mazes.Algorithms.kruskal import Kruskal
 from mazes.Algorithms.hunt_kill import HuntKill
 
     # graphics
-from mazes.Graphics.polar1 import Phocidae
+from mazes.Graphics.polar1 import Pholcidae
 
 def init_maze(rings:int, pole:int=6, split:int=1) -> Maze:
     """create an empty theta maze"""
@@ -89,7 +89,7 @@ def main(grid_args:tuple, graphics_args:tuple, alg_args):
     if not monochrome:
         for cell in grid:
             fills[cell] = None          # rotate the colors
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(fillcolors=fills)
     spider.title(title)
     spider.draw_maze()

@@ -64,7 +64,7 @@ import mazes
 from mazes.Grids.oblong import OblongGrid
 from mazes.maze import Maze
 from mazes.Algorithms.recursive_division import RecursiveDivision
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 def make_grid(rows, columns) -> Maze:
     """returns a maze object that is ready for passage carving"""
@@ -90,7 +90,7 @@ def main(rows:int, cols:int, min_rows:int=2, min_cols:int=2,
     if (rows <= 10 and cols <= 15) or console:
         print(maze)
 
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(color=color)
     spider.title("Recursive Division Maze")
     spider.draw_maze()

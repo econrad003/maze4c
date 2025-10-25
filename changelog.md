@@ -1,5 +1,8 @@
 # Change Log
 
+## Release 0.10.9 part 1 - 25 October 2025 - cosmetic correction
+* changed class Phocidae (unintentionally named after a family of seals) to class Pholcidae (named after the arachnid family which includes the daddy long legs spider, as intended).
+
 ## Release 0.10.8 part 2 - masked mazes
 1. corrections (cell module, Moore grid module)
 2. new tool (image to mask - for creating masks from images)

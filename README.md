@@ -62,15 +62,14 @@ Theta (or polar or circular) grids are supported as class *ThetaGrid* in module 
 
 ### Oblong (rectangular) grids
 
-* *oblong1* - a crude matplotlib driver (*oblong1*) for oblong grids.  Arcs are not supported.  It only handles the Von Neumann neighborhood (N/S/E/W), but glued edges (cylinder, Moebius strip, torus, Klein bottle, projective plane) are not a problem.  Defines class *Phocidae* (sic!).
-    + (The class name is misspelled -- it should be '*Pholcidae*' -- the daddy long-legs family.  *Phocidae* is the family which includes the true seals (mammals. not spiders).)
+* *oblong1* - a crude matplotlib driver (*oblong1*) for oblong grids.  Arcs are not supported.  It only handles the Von Neumann neighborhood (N/S/E/W), but glued edges (cylinder, Moebius strip, torus, Klein bottle, projective plane) are not a problem.  Defines class *Pholcidae*.
 * *oblong2* - a matplotlib driver (*oblong2*) for oblong grids which creates linewise maps of mazes.  I can handle both (undirected) edges and (directed) arcs.  It works best in Moore neighborhoods (nearest neighbor in up to eight compass directions, no glued edges). Defines class *SpiderWeb*.
 * *moore* - a matplotlib driver for rectangular grids with Moore neighborhoods (neighbors on both diagonals as well as the orthogonal neighbors). Again, arcs are not supported.  As diagonal passages may cross in the plane, this is a rudimentary weaving driver.  Defines class *Huntsman*.
     + Huntsman spiders are really cool. They are unfortunately not native to North America.  (They are native to Australia.)
 
 ### Theta (polar/circular) grids
 
-* *polar1* - a basic graphics driver for theta (or polar) mazes.  Defines variant class *Phocidae* (sic!) for polar mazes.
+* *polar1* - a basic graphics driver for theta (or polar) mazes.  Defines variant class *Pholcidae* for polar mazes.
 * *polar2* - a basic graphics driver for linewise representation of theta mazes. Defines variant class *SpiderWeb* for polar mazes.
 
 ## Algorithms

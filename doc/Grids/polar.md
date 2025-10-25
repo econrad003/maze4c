@@ -81,8 +81,8 @@ Lines 8 through 11 set up the polar linewise maze driver.  Line 12 draws the maz
 The linewise maze gives us a good sense of some of the biases of the algorithm.  But this isn't how we normally display the maze.  A very basic display comes with the "daddy long legs" driver.
 
 ```
-    15> from mazes.Graphics.polar1 import Phocidae
-    16> spider = Phocidae(maze)
+    15> from mazes.Graphics.polar1 import Pholcidae
+    16> spider = Pholcidae(maze)
     17> spider.title('Simplified "Prim"')
     18> spider.setup()
     19> spider.draw_maze()
@@ -118,7 +118,7 @@ If we use this dictionary, then *matplotlib* will choose all the colors.  The ce
 
 We create a new driver and assign the fill colors:
 ```
-    29> spider = Phocidae(maze)
+    29> spider = Pholcidae(maze)
     30> spider.title('Simplified "Prim"')
     31> spider.setup(fillcolors=fills)
     32> spider.draw_maze()

@@ -41,8 +41,8 @@ Next we run the maze carving algorithm:
 
 We create a sketch of the maze...
 ```
-    6> from mazes.Graphics.polar1 import Phocidae
-    7> spider = Phocidae(maze)
+    6> from mazes.Graphics.polar1 import Pholcidae
+    7> spider = Pholcidae(maze)
     8> spider.setup()
     9> spider.title("Outwinder")
     10> spider.draw_maze()
@@ -91,7 +91,7 @@ Next we sketch the maze.  The figure has been saved as:
 Note here that the outermost ring houses a number of walls, but there is just one wall in the innermost ring. With polar inwinder, the innermost ring is always a path but but not a circuit.  If there is more than one cell, the innermost ring will have exactly one wall.
 
 ```
-    20> spider = Phocidae(maze)
+    20> spider = Pholcidae(maze)
     21> spider.setup()
     22> spider.title("Inwinder")
     23> spider.draw_maze()

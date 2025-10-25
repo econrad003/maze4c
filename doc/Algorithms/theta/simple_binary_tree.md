@@ -89,8 +89,8 @@ A separate coin toss determines the lateral direction for each row.  Finally in 
 
 Continuing with the example, we next produce a black and white sketch of the maze:
 ```
-    6> from mazes.Graphics.polar1 import Phocidae
-    7> spider = Phocidae(maze)
+    6> from mazes.Graphics.polar1 import Pholcidae
+    7> spider = Pholcidae(maze)
     8> spider.setup()
     9> spider.title("Simple Binary Tree")
     10> spider.draw_maze()

@@ -34,7 +34,7 @@ from mazes.Algorithms.dijkstra import test
 from mazes.tools.distance_map import DistanceColoring
 
     # the new improved daddy long legs (23 Dec 2024)
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 CARVER = (Wilson, (), {})
 ALGORITHMS = "The available algorithms are:"
@@ -529,7 +529,7 @@ def make_colormap(maze, hot, cold, zero, source):
 def make_sketch(maze, hot, cold, zero, source):
     """sketch the maze"""
     fills = make_colormap(maze, hot, cold, zero, source)
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(fillcolors=fills)
     spider.draw_maze()
     return spider

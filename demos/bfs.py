@@ -28,7 +28,7 @@ import mazes
 from mazes.Grids.oblong import OblongGrid
 from mazes.maze import Maze
 from mazes.Algorithms.bfs import BFS
-from mazes.Graphics.oblong1 import Phocidae
+from mazes.Graphics.oblong1 import Pholcidae
 
 def make_grid(rows, columns) -> Maze:
     """returns a maze object that is ready for passage carving"""
@@ -46,7 +46,7 @@ def main(rows:int, cols:int, color, output=None,
     if (rows <= 10 and cols <= 15) or console:
         print(maze)
 
-    spider = Phocidae(maze)
+    spider = Pholcidae(maze)
     spider.setup(color=color)
     title = "Breadth-first search"
     if not tree_args["shuffle"]:

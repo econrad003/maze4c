@@ -272,7 +272,7 @@ if __name__ == "__main__":
     if GridType == MooreGrid:
         from mazes.Graphics.moore import Huntsman as Arachnid
     else:
-        from mazes.Graphics.oblong1 import Phocidae as Arachnid
+        from mazes.Graphics.oblong1 import Pholcidae as Arachnid
     print("Rendering graphics...")
     spider = Arachnid(maze)
     colorings = dict()

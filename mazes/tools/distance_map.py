@@ -21,13 +21,15 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    25 October 2025 - EC
+        Remove an unneeded import
 """
 from math import isnan
 
 from mazes.Algorithms.dijkstra import Dijkstra, test
-
-    # the new improved daddy long legs (23 Dec 2024)
-from mazes.Graphics.oblong1 import Phocidae
 
 class DistanceColoring(object):
     """for building colormaps of mazes

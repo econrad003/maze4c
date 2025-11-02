@@ -14,6 +14,8 @@ NOTES ON THE OPTIONS
         random.
 
         The following algorithms _do NOT_ use starting cells:
+            BFF (breadth-first forest)
+            DFF (depth-first forest)
             Eller
             Inwinder
             MTRandomWalk
@@ -21,6 +23,8 @@ NOTES ON THE OPTIONS
             RecursiveDivision
             Sidewinder
             BinaryTree (Simple)
+            SPF (simplified Prim forest)
+            VPF (vertex Prim forest)
 
     bias1 - used by the following algorithms for a coin flip:
             Eller
@@ -34,9 +38,12 @@ NOTES ON THE OPTIONS
     noshuffle - used by the following algorithms to suppress shuffling
         of neighborhoods:
             BFS
+            BFF (breadth-first forest)
             DFS
+            DFF (depth-first forest)
             Kruskal
             SimplifiedPrim
+            SPF (simplified Prim forest)
         In general, runs will be faster if shuffling is suppressed, but
         the results will tend to exhibit more bias.  For example, DFS
         without shuffling tends to produce a maze with one extremely long
@@ -44,17 +51,35 @@ NOTES ON THE OPTIONS
         version and how dictionaries are implemented.)
 
     threads - used by the following algorithms:
+            DFF (depth-first forest and relatives)
             MTRandomWalk
             WatershedDivision
+        The following methods use the DFF algorithm class as their entry
+        point:
+                name                                method
+            --------------------------------------- ------
+            depth-first forest                      dff
+            breadth-first forest                    bff
+            simplified Prim forest                  spf
+            vertex Prim forest                      vpf
+            pure Prim forest                        ppf
 
     thread_weights - used by the following algorithms
+            BFF (breadth-first forest)
+            DFF (depth-first forest)
             MTRandomWalk
+            SPF (simplified Prim forest)
+            VPF (vertex Prim forest)
             WatershedDivision
 
         Used to set thread weights when the tournament scheduler is used.
 
     round_robin - used by the following algorithms:
+            BFF (breadth-first forest)
+            DFF (depth-first forest)
             MTRandomWalk
+            SPF (simplified Prim forest)
+            VPF (vertex Prim forest)
             WatershedDivision
 
         If True, the round robin scheduler will be used.  Otherwise the
@@ -117,14 +142,67 @@ def aldous_broder(maze:"Maze", args:"Namespace"):
     return AldousBroder.on(maze, start_cell=args.start)
 
 def bfs(maze:"Maze", args:"Namespace"):
-    """Breadth-first search"""
+    """breadth-first search"""
     from mazes.Algorithms.bfs import BFS
     return BFS.on(maze, start_cell=args.start, shuffle=not args.no_shuffle)
 
+def bff(maze:"Maze", args:"Namespace"):
+    """breadth-first forest"""
+    from mazes.Algorithms.dff import DFF, Task
+    from mazes.round_robin import RoundRobin
+    from mazes.Queues.queue import Queue
+
+    class TaskBFF(Task):
+        """a wrapper for the task class"""
+
+        def __init__(self, taskID:int):
+            """constructor"""
+            super().__init__(taskID, QueueType=Queue)
+
+    class BFF(DFF):
+        """wrapper for DFF class"""
+        class Status(DFF.Status):
+            """wrapper for DFF.Status class"""
+            NAME = "Breadth-first Forest (BFF)"
+
+    n = args.threads
+    tasks = list()
+    for i in range(n):
+        tasks.append(TaskBFF(i))
+    tasks = tuple(tasks)
+
+    targs = tuple(args.thread_weights) if args.thread_weights else None
+    if targs:
+        if not args.quiet:
+            print("thread weights =", tuple(targs))
+
+    if args.round_robin:
+        return BFF.on(maze, *tasks, Scheduler=RoundRobin,
+                      shuffle=not args.no_shuffle)
+    else:
+        return BFF.on(maze, *tasks, weights=targs,
+                      shuffle=not args.no_shuffle)
+
 def dfs(maze:"Maze", args:"Namespace"):
-    """Depth-first search"""
+    """depth-first search"""
     from mazes.Algorithms.dfs_better import DFS
     return DFS.on(maze, start_cell=args.start, shuffle=not args.no_shuffle)
+
+def dff(maze:"Maze", args:"Namespace"):
+    """depth-first forest"""
+    from mazes.Algorithms.dff import DFF
+    from mazes.round_robin import RoundRobin
+
+    targs = tuple(args.thread_weights) if args.thread_weights else None
+    if targs:
+        if not args.quiet:
+            print("thread weights =", tuple(targs))
+    if args.round_robin:
+        return DFF.on(maze, args.threads, Scheduler=RoundRobin,
+                      shuffle=not args.no_shuffle)
+    else:
+        return DFF.on(maze, args.threads, weights=targs,
+                      shuffle=not args.no_shuffle)
 
 def eller(maze:"Maze", args:"Namespace"):
     """Eller's algorithm"""
@@ -181,6 +259,27 @@ def outwinder(maze:"Maze", args:"Namespace"):
     from mazes.Algorithms.outwinder import Outwinder
     return Outwinder.on(maze, bias=args.bias1)
 
+def prim(maze:"Maze", args:"Namespace"):
+    """Prim's algorithm"""
+    from mazes.Algorithms.growing_tree2 import ArcGrowingTree as AGT
+    from mazes.Queues.priority_queue import PriorityQueue
+
+    priorities = dict()
+    edges = set()
+    for cell in maze.grid:
+        for nbr in cell.neighbors:
+            edge = frozenset([cell, nbr])
+            edges.add(edge)
+    edges = list(edges)
+    rng.shuffle(edges)
+    for i in range(len(edges)):
+        edge = edges[i]
+        priorities[edge] = i
+    pr = lambda cell, nbr: priorities[frozenset([cell, nbr])]
+
+    return AGT.on(maze, start_cell=args.start, shuffle=False,
+                  QueueClass=PriorityQueue, priority=pr)
+
 def recursive_division(maze:"Maze", args:"Namespace"):
     """recursive division"""
     from mazes.Algorithms.recursive_division import RecursiveDivision
@@ -218,6 +317,101 @@ def simplified_Prim(maze:"Maze", args:"Namespace"):
     """Breadth-first search"""
     from mazes.Algorithms.simplified_Prim import NotPrim
     return NotPrim.on(maze, start_cell=args.start, shuffle=not args.no_shuffle)
+
+def spf(maze:"Maze", args:"Namespace"):
+    """simplified Prim forest"""
+    from mazes.Algorithms.dff import DFF, Task
+    from mazes.round_robin import RoundRobin
+    from mazes.Queues.priority_queue import PriorityQueue
+
+    class TaskSPF(Task):
+        """a wrapper for the task class"""
+
+        def __init__(self, taskID:int):
+            """constructor"""
+            pr = lambda cell: 1
+            super().__init__(taskID, QueueType=Queue, priority=pr)
+
+    class SPF(DFF):
+        """wrapper for DFF class"""
+        class Status(DFF.Status):
+            """wrapper for DFF.Status class"""
+            NAME = "Simplified Prim Forest (SPF)"
+
+    n = args.threads
+    tasks = list()
+    for i in range(n):
+        tasks.append(TaskSPF(i))
+    tasks = tuple(tasks)
+
+    targs = tuple(args.thread_weights) if args.thread_weights else None
+    if targs:
+        if not args.quiet:
+            print("thread weights =", tuple(targs))
+
+    if args.round_robin:
+        return SPF.on(maze, *tasks, Scheduler=RoundRobin,
+                      shuffle=not args.no_shuffle)
+    else:
+        return SPF.on(maze, *tasks, weights=targs,
+                      shuffle=not args.no_shuffle)
+
+def vertex_Prim(maze:"Maze", args:"Namespace"):
+    """vertex Prim"""
+    from mazes.Algorithms.growing_tree1 import VertexGrowingTree as VGT
+    from mazes.Queues.priority_queue import PriorityQueue
+
+    priorities = dict()
+    cells = list(maze.grid)
+    rng.shuffle(cells)
+    for i in range(len(cells)):
+        priorities[cells[i]] = i
+    pr = lambda cell: priorities[cell]
+
+    return VGT.on(maze, start_cell=args.start, shuffle=False,
+                  QueueClass=PriorityQueue, priority=pr)
+
+def vpf(maze:"Maze", args:"Namespace"):
+    """vertex Prim forest"""
+    from mazes.Algorithms.dff import DFF, Task
+    from mazes.round_robin import RoundRobin
+    from mazes.Queues.priority_queue import PriorityQueue
+
+    priorities = dict()
+    cells = list(maze.grid)
+    rng.shuffle(cells)
+    for i in range(len(cells)):
+        priorities[cells[i]] = i
+    pr = lambda cell: priorities[cell]
+
+    class TaskVPF(Task):
+        """a wrapper for the task class"""
+
+        def __init__(self, taskID:int):
+            """constructor"""
+            super().__init__(taskID, QueueType=PriorityQueue, priority=pr)
+
+    class VPF(DFF):
+        """wrapper for DFF class"""
+        class Status(DFF.Status):
+            """wrapper for DFF.Status class"""
+            NAME = "Vertex Prim Forest (BFF)"
+
+    n = args.threads
+    tasks = list()
+    for i in range(n):
+        tasks.append(TaskVPF(i))
+    tasks = tuple(tasks)
+
+    targs = tuple(args.thread_weights) if args.thread_weights else None
+    if targs:
+        if not args.quiet:
+            print("thread weights =", tuple(targs))
+
+    if args.round_robin:
+        return VPF.on(maze, *tasks, Scheduler=RoundRobin, shuffle=False)
+    else:
+        return VPF.on(maze, *tasks, weights=targs, shuffle=False)
 
 def wilson(maze:"Maze", args:"Namespace"):
     """Wilson (circuit-eliminated random walk)"""
@@ -305,7 +499,9 @@ def watershed(mazegrp:"parser group"):
 algorithms = dict()
 algorithms["AB"] = ("Aldous/Broder (random walk, first exit)", aldous_broder)
 algorithms["BFS"] = ("Breadth-first search", bfs)
+algorithms["BFF"] = ("Breadth-first forest", bff)
 algorithms["DFS"] = ("Depth-first search", dfs)
+algorithms["DFF"] = ("Depth-first forest", dff)
 algorithms["E"] = ("Eller's algorithm", eller)
 algorithms["H"] = ("Houston's algorithm", houston)
 algorithms["HK"] = ("hunt and kill", hunt_and_kill)
@@ -314,12 +510,16 @@ algorithms["K"] = ("Kruskal's algorithm", kruskal)
 algorithms["MRW"] = ("multithreaded random walk", mt_random_walk)
 algorithms["OE"] = ("outward Eller's algorithm", outward_eller)
 algorithms["OW"] = ("outwinder", outwinder)
+algorithms["P"] = ("Prim's algorithm", prim)
 algorithms["RD"] = ("recursive division", recursive_division)
 algorithms["RAB"] = ("reverse Aldous/Broder (random walk, last exit)",
                       reverse_aldous_broder)
 algorithms["SW"] = ("sidewinder", inwinder)
 algorithms["SBT"] = ("simple binary tree", simple_binary_tree)
 algorithms["SP"] = ("simplified 'Prim'", simplified_Prim)
+algorithms["SPF"] = ("simplified Prim forest", bff)
+algorithms["VP"] = ("vertex Prim", vertex_Prim)
+algorithms["VPF"] = ("vertex Prim forest", vpf)
 algorithms["W"] = ("Wilson (circuit-eliminated random walk)", wilson)
 algorithms["WD"] = ("watershed division", watershed_division)
 

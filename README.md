@@ -22,6 +22,7 @@ Mazes in Python 3
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazes/Graphics* - graphics drivers
     +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
+    +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.
 *  *stats* - tools and one-shot modules for gathering statistics.  The one-shot modules have date stamps in their filenames. Gathered statistics are found in the *csv* folder.
 *  *tests* - testing to make sure things work as expected
 
@@ -78,24 +79,24 @@ Theta (or polar or circular) grids are supported as class *ThetaGrid* in module 
 
 The following maze generation algorithms have been implemented:
 
-* module *simple\_binary\_tree* (class *BinaryTree*)
-* module *sidewinder* (class *Sidewinder*)
-* module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
-* *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.
+* module *aldous\_broder* (class *AldousBroder) - the first entrance random walk algorithm, known as Aldous/Broder after two independent discoverers. The algorithm is unbiased.
+    + module *reverse\_aldous\_broder* (class *ReverseAldousBroder) - the last exit random walk algorithm, known as reverse Aldous/Broder. The algorithm is unbiased.  It's sort of like Aldous/Broder in a universe where time runs backwards.  The algorithm is unbiased.
+    + module *wilson* (class *Wilson*) - the circuit-eliminated random walk algorithm, known as Wilson's algorithm after its discoverer.  This is another unbiased algorithm.
+    + module *houston* (class Houston) - a hybrid which carves a maze like Aldous/Broder until triggered by a threshold, and completes the maze using Wilson's algorithm.  My statistics indicate that the algorithm is biased, but I am not aware of any mathematical proof
+    + module *hunt\_kill* (class *HuntKill*) - the hunt and kill algorithm, a series of random paths, avoiding already visited cells; each path ends when there is no available step... A new path starts with a passage from the visited area into the frontier.  The algorithm has features reminiscent of Aldous/Broder (random walk, but restricted), Wilson (paths leading from the visited area, but working outward from the visited area instead of inward to) and DFS (you might come up with this if you wanted to avoid both a stack and recursive programming).  The algorithm is biased, generally avoiding dead ends.
+* module *eller* (class *Eller*) - Eller's algorithm.  The basic algorithm is a generalization of sidewinder with a few tricks which are adapted from Kruskal's algorithm.  In addition, an outward variant (generalizing outwinder) has been implemented.  The algorithm has a definite directional bias -- using the default options, it favors vertical degree-2 connections over their horizontal counterparts.
+    + module *outward\_eller* (class *OutwardEller*) - outward variant of Eller's algorithm.
 * module *growing\_tree1* (class *VertexGrowingTree*) - vertex-based
-   + module *dfs_better* (class *DFS*) - a simple vertex-based depth-first search implementation.  Commonly known as 'recursive backtracker'.
-   + module *bfs* (class *BFS*) - a simple vertex-based breadth-first search implementation.
+    + module *dfs_better* (class *DFS*) - a simple vertex-based depth-first search implementation.  Commonly known as 'recursive backtracker'.
+    + module *bfs* (class *BFS*) - a simple vertex-based breadth-first search implementation.
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
 * module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
-* module *eller* (class *Eller*) - Eller's algorithm.  The basic algorithm is a generalization of sidewinder with a few tricks which are adapted from Kruskal's algorithm.  In addition, an outward variant (generalizing outwinder) has been implemented.
-* module *outward\_eller* (class *OutwardEller*) - outward variant of Eller's algorithm.
-*  module *aldous\_broder* (class *AldousBroder) - the first entrance random walk algorithm, known as Aldous/Broder after two independent discoverers. The algorithm is unbiased.
-*  module *reverse\_aldous\_broder* (class *ReverseAldousBroder) - the last exit random walk algorithm, known as reverse Aldous/Broder. The algorithm is unbiased.  It's sort of like Aldous/Broder in a universe where time runs backwards.  The algorithm is unbiased.
-*  module *wilson* (class *Wilson*) - the circuit-eliminated random walk algorithm, known as Wilson's algorithm after its discoverer.  This is another unbiased algorithm.
-*  module *houston* (class Houston) - a hybrid which carves a maze like Aldous/Broder until triggered by a threshold, and completes the maze using Wilson's algorithm.  No proof (to my knowledge) has been given which settles the question of bias.  (One possibility: it converges too quickly on average to be unbiased.)
-* module *hunt\_kill* (class *HuntKill*) - the hunt and kill algorithm, a series of random paths, avoiding already visited cells; each path ends when there is no available step... A new path starts with a passage from the visited area into the frontier.  The algorithm has features reminiscent of Aldous/Broder (random walk, but restricted), Wilson (paths leading from the visited area, but working outward from the visited area instead of inward to) and DFS (you might come up with this if you wanted to avoid both a stack and recursive programming).
+* module *simple\_binary\_tree* (class *BinaryTree*)
+* module *sidewinder* (class *Sidewinder*)
+    +  module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
+    + *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.
 * module *recursive\_division* (classes *Subgrid*, *RecursiveDivision*) - recursive division, implemented as a passage carver for a rectangular grid.
-* module *watershed\_division* (classes *Reservoir*, *WatershedDivision*) - a generalized recursive division algorithm for arbitrary connected grids, implemented as a passage carver using the *Watershed* class.
+    + module *watershed\_division* (classes *Reservoir*, *WatershedDivision*) - a generalized recursive division algorithm for arbitrary connected grids, implemented as a passage carver using the *Watershed* class.
 * module *dff* (for *depth-first forest*; class *DFF*) is the first of a family of *growing forest* algorithm.  Using class *Task* in the same module, it is possible to implement other growing forest algorithms, such as a breadth-first forest, or even a growing forest built from a depth-first tree and a breadth-first tree.  (See the documentation for some examples.  Jamis Buck's name for DFF is *recursive backtracker with parallel seeds*.)
 * module *fractal\_tess* (class *FractalTessellation*) - a fractal-based algorithm which is neither a passage carver nor a wall builder as it does not start with a configured grid.  It might be better described as a recursive tiler as it assembles tiles recursively to produce larger tiles.  Some passage carving is used to glue tiles together.
 

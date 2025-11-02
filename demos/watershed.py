@@ -45,6 +45,7 @@ from mazes import rng
 from mazes.grid import Grid
 from mazes.maze import Maze
 from mazes.watershed import Watershed
+from mazes.round_robin import RoundRobin
 from mazes.Algorithms.aldous_broder import AldousBroder
 from mazes.Grids.oblong import OblongGrid
 from mazes.Queues.stack import Stack
@@ -54,19 +55,22 @@ def make_grid(rows, columns) -> Maze:
     print(f"OblongGrid({rows}, {columns})")
     return Maze(OblongGrid(rows, columns))
 
-def main(rows:int, cols:int, n:int, use_stack:bool):
+def main(rows:int, cols:int, n:int, use_stack:bool,
+         tournament:bool=False, weights:dict=dict()):
     """the main entry point"""
     maze = make_grid(rows, cols)
-    seeds = rng.choices(list(maze.grid), k=n)
+    seeds = rng.sample(list(maze.grid), n)
     indices = list(seed.index for seed in seeds)
     print("Seed cells:", indices)
 
+    kwargs = dict()
     if use_stack:
-        print(f"Watershed(grid, seeds, QueueType=Stack)")
-        watershed = Watershed(maze.grid, seeds, QueueType=Stack)
-    else:
-        print(f"Watershed(grid, seeds)  # default: QueueType=Queue)")
-        watershed = Watershed(maze.grid, seeds)
+        kwargs["QueueType"] = Stack
+    if not tournament:
+        kwargs["tournament"] = RoundRobin()
+    if weights:
+        kwargs["targs"] = weights
+    watershed = Watershed(maze.grid, seeds, **kwargs)
 
     print("Beginning the round robin...")
     passes = 1
@@ -115,12 +119,24 @@ def parse_args(argv):
         + f'  (Default: 2)')
     shed.add_argument('-s', '--stack', action="store_true", \
         help='Use stacks instead of queues.')
+    shed.add_argument("--tournament", action="store_true", \
+        help="Use a tournament instead of a round robin.")
+    shed.add_argument("--weighted", action="store_true", \
+        help="Use a weighted tournament instead of a round robin.")
     args = parser.parse_args(argv)
 
     rows, cols = args.dim
     if args.seeds < 2:
         raise ValueError("Minimum is two seeds.")
-    main(rows, cols, args.seeds, args.stack)
+    weights = dict()
+    if args.weighted:
+        args.tournament = True
+        weights[0] = 2
+        weights[1] = 3
+        for i in range(2, args.seeds):
+            weights[i] = weights[i-1] + weights[i-2]
+    main(rows, cols, args.seeds, args.stack,
+         tournament=args.tournament, weights=weights)
 
 if __name__ == "__main__":
     import sys

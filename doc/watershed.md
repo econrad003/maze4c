@@ -24,25 +24,31 @@ Example 5 is a basic example using watershed recursive division.  For more detai
 
 Here is the usage docstring:
 ```
-    usage: watershed.py [-h] [-d ROWS COLS] [-n SEEDS] [-s]
+$ python -m demos.watershed -h
+usage: watershed.py [-h] [-d ROWS COLS] [-n SEEDS] [-s] [--tournament]
+                    [--weighted]
 
-    Watershed demonstration
+Watershed demonstration
 
-    options:
-      -h, --help        show this help message and exit
-      -d ROWS COLS, --dim ROWS COLS
+options:
+  -h, --help            show this help message and exit
+  -d ROWS COLS, --dim ROWS COLS
                         the numbers of rows and columns in the maze. (Default:
                         (8, 13).)
 
-    watershed options:
-      -n SEEDS, --seeds SEEDS
+watershed options:
+  -n SEEDS, --seeds SEEDS
                         The number of seeds. (Default: 2)
-      -s, --stack           Use stacks instead of queues.
+  -s, --stack           Use stacks instead of queues.
+  --tournament          Use a tournament instead of a round robin.
+  --weighted            Use a weighted tournament instead of a round robin.
 
-    Output is to the console.
+Output is to the console.
 ```
 
-## Example 1.  A queue-based watershed
+## Round robin scheduling
+
+### Example 1.  A queue-based watershed
 
 We run the demo.  We will create a queue-based watershed with four reservoirs.
 ```
@@ -51,14 +57,13 @@ We run the demo.  We will create a queue-based watershed with four reservoirs.
 
 The demo starts by creating a rectangular grid and installing four pumps:
 ```
-    OblongGrid(8, 13)
+    maze = Maze(OblongGrid(8, 13))
     Seed cells: [(7, 6), (5, 6), (2, 3), (3, 12)]
+        # default: QueueType=Queue)
+    from mazes.round_robin import RoundRobin
+    Watershed(grid, seeds, tournament=RoundRobin())
 ```
-
-That's all that is required to create the *Watershed* object:
-```
-    Watershed(grid, seeds)  # default: QueueType=Queue)
-```
+(By default, the *Watershed* object now uses a *Tournament* object as its scheduler.  As originally written, it used a built-in round robin.  For more details, see the section on *tournament scheduling*.  The demo retains the original round robin default.)
 
 Next we need to punp in the water.  This is done using a round-robin process -- each pump in turn pumps in just enough water to fill one more neighboring cell, but only a cell which is not already claimed by one of the reservoirs.  When a reservoir has no available neighboring cells, it stops.
 ```
@@ -118,14 +123,19 @@ The floodgates were chosen at random from the possible edges.  Here is the final
 
 Counting, reservoirs 0, 1, 2, and 3 have 26, 27, 25, and 26 cells, respectively.
 
-## Example 2.  A stack-based watershed
+### Example 2.  A stack-based watershed
 
 As before, a maze is created, some pumps are installed, and a watershed is created and filled using the round-robin pumping algorithm.
 ```
     maze4c$ python -m demos.watershed -n 4 -s
-    OblongGrid(8, 13)
+```
+
+The demo creates a stack-based watershed
+```
+    maze = Maze(OblongGrid(8, 13))
     Seed cells: [(1, 5), (1, 10), (5, 4), (3, 9)]
-    Watershed(grid, seeds, QueueType=Stack)
+    from mazes.round_robin import RoundRobin
+    Watershed(maze, seeds, QueueType=Stack, tournament=RoundRobin())
     Beginning the round robin...
         completed after 28 passes.
 ```
@@ -181,7 +191,7 @@ The final result as displayed by the demo:
 +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
 
-## Example 3.  How to do this programmatically...
+### Example 3.  How to do this programmatically...
 
 First we will need a few imports.  We will need a connected grid for the maze to be partitioned.  We will also need a Watershed object.  The Watershed object will create an empty auxiliary maze.  (By empty, I mean that the grid connections are present, but, none of the reservoirs are linked.  We accordingly need an algorithm to carve the reservoir maze.  The Watershed object suggests floodgate locations, based on the auxiliary maze, but these are
 just suggestions.  As we must carve the associated passages, we will also need a Maze object using the original connected grid.
@@ -194,6 +204,7 @@ We also need access to a random number generator as our pumps will be located ra
     >>> from mazes import rng
     >>> from mazes.Grids.oblong import OblongGrid
     >>> from mazes.maze import Maze
+    >>> from mazes.round_robin import RoundRobin
     >>> from mazes.watershed import Watershed
     >>> from mazes.Algorithms.aldous_broder import AldousBroder
     >>>
@@ -237,6 +248,7 @@ Let's see where the pumps were installed:
 
 We can now begin to fill the system:
 ```
+    >>> watershed = Watershed(reservoirs, pumps, tournament=RoundRobin())
     >>> watershed.round_robin()
     True
     >>> watershed.label()
@@ -355,7 +367,7 @@ Now that the reservoir maze has been carved, let's look at the final result:
     >>> # END OF DEMO
 ```
 
-## Example 4.  Land masses in the reservoir system
+### Example 4.  Land masses in the reservoir system
 
 We run a modified version of the demo which fixes the grid at 8 by 13 and removes the outer cells and a strip in the center from the reservoir system.  A list of the remaining cells (*i.e.* the labelled cells below) are what was supplied in lieu of a Grid object.
 ```
@@ -395,7 +407,7 @@ We run a modified version of the demo which fixes the grid at 8 by 13 and remove
 
 The underlying idea in recursive division using watersheds is that the recurrence involves treating a reservoir as a watershed system.
 
-## Example 5. Watershed recursive division
+### Example 5. Watershed recursive division
 
 Recursive division using watersheds is implemented in Python module *watershed\_division.py* found in the *mazes/algorithms* folder.  There are many options -- for those, we defer to the module *docstring* and to the *watershed\_division* documentation in the *doc/algorithms* folder.  Here we give just one example.
 
@@ -471,3 +483,134 @@ And here is the maze...
 |               |   |   |               |           |       |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
+
+## Tournament scheduling
+
+As noted in Example 1, the watershed class was originally written to use round robin scheduling.  The examples above were created accordingly.  The watershed demonstration module (*demos/watershed*) preserves round robin scheduling as the default.
+
+Tournament scheduling is now the default for the *Watershed* class, and the demonstration module can access it using either the tournament or the weighted option.
+
+### Round robins *vs* tournaments
+
+An unweighted tournament differs from round robin scheduling by randomly giving each task a turn.  Consider two knights (Lancelot and Percy) in a sword duel.  In a round robin, the knights take turns:  Lancelot, Percy, Lancelot, Percy, *etc*.
+
+In an unweighted tournament with the two knights, a fair coin is tossed to determine who gets the next strike,  In our example, if, in succession, the coin returns tail, tail, head, tail, head, then the first five strikes are (respectively) Percy, Percy, Lancelot, Percy, Lancelot.
+
+### Example 6 - an unweighted tournament
+
+Here we have a 4-way tournament.  With a reasonably large grid, the difference between an unweighted tournament and a round robin is normally not dramatic.  But the difference is enough to create different biases in algorithms using them.
+```
+$ python -m demos.watershed --tournament -n 4
+OblongGrid(8, 13)
+Seed cells: [(7, 7), (4, 9), (1, 11), (4, 5)]
+Beginning the round robin...
+	completed after 105 passes.
+Creating the component maze...
+	4 cells, expected 4
+	running Aldous/Broder...
+		(should be quick, but there are no guarantees)
+	3 joins
+Carving the floodgates:
+	floodgate: ((4, 12), (3, 12))
+	floodgate: ((6, 12), (5, 12))
+	floodgate: ((5, 2), (5, 1))
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 0 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 3 | 3 | 0 | 0 |
++---+---+---+---+---+---+---+---+---+---+---+---+   +
+| 0 | 0   2 | 2 | 2 | 2 | 2 | 0 | 3 | 3 | 3 | 3 | 3 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 3 | 3 |
++---+---+---+---+---+---+---+---+---+---+---+---+   +
+| 0 | 0 | 2 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 3 | 1 | 1 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 0 | 2 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 1 | 1 | 1 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 0 | 2 | 2 | 2 | 2 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 0 | 0 | 2 | 2 | 2 | 2 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### Example 7 - a weighted tournament
+
+Consider our example of Lancelot and Percy, and suppose instead of a fair coin, we use a fair die with the usual six faces.  If 6 comes up on the die, then Lancelot gets a turn.  If the die returns 1, 2, 3, 4 or 5, then Percy gets a turn.  In this case the tournament is weighted respectively 1 to 5 for Lancelot against Percy.
+
+The weighted option in the demo uses consecutive Fibonacci numbers, starting with 2, as weights.  So with 4 tasks, the consecutive weights are 2:3:5:8.  With 5 tasks, we add the last two (5+8) to get a weight of 13 for the fifth task.
+
+```
+$ python -m demos.watershed --weighted -n 5
+OblongGrid(8, 13)
+Seed cells: [(7, 4), (5, 11), (6, 10), (7, 0), (1, 7)]
+Beginning the round robin...
+	completed after 105 passes.
+Creating the component maze...
+	5 cells, expected 5
+	running Aldous/Broder...
+		(should be quick, but there are no guarantees)
+	4 joins
+Carving the floodgates:
+	floodgate: ((3, 8), (2, 8))
+	floodgate: ((5, 5), (6, 5))
+	floodgate: ((6, 6), (6, 5))
+	floodgate: ((7, 3), (7, 2))
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 1 | 1   0 | 0 | 0 | 0 | 3 | 3 | 3 | 3 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 1 | 1 | 0 | 0 | 0   3 | 3 | 3 | 3 | 3 | 3 | 4 |
++---+---+---+---+---+   +---+---+---+---+---+---+---+
+| 1 | 1 | 4 | 4 | 0 | 4 | 4 | 4 | 3 | 3 | 3 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 1 | 1 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+   +---+---+---+---+
+| 4 | 4 | 4 | 4 | 4 | 4 | 2 | 2 | 2 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 4 | 4 | 4 | 4 | 2 | 2 | 2 | 2 | 2 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 4 | 4 | 2 | 2 | 2 | 2 | 2 | 2 | 2 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+Here we used five tasks.  The last basin, #4 (weight 13) managed to claim territory covering much of the grid.  Basins 0, 1, 2 and 3 (weights 2, 3, 5 and 8) were trapped before they could gain large footholds.
+
+### Example 8 - tournament with a stack
+
+We can, of course, use a stack instead of a queue:
+
+```
+$ python -m demos.watershed --weighted -n 5 --stack
+OblongGrid(8, 13)
+Seed cells: [(2, 0), (3, 6), (3, 11), (3, 4), (0, 7)]
+Beginning the round robin...
+	completed after 105 passes.
+Creating the component maze...
+	5 cells, expected 5
+	running Aldous/Broder...
+		(should be quick, but there are no guarantees)
+	4 joins
+Carving the floodgates:
+	floodgate: ((1, 6), (1, 5))
+	floodgate: ((1, 4), (2, 4))
+	floodgate: ((5, 2), (5, 1))
+	floodgate: ((3, 1), (2, 1))
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 2 | 2 | 2 | 2 | 2 | 3 | 3 | 3 | 3 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 2 | 3 | 3 | 3 | 3 | 3 | 3 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 2   3 | 3 | 3 | 3 | 3 | 3 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 2 | 3 | 3 | 3 | 3 | 3 | 3 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 2 | 0 | 0 | 0 | 3 | 3 | 3 | 3 | 4 | 4 | 4 | 4 |
++---+   +---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 0 | 0 | 0 | 3 | 3 | 3 | 3 | 3 | 4 | 4 | 4 | 4 |
++---+---+---+---+   +---+---+---+---+---+---+---+---+
+| 2 | 2 | 2 | 1 | 1 | 1   4 | 4 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 2 | 2 | 2 | 2 | 1 | 1 | 1 | 1 | 4 | 4 | 4 | 4 | 4 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+Here, basin 3 with weight 8 started roughly in the middle of the grid, offsetting some of the advantage of basin 4 (weight 13).  Basin 2 (weight 5) was somewhat shielded by basins 0 and 1 (weights 2 and 3), and was able to claim a large share of the western region of the maze.

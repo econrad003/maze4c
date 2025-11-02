@@ -1,5 +1,7 @@
 # Change Log
 
+## Release 0.10.9 part 4 - 2 November 2025 - updates to watershed documentation
+
 ## Release 0.10.9 part 3 - 2 November 2025 - updates to *maze\_group* module
 * more algorithms in *mazes/misc/maze\_group* module.
 * changelog and README.

@@ -1,5 +1,13 @@
 # Change Log
 
+## Release 0.10.9 part 3 - 2 November 2025 - updates to *maze\_group* module
+* more algorithms in *mazes/misc/maze\_group* module.
+* changelog and README.
+
+## Release 0.10.9 part 2 - 1 November 2025 - add miscellaneous directory
+* one module builds almost everything (*mazes/misc/maze\_group*).
+* some statistics for twistiness and directness.
+
 ## Release 0.10.9 part 1 - 25 October 2025 - cosmetic correction
 * changed class Phocidae (unintentionally named after a family of seals) to class Pholcidae (named after the arachnid family which includes the daddy long legs spider, as intended).
 

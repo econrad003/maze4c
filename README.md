@@ -129,8 +129,7 @@ In the *mazes* folder are a couple of scheduling algorithms.  Module *tournament
 
 * Eller's algorithm should come with an inward variant corresponding to inwinder.
 * An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
-* Class *Tournament* is currently used as the default scheduler in the implementation of the depth-first forest algorithm.  I plan to replace the hard-coded round-robin scheduler in the watershed division algorithm with class *Tournament* at some point in the future.
-* I hope to add some helper methods to simplify setup of growing *forest* algorithms to the growing tree folders described below.
+* Class *Tournament* is now the default scheduler in the implementation of the  watershed division algorithm.  The documentation needs to be revised accoringly.
 
 ## Helper methods for growing trees
 

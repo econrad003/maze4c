@@ -53,6 +53,7 @@ MODIFICATIONS
     8 Sep 2025 - add code to place extra pumps, when needed, and,
         optionally to save a trace of the basins formed when these
         extra pumps are placed.
+    31 Oct 2025 - add scheduler for watersheds
 """
 import mazes
 from mazes.grid import Grid
@@ -103,9 +104,12 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
             links += 1
         return links
 
-    def divide(self, mincells:int, pumps:int, *args, debug:bool=False,
+    def divide(self, mincells:int, pumps:int,
+               Scheduler:object, targs:dict,            # 31 Oct 2025
+               *args, debug:bool=False,
                FloodgateCarver:object=Kruskal,          # 1 Sep 2025
-               WatershedType:object=Watershed, **kwargs):
+               WatershedType:object=Watershed,
+               **kwargs):
         """partition a reservoir, if possible
 
         REQUIRED ARGUMENTS
@@ -114,6 +118,10 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
                 be divided (must be at least 2)
 
             pumps - the number of pumps to use (must be at least 2)
+
+            Scheduler - the scheduler class
+
+            targs - task arguments for the scheduler
 
         KEYWORD ARGUMENTS
 
@@ -150,7 +158,10 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
             return (tuple(), 0, None)           # too small
 
         seeds = rng.choices(list(self.grid), k=pumps)
-        watershed = WatershedType(self.grid, seeds, *args, **kwargs)
+        scheduler = Scheduler() if Scheduler else None
+        watershed = WatershedType(self.grid, seeds, *args,
+                                  tournament=scheduler, targs=targs,
+                                  **kwargs)
 
         passes = 1
         while watershed.round_robin():
@@ -173,7 +184,7 @@ class Reservoir(object):       # duck-typed replacement for Subgrid
             self.maze.link(cell1, cell2)
 
             # set up the return value
-        reservoirs = tuple(watershed.watersheds.values())
+        reservoirs = tuple(watershed.basins.values())
         return reservoirs, len(gates), auxiliary_maze
 
 class WatershedDivision(Algorithm):
@@ -185,6 +196,7 @@ class WatershedDivision(Algorithm):
         NAME = "Watershed Recursive Division"
 
         __slots__ = ("__Reservoir", "__stack", "__min_cells", "__pumps",
+                     "__Scheduler", "__targs",          # 31 Oct 2025
                      "__label_rooms", "__room_carver", "__room_id",
                      "__debug", "__args", "__kwargs",
                      "__error_action",                  # 1 Sep 2025
@@ -277,6 +289,7 @@ class WatershedDivision(Algorithm):
             reservoir = self.pop()
             pumps = self.__pumps(reservoir.cells)
             basins, links, aux_maze = reservoir.divide(self.min_cells, pumps, \
+                self.__Scheduler, self.__targs,
                 *self.__args, **self.__kwargs)
             if len(basins) > 0:
 #                print(len(basins), links, len(aux_maze.grid), len(aux_maze))
@@ -329,6 +342,7 @@ class WatershedDivision(Algorithm):
 
         def parse_args(self, min_cells:int, pumps:(int, callable), *args,
                        ReservoirType:object=Reservoir,
+                       SchedulerType:object=None, targs:tuple=tuple(),
                        error_action:('ignore', 'fix')='ignore',     # 1 Sep 2025
                        carve_rooms:bool=False, label_rooms:bool=False,
                        extra_pumps_trace:bool=False,                # 8 Sep 2025
@@ -388,6 +402,10 @@ class WatershedDivision(Algorithm):
                     a queuing type.
              *  qargs (default={})
                     queuing arguments (e.g. for type PriorityQueue)
+                SchedulerType (default=maze.Tournament)
+                    a scheduler type
+                targs (default={})
+                    task arguments for the scheduler (e.g. tournament task weights)
                 carve_rooms (default=False)
                     if True, rooms will be carved when the subgrid is
                     too small to subdivide.  This will make no difference
@@ -432,6 +450,8 @@ class WatershedDivision(Algorithm):
             self.__eptrace = extra_pumps_trace
             self.__eptracer = list()
             self.__stack = []
+            self.__Scheduler = SchedulerType            # 31 Oct 2025
+            self.__targs = targs                        # 31 Oct 2025
 
         def configure(self):
             """configuration"""

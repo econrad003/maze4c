@@ -1,0 +1,41 @@
+                           ,dead ends, turns,   N/S,   E/W, 3-way, 4-way
+Aldous/Broder                 , 444.3, 421.5, 132.8, 131.4, 339.6,  51.4
+   standard deviation         ,   9.4,  17.4,  13.4,  13.5,  12.0,   5.9
+breadth-first search          ,  98.6,   3.8, 687.3, 637.4,  91.0,   2.8
+   standard deviation         ,  17.3,   0.5, 190.2, 185.3,  17.0,   1.2
+depth-first search            , 154.1, 741.7, 237.3, 238.0, 147.6,   2.2
+   standard deviation         ,   7.6,  21.4,  19.7,  21.2,   7.4,   1.4
+Eller's algorithm             , 441.4, 385.0, 220.5,  86.6, 335.5,  52.0
+   standard deviation         ,  10.5,  16.1,  14.0,  10.9,  12.2,   7.0
+Houston's algorithm           , 449.1, 417.1, 129.2, 132.4, 339.1,  54.0
+   standard deviation         ,  10.0,  15.2,  13.3,  13.4,  11.8,   6.3
+hunt and kill                 , 171.4, 764.3, 209.6, 211.8, 158.3,   5.6
+   standard deviation         ,   7.4,  18.5,  17.4,  18.2,   7.8,   2.1
+inwinder                      , 436.8, 371.0, 160.2, 165.6, 340.2,  47.3
+   standard deviation         ,  10.3,  16.7,  17.8,  14.5,  11.4,   5.9
+Kruskal's algorithm           , 463.1, 409.3, 123.4, 124.2, 340.9,  60.0
+   standard deviation         ,   9.9,  15.9,  11.9,  12.2,  12.1,   5.8
+2-thread random walk          , 454.4, 415.4, 128.7, 127.3, 338.1,  57.2
+   standard deviation         ,  11.7,  18.0,  12.4,  11.5,  13.4,   6.8
+3-thread random walk          , 456.8, 412.1, 125.6, 129.3, 339.5,  57.6
+   standard deviation         ,  10.6,  16.9,  11.6,  13.0,  11.7,   6.3
+outward Eller                 , 438.4, 390.4, 152.8, 151.8, 338.6,  48.9
+   standard deviation         ,  11.5,  19.3,  15.2,  14.9,  12.9,   5.7
+outwinder                     , 420.1, 346.4, 184.3, 185.4, 351.4,  33.3
+   standard deviation         ,   9.5,  13.4,  15.4,  12.4,  10.7,   5.2
+recursive division            , 408.7, 450.1, 207.8,  87.5, 327.2,  39.7
+   standard deviation         ,  13.5,  22.9,  19.0,  18.5,  14.5,   5.9
+reverse Aldous/Broder         , 442.5, 422.4, 133.3, 134.3, 336.7,  51.9
+   standard deviation         ,  11.7,  18.7,  12.0,  12.5,  11.9,   6.3
+sidewinder                    , 435.8, 372.7, 163.2, 163.0, 338.8,  47.5
+   standard deviation         ,   9.6,  17.6,  15.5,  15.5,  11.1,   5.5
+simple binary tree            , 381.7, 360.8, 198.1, 200.7, 379.7,   0.0
+   standard deviation         ,   8.0,  15.7,  19.0,  17.8,   8.0,   0.0
+simple Prim                   , 421.9, 319.9, 203.6, 195.9, 339.8,  40.1
+   standard deviation         ,  12.5,  17.6,  32.5,  30.8,  13.2,   5.6
+Wilson's algorithm            , 441.7, 428.0, 131.7, 131.7, 336.1,  51.8
+   standard deviation         ,  10.2,  16.3,  11.0,  11.6,  11.3,   5.8
+2-pump watershed division     , 412.5, 478.4, 130.3, 129.1, 330.8,  39.8
+   standard deviation         ,  11.2,  20.5,  16.8,  16.2,  12.4,   6.1
+3-pump watershed division     , 414.7, 468.7, 131.4, 134.2, 331.3,  40.7
+   standard deviation         ,  10.9,  18.2,  17.0,  17.6,  11.2,   6.0

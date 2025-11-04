@@ -4,8 +4,6 @@ The algorithm is essentially the same as rectangular recursive division, but ins
 
 In the discussion for each example below, we start with an unlinked connected grid.  We will use a rectangular grid, but the algorithm doesn't require that.  Before proceeding, we should look at the options...
 
-The algorithm is not foolproof.  See Example 6 for an indication of what can go wrong and how to fix it.
-
 ## Options
 
 The module documentation is terse:
@@ -16,9 +14,12 @@ Python 3.10.12
 >>> help(WatershedDivision.Status.parse_args)
 Help on function parse_args in module mazes.Algorithms.watershed_division:
 
-parse_args(self, min_cells:int, pumps:(int, callable), *args,
-        ReservoirType:object=Reservoir, carve_rooms:bool=False,
-        label_rooms:bool=False, **kwargs)
+parse_args(self, min_cells: int, pumps: (int, callable), *args,
+        ReservoirType: object=Reservoir, SchedulerType:object = None,
+        targs:tuple=(), error_action:('ignore', 'fix')='ignore',
+        carve_rooms:bool=False, label_rooms:bool= False,
+        extra_pumps_trace:bool=False, **kwargs)
+
     parse constructor arguments
 
     POSITIONAL ARGUMENTS
@@ -51,27 +52,36 @@ parse_args(self, min_cells:int, pumps:(int, callable), *args,
             a passage carving algorithm to be used to carve the
             floodgates (doors).
 
-            Kruskal's algorithm is preferred since it can accept a
-            disconnected grid and reports the number of components.
+            Kruskal's algorithm is preferred since it can accept
+            a disconnected grid and reports the number of components.
             Use of an algorithm that forbids disconnected grids
-            (like Aldous/Broder) may result in unpredictable failures.
+            (like Aldous/Broder) may result in unpredictable
+            failures.
         error_action (default='ignore')
             the possible values are 'ignore' or 'fix'.
-                 'ignore' - if there are disconnected basins, a message
-                      message will be printed but no action will be taken
-                      at the end to connect the maze.
-                 'fix' - if there are disconnected basins, a message will
-                      be printed, and Kruskal's algorithm will be used at
-                      the end to connect the maze.  This option is not
-                      available if the cell minimum is larger than two
-                      unless rooms are carved.
+                'ignore' - if there are disconnected basins, a
+                    message will be printed but no action will
+                    be taken at the end to connect the maze.
+                'fix' - if there are disconnected basins, a
+                    message will be printed, and Kruskal's
+                    algorithm will be used at the end to connect
+                    the maze.  This option is not available if
+                    the cell minimum is larger than two unless
+                    rooms are carved.
+        extra_pumps_trace (default=False)
+            set to True to get basin information for extra pumps.
+            See the documentation for more details.
      *  QueueType (default=maze.Queues.Queue)
             a queuing type.
      *  qargs (default={})
             queuing arguments (e.g. for type PriorityQueue)
+        SchedulerType (default=maze.Tournament)
+            a scheduler type
+        targs (default={})
+            task arguments for the scheduler (e.g. tournament task weights)
         carve_rooms (default=False)
             if True, rooms will be carved when the subgrid is
-            too small to sundivide.  This will make no difference
+            too small to subdivide.  This will make no difference
             if min_cells is equal to 2.
         label_rooms (default=False)
             if true, the cells in the basin will be labelled.  The
@@ -87,6 +97,10 @@ parse_args(self, min_cells:int, pumps:(int, callable), *args,
     initializations.  The "debug" option is both parsed and passed
     along.
 ```
+
+The error action and extra pumps trace options are for debugging.  The problem that they were intended to detect turned out to be unrelated to the algorithm.
+
+The scheduler type option and the task arguments  option ("targs") are new (as of v0.10.9).  The original implementation used a round robin scheduler.  The current default is a tournament scheduler with equally weighted tasks.  This change will affect the algorithms biases.  Examples 1 through 5 below were created using the original implementation and there may be some minor qualitative differences with the updated module.  See Examples 6, 7 and 8 for more information on these two options.
 
 ## Example 1.  A simple example.
 
@@ -502,155 +516,167 @@ For comparison, here is a longest path produced in DFS.  That's one long snake!
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
 
-## Example 6 - Extra pumps (diagnostics)
+## Example 6 - round robin scheduling
 
-For a number of reasons, it may happen that the basins produced by the pumping algorithm don't cover an entire watershed.  (Some of this may be topological in nature, but some of this is certainly a problem in coding.  At this point the only examples that I have actually looked at seem to be unresolved coding problems.  (In this example we will diagnose one coding problem -- prior to the actual release.)
+Examples 1 through 5 above were created when round robin scheduling was hard-coded.  The current scheduling algorithm is an equally weighted tournament.  But round robin scheduling is still available using the *RoundRobin* class.
 
-If the algorithm determines that the basins don't cover the reservoir, it places extra pumps as needed to fill the reservoir.  Each extra pump creates an extra basin.  These extra basins can now be tracked.
-
-We begin as usual, this time using an upsilon grid.  (Starting with the cell in the lower left, the cells in the grid alternate between "octagonal" cells which have diagonal neighbors and "square" cells which do not.)  We proceed as usual with some imports.  We then create a *Maze* object:
+We start with some imports:
 ```
 maze4c$ python
 Python 3.10.12
->>> from mazes.Grids.upsilon import UpsilonGrid
+>>> from mazes.Grids.oblong import OblongGrid
 >>> from mazes.maze import Maze
 >>> from mazes.Algorithms.watershed_division import WatershedDivision
->>> maze = Maze(UpsilonGrid(10, 15))
+>>> from mazes.round_robin import RoundRobin
 ```
 
-We will use a minimum reservoir size of two and 3 pumps.  We will do some diagnostics using the *extra\_pumps\_trace* option.
-
-We will need to keep the status object around in order to do some diagnostics.  Python syntax requires use of ```:=``` instead of ```=''' when an assignment is used as a function paramater:
+Watershed division is a passage carver that can be used with any connected grid.  We use a N/S/E/W rectangular grid to make it easy to display the result.  We need a maze object:
 ```
->>> print(status := WatershedDivision.on(maze, 2, 3, extra_pumps_trace=True))
+>>> maze = Maze(OblongGrid(10, 15))
+```
+
+We will use a minimum basin size of two (the default) and we will use 3 pumps to form the basins and fill the reservoir.  Each pump is associated with a task that shoots a shoots a small jet of water -- just enough to claim one more cell for the pumps basin.  In a round robin, each pump takes one turn *in order*.  Pump 1 takes a turn, then pump 2, then pump 3, then back to pump 1.  But if there are no cells next to a given basin, then that pump loses all subsequent turns.
+
+```
+>>> print(WatershedDivision.on(maze, 2, 3, SchedulerType=RoundRobin))
           Watershed Recursive Division (statistics)
-                            visits      299
+                            visits      313
+                             cells      150
+                          passages        0
+                             links      149
+                           unlinks        0
+                             doors      149
+                         max stack       10
+                       extra pumps        0
+                  watershed errors        0
+```
+
+With 150 cells, we expect 149 passages in the final maze.  Since our minimum cell size is 2, all these passages will be "inter-basin doors" connecting basins to one another.  None of these passages will be "intra-basin" passages.  The status report verifies that each of our 149 links was an inter-basin door.
+
+Here is the maze:
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|               |       |               |           |       |
++   +---+---+---+   +   +---+---+   +---+   +   +---+---+   +
+|           |   |   |               |       |   |       |   |
++---+   +---+   +   +---+---+---+---+   +   +   +   +---+   +
+|           |                           |   |   |   |       |
++---+   +---+---+---+   +---+---+---+---+---+   +   +---+   +
+|                       |               |               |   |
++   +---+---+---+---+---+   +---+---+   +   +---+---+   +   +
+|               |       |       |       |       |   |       |
++   +---+   +---+   +   +   +   +---+   +   +   +   +---+---+
+|       |   |       |   |   |   |   |   |   |   |           |
++   +   +---+   +   +   +---+   +   +   +   +   +   +---+   +
+|   |   |       |   |           |       |   |   |   |       |
++   +   +---+---+---+   +---+---+---+---+---+   +   +---+---+
+|   |       |   |                           |       |   |   |
++---+   +   +   +   +   +---+---+   +---+   +   +---+   +   +
+|       |   |   |   |       |   |       |   |           |   |
++   +---+   +   +   +---+   +   +   +---+---+---+   +   +   +
+|       |               |   |                   |   |       |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+## Example 7 - unweighted tournament scheduling
+
+The default (as of v0.10.9) is tournament scheduling with equally weighted tasks, or unweighted tournament scheduling.  This sort of scheduling uses the class *Tournament* found in module *mazes.tournament*.  The module is imported by the *Watershed* class, so we don't need to import the module directly.
+
+We accordingly start with three of the four imports in Example 6:
+We start with some imports:
+```
+maze4c$ python
+Python 3.10.12
+>>> from mazes.Grids.oblong import OblongGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.watershed_division import WatershedDivision
+```
+
+We create a maze object and run the *WatershedDivision* algorithm using only the maze object, the minimum cell threshold, and the number of pumps:
+```
+>>> maze = Maze(OblongGrid(10, 15))
+>>> print(WatershedDivision.on(maze, 2, 3))
+          Watershed Recursive Division (statistics)
+                            visits      295
                              cells      150
                           passages        0
                              links      149
                            unlinks        0
                              doors      149
                          max stack        9
-                       extra pumps        1
+                       extra pumps        0
                   watershed errors        0
+
+```
+The key difference is that, instead of taking turns in sequence, a die is tossed and the number on the die determines which pump gets the next turn.  There is a very tiny chance that the first pump might actually get every turn, but in practice, the tasks will tend to get roughly the same number of turns in the long run.
+
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|       |                               |       |           |
++   +   +---+   +---+   +   +---+---+   +---+   +---+---+   +
+|   |           |       |           |                       |
++---+---+---+---+   +---+---+   +   +---+---+---+   +---+---+
+|           |               |   |       |   |           |   |
++---+   +---+   +   +---+---+---+---+---+   +---+   +---+   +
+|       |       |   |                       |   |           |
++   +---+---+   +   +   +---+---+---+---+   +   +---+---+   +
+|               |       |           |   |   |           |   |
++   +---+---+---+---+---+---+---+   +   +   +   +---+   +---+
+|           |   |   |       |   |       |       |   |   |   |
++---+---+---+   +   +   +---+   +   +   +---+   +   +   +   +
+|               |               |   |   |   |       |       |
++   +---+---+   +   +---+   +---+   +   +   +---+   +---+   +
+|       |           |   |       |   |       |       |   |   |
++---+---+---+---+---+   +   +   +---+   +---+---+   +   +   +
+|       |   |   |           |       |   |       |   |       |
++   +---+   +   +   +---+---+   +   +   +---+   +   +   +   +
+|                           |   |                   |   |   |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
 
-That assignment is a bit of syntactic sugar.  We could instead write two lines:
-```
-    status = WatershedDivision.on(maze, 2, 3, extra_pumps_trace=True)
-    print(status)
-```
+## Example 8 - weighted tournament scheduling
 
-The "extra pumps" line says that there was a reservoir which was not completely filled.  We had 149 passages for 150 cells, the right number for a perfect maze (or spanning tree).  Is it connected?  One way of telling is to run Kruskal's algorithm.  If it's already connected, then no passages will be added:
+By default, each task gets the same weight -- namely a weight of 1.  But we can give tasks larger weights.  One result will be that, at each stage, the pump whose weight is highest will tend to form the largest basin.
+
+The imports are as in Example 7 since the *Tournament* class is used for scheduling.  The main difference is that we supply three weights, *i.e.* one weight per pump:
 ```
->>> from mazes.Algorithms.kruskal import Kruskal
->>> print(Kruskal.on(maze))
-          Kruskal (statistics)
-                            visits        0
-                 components (init)        1
-               queue length (init)        0
+>>> maze = Maze(OblongGrid(10, 15))
+>>> print(WatershedDivision.on(maze, 2, 3, targs=(5, 1, 1)))
+          Watershed Recursive Division (statistics)
+                            visits      324
                              cells      150
                           passages        0
-                components (final)        1
-              queue length (final)        0
+                             links      149
+                           unlinks        0
+                             doors      149
+                         max stack        9
+                       extra pumps        0
+                  watershed errors        0
 ```
-Kruskal's algorithms reports that the maze was already connected, so no passages were added.  Hence the watershed algorithm produced a perfect maze.  But at some point an extra pump was required.  Before looking at our diagnostic information, let's display the maze:
+In this example, pump 1 received a weight of 5, while pumps 2 and 3 received weights of 1.  The total weight is 7, so the scheduler chooses the task for pump 1 with probability 5/7 and the tasks for pumps 2 and 3 each with probability 1/7.  The result is that, for larger reservoirs, the basin for pump 1 will tend to be substantially larger than the other two basins.  The main consequence is likely an increase in average run time.  It is less clear how this might affect the resulting maze.
 ```
 >>> print(maze)
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-|   |       |                                       |   |   |
-+   /   +---+   \---+---+   +---+---+---+---+   +   /---+   +
-|   |           |   |           |       |   |   |   |       |
-+   \---+   +---+---+---+---+---+   \---/---\---/---+---+   +
-|   |   |   |       |       |       |   |       |           |
-+---+   +---+   \---/---\---/   +---+---+---+---+---+   +---+
-|       |       |   |   |   |           |               |   |
-+   +---+   +---+   +   +   \---+---+---+---+   +   +---/---+
-|       |       |   |   |   |       |       |   |           |
-+---/---+---+   +---/---+   +   +---/   +---/---+---+---+   +
-|           |           |   |   |   |               |       |
-+---+---/   +---+---+   +---+---+   +---+---+   +---+---+   +
-|       |   |       |   |       |   |   |           |       |
-+   +   \---+---+   +---+   +---+   +   +   +   +   +   \---+
-|   |   |       |       |       |   |   |   |   |   |   |   |
-+   +   +---+   +---+   +   +   +   +   +   +---/---+---/---+
-|   |   |           |   |   |       |       |       |       |
-+---+   +---+   +   +   \   +---+   +---+   +   +   +---+---+
-|           |   |       |       |       |   |   |           |
+|   |       |                                   |           |
++   +   +   +   +   +---+---+   +   +   +---+---+---+   +   +
+|       |       |   |       |   |   |       |           |   |
++   +---+   +---+   +   +---+---+---+   +   +   +   +---+   +
+|   |   |       |       |       |   |   |       |       |   |
++   +   +---+---+---+---+   +   +   +---+   +---+   +---+   +
+|       |   |       |       |   |       |   |   |   |       |
++---+---+   +   +---+---+---+   +---+   +   +   +---+   +---+
+|   |       |           |       |   |   |       |       |   |
++   +---+   +---+   +---+---+   +   +   +   +---+   +---+   +
+|           |   |                           |   |           |
++---+   +---+   +---+---+   +---+---+---+   +   +   +---+---+
+|   |                       |       |       |               |
++   +---+---+   +---+   +---+   +   +   +---+---+---+---+   +
+|               |               |   |   |   |       |       |
++---+---+   +   +   +---+---+---+   +---+   +---+   +   +---+
+|       |   |   |   |           |       |               |   |
++   +---+---+---+   +   +   +   +---+---+---+   +---+---+   +
+|                       |   |       |                       |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
-We can see that some of the diagonal grid connections were used to form passages.  These are marked by slashes "/" and backslashes "\\".
-
-Now let's look at the diagnostic information:
-
-```
->>> len(status.extra_pumps_trace)
-1
-```
-This length will always be less than or equal to the number of extra pumps.  (It is possible that more than one extra pump might be needed to fill a reservoir.)
-
-```
->>> basins = status.extra_pumps_trace[0]
->>> print(len(basins))
-2
-```
-We have a total of two basins.  This suggests a coding problem instead of a topological issue.  (We have three pumps, but apparently only one of these was placed.)
-
-```
->>> print(basins)
-[{OctagonalCell object}, {OctagonalCell object}]
-```
-The original basin consists of a single cell, and the extra pump was used to create a second basin consisting of a single cell...
-
-Let's label the two basins:
-```
->>> n = len(basins)
->>> for i in range(n):
-...     basin = basins[i]
-...     for cell in basin:
-...         cell.label = str(i)
-...
->>> print(maze)
-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-|   |       |                                       |   |   |
-+   /   +---+   \---+---+   +---+---+---+---+   +   /---+   +
-|   |           |   |           |       |   |   |   |       |
-+   \---+   +---+---+---+---+---+   \---/---\---/---+---+   +
-|   |   |   | 0     |       |       |   |       |           |
-+---+   +---+   \---/---\---/   +---+---+---+---+---+   +---+
-|       |       | 1 |   |   |           |               |   |
-+   +---+   +---+   +   +   \---+---+---+---+   +   +---/---+
-|       |       |   |   |   |       |       |   |           |
-+---/---+---+   +---/---+   +   +---/   +---/---+---+---+   +
-|           |           |   |   |   |               |       |
-+---+---/   +---+---+   +---+---+   +---+---+   +---+---+   +
-|       |   |       |   |       |   |   |           |       |
-+   +   \---+---+   +---+   +---+   +   +   +   +   +   \---+
-|   |   |       |       |       |   |   |   |   |   |   |   |
-+   +   +---+   +---+   +   +   +   +   +   +---/---+---/---+
-|   |   |           |   |   |       |       |       |       |
-+---+   +---+   +   +   \   +---+   +---+   +   +   +---+---+
-|           |   |       |       |       |   |   |           |
-+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-```
-
-The two cells are:
-1. row 7, column 3
-2. row 6, column 4
-
-That's a suspicious configuration.  Let's have a closer look:
-```
->>> cell1 = maze.grid[7,3]
->>> cell2 = maze.grid[6,4]
->>> print(cell1.label, cell2.label)
-0 1
->>> cell1.southeast == cell2
-False
->>> cell2.northwest == cell1
-True
-```
-
-And there is the coding issue...  It's in the upsilon grid implementation.  (The upsilon grid code wasn't released when this example was created.)
-
-Well, actually the problem was in the implementation of class *OctagonalCell* in module *mazes.Grids.Oblong8*.  The second of two corrected lines dated 8 September 2025 fixed the detected error.  (The first of these two dated fixes was detected in a similar manner.)  Neither error had been released at this point.
-

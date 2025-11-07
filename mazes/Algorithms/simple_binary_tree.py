@@ -74,10 +74,11 @@ class BinaryTree(Algorithm):
         NAME = "Simple Binary Tree"
 
         __slots__ = ("__onward", "__upward", "__flip", "__kwargs",
-                     "__iter")
+                     "__iter", "__grid")
 
         def parse_args(self, onward:str="east", upward:str="north",
-                       flip:callable=cointoss, **kwargs):
+                       flip:callable=cointoss, randomize:bool=False,
+                       **kwargs):
             """parse constructor arguments
 
             POSITIONAL ARGUMENTS
@@ -102,6 +103,10 @@ class BinaryTree(Algorithm):
                 bias - the probability of a head.  The default is 0.5 in
                     'cointoss'.  This argument is passed to flip, if present.
 
+                randomize (default False) - if True, the grid is shuffled
+                    to get a new iteration order. (This option is primarily
+                    for demonstation purposes.)
+
                 **kwargs
                     all other keyword arguments are passed to the coin flip
                     subroutine.
@@ -111,6 +116,9 @@ class BinaryTree(Algorithm):
             self.__upward = upward
             self.__flip = flip
             self.__kwargs = kwargs
+            self.__grid = list(self.grid)
+            if randomize:
+                rng.shuffle(self.__grid)
 
         def configure(self):
             """configuration"""
@@ -118,7 +126,7 @@ class BinaryTree(Algorithm):
             self.store_item("cells", 0)
             self.store_item("passages", 0)
                 # set up the iteration
-            self.__iter = iter(self.grid)
+            self.__iter = iter(self.__grid)
             self.more = True
 
         def upward(self, cell):

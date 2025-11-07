@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.10.11 - 7 November 2025
+1. More video capture animations (in the *movies* folder: binary tree, sidewinder, Eller, simplified Prim, and DFS with no shuffling).  These are documented in *doc/animation.md*.
+2. *mazes.Algorithms.sidewinder* - correct a docstring
+3. *mazes.Algorithms.simple\_binary\_tree* - add a *randomize* option to shuffle the grid: this makes a better animation to illustrate the cell-independence of the algorithm.
+
 ## Release 0.10.10 - 3 November 2025
 1. Update README.
 2. Cosmetic changes and minor corrections. (*demos.watershed\_partial*)

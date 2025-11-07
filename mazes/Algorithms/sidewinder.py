@@ -182,7 +182,9 @@ class Sidewinder(Algorithm):
         def initialize(self):
             """initialization
 
-            Here we set up the iterables.  If the onward direction
+            Here we set up the iterables.  If the onward direction is
+            west or south, we reverse the flow.  The upward direction
+            is perpendicular and flow doesn't matter.
             """
             self.__tier = dict()
             self.__in_tier = dict()

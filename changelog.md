@@ -1,5 +1,14 @@
 # Change Log
 
+## Release 0.10.10 - 3 November 2025
+1. Update README.
+2. Cosmetic changes and minor corrections. (*demos.watershed\_partial*)
+3. New demos.  (*demos.basin\_maze* - carve mazes in the basins)
+4. Animations. (documentation: *doc/animation.md; modules: *mazes.Graphics.animate*, *mazes.animated\_maze*; new folder: *movies*)
+5. Some updates needed for animations (modules: *mazes.maze*)
+
+For (4), passage carving has been tested.  Wall building needs to be tested.  Some additional updates are needed to allow other kinds of visits to figure into the animations,
+
 ## Release 0.10.9 part 5 - 3 November 2025 - updates to watershed division documentation
 * This is the last part of v0.10.9
 

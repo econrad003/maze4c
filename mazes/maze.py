@@ -32,6 +32,9 @@ MODIFICATIONS
 
     2 December 2024 - EC
         Added link_all and unlink_all methods.
+    5 November 2025 - EC
+        Added two do-nothing methods called visit_cell and visit_join
+        which do something in module animated_maze
 """
 
 from mazes.arc import Arc
@@ -79,7 +82,7 @@ class Maze(object):
 
     def __str__(self):
         """string representation"""
-        return str(self.__grid)
+        return str(self.grid)               # 6 November 2025
 
     def __len__(self):
         """returns the number of edges and arcs"""
@@ -145,6 +148,7 @@ class Maze(object):
         Join = Arc if directed else Edge
         join = Join(self, cell1, cell2, label=label, weight=weight)
         self[join.index] = join
+        return join                 # added 5 November 2025
 
     def unlink(self, join):
         """delete a join"""
@@ -164,5 +168,13 @@ class Maze(object):
         joins = list(self)
         for join in joins:
             self.unlink(join)
+
+    def visit_cell(self, *args, **kwargs):
+        """stub for animated maze wrapper"""
+        pass
+
+    def visit_join(self, *args, **kwargs):
+        """stub for animated maze wrapper"""
+        pass
 
 # end module mazes.maze

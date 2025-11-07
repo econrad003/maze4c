@@ -23,6 +23,7 @@ Mazes in Python 3
     +  *mazes/Graphics* - graphics drivers
     +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
     +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.
+*  *movies* - algorithm animation examples
 *  *stats* - tools and one-shot modules for gathering statistics.  The one-shot modules have date stamps in their filenames. Gathered statistics are found in the *csv* folder.
 *  *tests* - testing to make sure things work as expected
 
@@ -130,7 +131,6 @@ In the *mazes* folder are a couple of scheduling algorithms.  Module *tournament
 
 * Eller's algorithm should come with an inward variant corresponding to inwinder.
 * An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
-* Class *Tournament* is now the default scheduler in the implementation of the  watershed division algorithm.  The documentation needs to be revised accoringly.
 
 ## Helper methods for growing trees
 

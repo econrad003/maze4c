@@ -1,5 +1,5 @@
 """
-demos.sidewinder - create a sidewinder maze
+demos.watershed_partial - carve basins in a watershed.
 Eric Conrad
 Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
 
@@ -8,7 +8,7 @@ DESCRIPTION
     Here we demonstrate the Watershed class when used on a connected
     subgrid.  The grid is a typical 8x13 rectangular grid.  For the
     subgrid, we remove the outer boundary cells and a two-row three-column
-    strip from the center
+    strip from the center.
 
 LICENSE
     This program is free software: you can redistribute it and/or modify
@@ -68,7 +68,7 @@ def main(n:int, use_stack:bool):
                 subgrid.append(maze.grid[i, j])
                 cell.label = "R"
     # print(maze)
-    seeds = rng.choices(subgrid, k=n)
+    seeds = rng.sample(subgrid, n)
     indices = list(seed.index for seed in seeds)
     print("Seed cells:", indices)
 

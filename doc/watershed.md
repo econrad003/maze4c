@@ -20,6 +20,10 @@ Example 4 is intended to give some insight into how the watershed model might be
 
 Example 5 is a basic example using watershed recursive division.  For more details and examples, see the documentation in *watershed\_division.md* in the *doc/Algorithms* folder.
 
+Examples 6, 7, and 8 use three different scheduling algorithms (round robin, unweighted tournament, weighted tournament) to build the watershed.
+
+Example 9 shows how the Watershed class might be used with several carving algorithms to carve mazes in each of the basins.  The demonstration module outputs some working Python code along with the results.  It can be thought of as a tutorial on how to program with watersheds.
+
 ## The watershed demo
 
 Here is the usage docstring:
@@ -614,3 +618,206 @@ Carving the floodgates:
 +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
 Here, basin 3 with weight 8 started roughly in the middle of the grid, offsetting some of the advantage of basin 4 (weight 13).  Basin 2 (weight 5) was somewhat shielded by basins 0 and 1 (weights 2 and 3), and was able to claim a large share of the western region of the maze.
+
+## Programming with watersheds
+
+The demonstration module *demos.basin\_maze* is a tutorial of sorts on Python programming with watersheds.  Here is the help:
+```
+$ python -m demos.basin_maze -h
+usage: basin_maze.py [-h] [-d ROWS COLS] [-n SEEDS] [--round_robin] [-s]
+                     [--task_args [WGT ...]]
+
+Watershed demonstration with mazes carved in the basins.
+
+options:
+  -h, --help            show this help message and exit
+
+watershed options:
+  -d ROWS COLS, --dim ROWS COLS
+                        the dimensions of the underlying grid.
+  -n SEEDS, --seeds SEEDS
+                        The number of pumps. (Default: 4)
+  --round_robin         use a round robin scheduler.
+  -s, --stack           Use stacks instead of queues.
+  --task_args [WGT ...]
+                        tournament task weights.
+
+Output is to the console. The basin carving algorithms are respectively DFS,
+BFS, Wilson, and Kruskal. Kruskal will be used whenever there are four or more
+basins.
+```
+
+All of the options have defaults.  We will give one example using two of the options:
+
+### Example 9 - programming with watersheds
+
+```
+$ python -m demos.basin_maze -d 10 15 -n 5
+Namespace(dim=[10, 15], seeds=5, round_robin=False, stack=False, task_args=[])
+```
+
+We specified the dimensions of the maze and the number of pumps.  The selected options (including the defaults) are displayed in a namespace.  The demo starts spitting out Python code, with some comments.  In addition to displaying code, the demo performs the operations that are described in the code.  The code includes the imports as they are needed.
+
+The first step is to create a maze object.  Here is the code for a simple rectangular maze with 10 rows and 15 columns:
+```
+        # create a Maze instance
+from mazes.Grids.oblong import OblongGrid
+from mazes.maze import Maze
+maze = Maze(OblongGrid(10, 15))
+grid = maze.grid
+```
+
+Next we need to identify five cells to use as pumps:
+```
+        # get 5 seed cells to use as pumps
+from mazes import rng
+seeds = rng.sample(list(maze.grid), n)
+# --> seeds: [grid[7,7], grid[0,2], grid[0,12], grid[4,12], grid[1,6]]
+```
+A comment displays the cells that were obtained in the sample operation.
+
+The default scheduler is an unweighted tournament using queues.  Each task is a breadth first search that starts with the indicated pumpinf cell as its starting point or seed.  If we had specified a stack, the searches would be depth-first.  Just one line is needed here:
+```
+        # create an unweighted tournament watershed
+watershed = Watershed(grid, seeds)    # using a queue
+```
+
+Next we map the basins.  These are the five breadth-first search tasks:
+```
+        # map the basins (coding loop)
+passes = 1
+while watershed.round_robin():
+    passes += 1
+# --> completed after passes=151.
+```
+There are 5 pumping cells and a total of 150 cells in the grid.  That leaves 145 cells that need to be claimed.  145 of the 151 passes claim cells.  Five additional failure passes end each of the five pumping tasks.  The remaining pass is a failure pass which detects that there are no more active tasks:
+```
+     145 + 5 + 1 = 151.
+```
+
+At this point, the basins have been identified, but no passages have been carved.  The next step is to carve the floodgate passages that separate the basins.  We first create a simplified map with one component per basin.  We then carve a maze on that map (using Kruskal's algorithm.  Using that maze, we select grid connections as floodgates.  Since there are five basins, we need four floodgates in order to have a perfect maze:
+```
+        # carve the floodgates separating the basins
+cmaze = watershed.initialize_maze()    # simplified basin map
+# --> 5 cells in map, expected 5
+from mazes.Algorithms.kruskal import Kruskal  # floodgate carver
+print(Kruskal.on(cmaze))
+          Kruskal (statistics)
+                            visits        4
+                 components (init)        5
+               queue length (init)        7
+                             cells        5
+                          passages        4
+                components (final)        1
+              queue length (final)        3
+gates = watershed.doors(cmaze)   # now carving
+#   connecting the gates (loop)
+for gate in gates:
+    cell1, cell2 = gate
+    maze.link(cell1, cell2)
+# --> floodgate indices: {(1,10),(0,10)}, {(3,12),(4,12)},
+#                        {(5,9),(6,9)}, {(2,3),(2,4)}
+```
+
+For purposes of the demonstration, we label the cells in each basin with the basin number (0 through 4):
+```
+        # labelling the basins...
+watershed.label()
+```
+
+We can now carve mazes in the basins.  The demonstration uses DFS, BFS and Wilson's algorithm to carve the first three basins.  Any remaining basins are carved using Kruskal's algorithm (which we have already imported).  We prepare the maze for carving by masking all cells except those in the basin being carved.  We then run the carving algorithm.  Finally, we unmask all the cells.  To access all cells in the grid including the masked cells, we must use the *Grid.\_cells* property:
+```
+        # carve mazes in the basins (loop)
+from mazes.Algorithms.dfs_better import DFS
+from mazes.Algorithms.bfs import BFS
+from mazes.Algorithms.wilson import Wilson
+algorithms = [Wilson, BFS, DFS]
+for basin in watershed.basins:
+    cells = set(watershed.basins[basin])
+    for cell in grid._cells:        # all the cells
+        if cell in cells:
+            cell.reveal()
+        else:
+            cell.hide()
+    Carver = algorithms.pop() if algorithms else Kruskal
+    print(f'{basin=}:', Carver.on(maze))
+for cell in grid._cells:        # all the cells
+    cell.reveal()
+```
+
+Here are the results for each basin:
+```
+# ------------------------------ CARVING RESULTS ------------------------------
+basin=0:           Depth-first Search (DFS) (statistics)
+                            visits       69
+                        start cell  (3, 7)
+               maximum stack depth       22
+                             cells       35
+                          passages       34
+basin=1:           Breadth-first Search (BFS) (statistics)
+                            visits       18
+                        start cell  (0, 11)
+              maximum queue length        5
+                             cells       18
+                          passages       17
+basin=2:           Circuit-Eliminated Random Walk (Wilson) (statistics)
+                            visits       13
+                             cells       34
+                          passages       33
+                 paths constructed       13
+                     cells visited      220
+                          circuits       69
+                    markers placed      138
+                   markers removed      105
+                     starting cell  (5, 8)
+basin=3:           Kruskal (statistics)
+                            visits       31
+                 components (init)       25
+               queue length (init)       37
+                             cells      150
+                          passages       24
+                components (final)        1
+              queue length (final)        6
+basin=4:           Kruskal (statistics)
+                            visits       47
+                 components (init)       38
+               queue length (init)       60
+                             cells      150
+                          passages       37
+                components (final)        1
+              queue length (final)       13
+# -----------------------------------------------------------------------------
+```
+
+With 150 cells in the grid, we would hope to have 149 passages.  The mission was successful:
+```
+#    number of cells = 150
+# number of passages = 149
+```
+
+All that's left is to display the result:
+```
+#        display the result
+print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 4   4 | 4   4 | 2 | 2 | 2   2   2   2   2 | 3   3   3 | 3 |
++---+   +   +---+   +   +   +---+---+---+   +---+   +---+   +
+| 4   4   4   4 | 2   2 | 2 | 2 | 2   2   2   2 | 3   3   3 |
++   +---+   +---+---+   +---+   +---+   +   +   +---+   +   +
+| 4 | 4   4   4 | 2 | 2 | 2   2   2   2 | 2 | 2 | 3   3 | 3 |
++---+---+---+   +   +   +   +---+---+   +   +---+   +   +---+
+| 4 | 4   4   4 | 2   2   2 | 2   2   2 | 2 | 3 | 3 | 3   3 |
++   +---+   +   +---+---+---+   +---+   +---+   +   +   +---+
+| 4 | 4   4 | 4 | 0   0 | 2   2   2 | 0 | 3   3   3 | 3   3 |
++   +   +---+---+---+   +---+   +---+   +   +   +---+   +---+
+| 4   4   4   4 | 0   0   0 | 2 | 0   0 | 3 | 3 | 3   3   3 |
++---+   +   +---+   +---+   +---+---+   +---+   +   +---+---+
+| 4 | 4 | 4 | 0   0   0 | 0 | 0   0   0 | 1 | 3 | 1 | 1 | 1 |
++   +   +   +---+   +   +   +---+---+   +   +---+   +   +   +
+| 4 | 4 | 4   4   0 | 0 | 0 | 0   0 | 0 | 1   1 | 1 | 1   1 |
++   +   +   +---+   +   +---+   +   +   +---+   +   +   +---+
+| 4   4 | 4 | 0   0 | 0   0   0 | 0 | 0   0 | 1   1   1   1 |
++---+---+   +---+   +---+---+---+   +   +   +   +---+---+---+
+| 4   4   4   4 | 0   0   0   0 | 0   0 | 1   1   1   1   1 |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```

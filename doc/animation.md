@@ -601,7 +601,8 @@ Note that the implementation here is a passage carver.  (Recursive division is m
 
 ### The output
 
-File: *movies/capture-rdiv.mkv*
+File #1: *movies/capture-rdiv.mkv*  (passage carver)
+File #2: *movies/capture-rdiv-wb.mkv*  (wall builder)
 
 ### Capture session highlights
 
@@ -630,15 +631,25 @@ File: *movies/capture-rdiv.mkv*
 
 ### Notes on the video
 
-In its passage carver implementation, recursive division carves doors.  In our implementation, we have:
+In its passage carver implementation (File #1), recursive division carves doors.  In our implementation, we have:
 
+0.   pop a room from the stack;
 1.   divide the room into two parts;
-2.   carve a connecting door.
-3.   push the first room onto the stack;
-4.   push the second room onto the stack.
+2.   push the first room onto the stack;
+3.   push the second room onto the stack; and
+4.   carve a connecting door.
 
 The algorithm starts by pushing the grid onto the stack.  So the first door carved is the door that divides the entire grid.  The second room in the grid is either north or east of the first room, so the second door carved will be either somewhere roughly north or east of the first door.  In general, the implementation carves its passages from north and east to south and west.
 
 The algorithm creates and joins forests like Kruskal's algorithm, so Kruskal's algorithm can be thought of as a generalization.
 
+File #2 was produced using a wall-building implementation of recursive division.  The sequence of tasks above is replaced by:
 
+0.   pop a room from the stack;
+1.   divide the room into two parts;
+2.   push the first room onto the stack;
+3.   push the second room onto the stack; and
+4.   separate the two rooms with a wall with a single connecting door.
+
+For details on the wall building animation, see:
+*    *doc/WallBuilders/recursive\_division.md*.

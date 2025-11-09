@@ -1,7 +1,7 @@
 """
 mazes.Algorithms.simple_binary_tree - the simple binary tree wall building algorithm
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2024-2025 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 

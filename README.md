@@ -95,7 +95,7 @@ The following maze generation algorithms have been implemented:
 * module *sidewinder* (class *Sidewinder*)
     +  module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
     + *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.
-* module *recursive\_division* (classes *Subgrid*, *RecursiveDivision*) - recursive division, implemented as a passage carver for a rectangular grid.
+* module *recursive\_division* (classes *Subgrid*, *RecursiveDivision*) - recursive division, implemented as a passage carver for a rectangular grid.  A wall builder has also been implemented.
     + module *watershed\_division* (classes *Reservoir*, *WatershedDivision*) - a generalized recursive division algorithm for arbitrary connected grids, implemented as a passage carver using the *Watershed* class.
 * module *dff* (for *depth-first forest*; class *DFF*) is the first of a family of *growing forest* algorithm.  Using class *Task* in the same module, it is possible to implement other growing forest algorithms, such as a breadth-first forest, or even a growing forest built from a depth-first tree and a breadth-first tree.  (See the documentation for some examples.  Jamis Buck's name for DFF is *recursive backtracker with parallel seeds*.)
 * module *fractal\_tess* (class *FractalTessellation*) - a fractal-based algorithm which is neither a passage carver nor a wall builder as it does not start with a configured grid.  It might be better described as a recursive tiler as it assembles tiles recursively to produce larger tiles.  Some passage carving is used to glue tiles together.

@@ -1,5 +1,9 @@
 # Change Log
 
+## Release 0.10.13 - 9 November 2025
+1. New algorithm - wallbuilding recursive division
+2. Cosmetic correction to *mazes/WallBuilders/simple_binary_tree.py*
+
 ## Release 0.10.12 - 8 November 2025
 1. New algorithm - wallbuilding simple binary tree
 2. New class - *AlgorithmWB* for wallbuilding algorithms

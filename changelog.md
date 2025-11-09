@@ -1,5 +1,8 @@
 # Change Log
 
+## Release 0.10.11-2 - 8 November 2025
+1. Animations for outward Eller and recursive division.
+
 ## Release 0.10.11 - 7 November 2025
 1. More video capture animations (in the *movies* folder: binary tree, sidewinder, Eller, simplified Prim, and DFS with no shuffling).  These are documented in *doc/animation.md*.
 2. *mazes.Algorithms.sidewinder* - correct a docstring

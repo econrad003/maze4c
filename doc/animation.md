@@ -13,6 +13,8 @@
 * Example 8 - Inwinder (animation)
 * Example 9 - Outwinder (animation)
 * Example 10 - Eller's algorithm (animation)
+* Example 11 - Outward Eller (animation)
+* Example 12 - Recursive Division (animation)
 
 Example 1 lays out the basics for producing an animation.  Examples 2 and 3 show the entire session, but give a briefer summary of the mechanics.  The remaining examples only show points where the details of the production session differ.
 
@@ -431,7 +433,7 @@ File: *movies/capture-inw.mkv*
 
 *   Here we used a larger grid as 5 by 8 isn't really large enough to see what is going on:
 ```
->>> maze = Maze(OblongGrid(8, 13))
+        >>> maze = Maze(OblongGrid(8, 13))
 ```
 
 *   Run *Inwinder* on the configured maze:
@@ -472,7 +474,7 @@ The ring order is an implementation detail in the algorithm.  It makes no differ
 
 *   As with *Inwinder* we used a larger grid:
 ```
->>> maze = Maze(OblongGrid(8, 13))
+        >>> maze = Maze(OblongGrid(8, 13))
 ```
 
 *   Run *Outwinder* on the configured maze:
@@ -506,7 +508,7 @@ File: *movies/capture-Eller.mkv*
 
 *   As with *Inwinder* and *Outwinder*, but this time we used portrait mode:
 ```
->>> maze = Maze(OblongGrid(13, 8))
+        >>> maze = Maze(OblongGrid(13, 8))
 ```
 
 *   Run *Eller* on the configured maze:
@@ -539,3 +541,98 @@ With a minor change to handling the starting row, we could use Eller's algorithm
                  Simple Binary Tree         most particular
 ```
 As we go down the diagram, we can think of the algorithms below a particular algorithm as special cases.  To turn Kruskal into Eller, we assigning lower priorities to the edges that we need.  To turn Eller into sidewinder, we never carve more than one rise to any given run.  To turn sidewinder into a binary spanning tree algorithm, we never carve a rise from a cell which already has three neighbors.  To get to the simple binary tree algorithm, we always choose the last cell in a run (every run has one, and it doesn't have an eastward neighbor, so perfectly acceptable).
+
+## Example 11 - Outward Eller's algorithm (animation)
+
+### The output
+
+File: *movies/capture-outEller.mkv*
+
+### Capture session highlights
+
+*   Import *OutwardEller* as the algorithm:
+```
+        >>> from mazes.Algorithms.outward_eller import Eller
+```
+
+*   As with *Inwinder* and *Outwinder*, we use a larger grid.  There is no particular reason to go with portrait mode (as with *Eller*), so we go with landscape:
+```
+        >>> maze = Maze(OblongGrid(8, 13))
+```
+
+*   Run *OutwardEller* on the configured maze:
+```
+        >>> print(Eller.on(spider.maze))
+          Outward Eller (statistics)
+                            visits        4
+                             cells      104
+                          passages      103
+               optional merge left       45
+               required merge left       14
+             required carve upward       30
+             optional carve upward       14
+                            onward  clockwise
+                            upward  outward
+```
+
+### Notes on the video
+
+Outward Eller algorithm proceeds in rings (as *runs*), carving outward (for *rises*).  Like Eller's basic algorithm, it creates forests.  Special handling of the outermost ring connects the trees in the forest (like fungal mycelia) to create a single tree.
+
+As with Eller's algorithm, it is possible to extend a perfect rectangular maze using outward Eller, but instead of extending just upward, the extension is outward in rectangular rings.  (This would require some change in the coding.) Also as with Eller's algorithm, there is a hierarchy:
+```
+                Kruskal's algorithm           most general
+                         |                         |
+                  Outward Eller's                  |
+                         |                         |
+                     Outwinder              most particular
+```
+(There are a few implementation difficulties that need to be resolved, but there is also an outward analogue of the simple binary tree algorithm.
+
+## Example 12 - Recursive division algorithm (animation)
+
+Note that the implementation here is a passage carver.  (Recursive division is more commonly implemented as a wall builder.)
+
+### The output
+
+File: *movies/capture-rdiv.mkv*
+
+### Capture session highlights
+
+*   Import *RecursiveDivision* as the algorithm:
+```
+        >>> from mazes.Algorithms.recursive_division import RecursiveDivision
+```
+
+*   We use a larger square grid for the animation:
+```
+        >>> maze = Maze(OblongGrid(13, 13))
+```
+
+*   Run *RecursiveDivision* on the configured maze:
+```
+        >>> print(RecursiveDivision.on(spider.maze))
+          Recursive Division (statistics)
+                            visits      337
+                             cells      169
+                          passages        0
+                             links      168
+                           unlinks        0
+                             doors      168
+                         max stack       10
+```
+
+### Notes on the video
+
+In its passage carver implementation, recursive division carves doors.  In our implementation, we have:
+
+1.   divide the room into two parts;
+2.   carve a connecting door.
+3.   push the first room onto the stack;
+4.   push the second room onto the stack.
+
+The algorithm starts by pushing the grid onto the stack.  So the first door carved is the door that divides the entire grid.  The second room in the grid is either north or east of the first room, so the second door carved will be either somewhere roughly north or east of the first door.  In general, the implementation carves its passages from north and east to south and west.
+
+The algorithm creates and joins forests like Kruskal's algorithm, so Kruskal's algorithm can be thought of as a generalization.
+
+

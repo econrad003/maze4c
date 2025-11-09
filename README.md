@@ -1,9 +1,7 @@
 # maze4c
 Mazes in Python 3
 
-**FAQ**:
-
-*  Why *maze4c*? It's the third start (*c*) on my attempts (*maze4*) to put together a Python 3 rewrite of my Python 2 maze implementation (*yaMazeImp*).
+Below is a sketch of what has been done.  Check the documentation folder (*doc*) for examples, details, and how-to instructions.  There are some pictures in the *gallery* folder and some animations in the *movies* folder.
 
 **Folders**:
 
@@ -16,13 +14,14 @@ Mazes in Python 3
 *  *gallery* - sample image files from demonstration runs
     +  *gallery/theta* - demonstration images for theta (aka: polar) mazes
 *  *mazes* - the package; the modules in this folder are base classes
-    +  *mazes/Algorithms* - algorithm implementations
-    +  *mazes/VGT* - vertex-based growing tree algorithm implementations
     +  *mazes/AGT* - arc-based growing tree algorithm implementations
+    +  *mazes/Algorithms* - algorithm implementations (mainly passage carvers)
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazes/Graphics* - graphics drivers
-    +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
     +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.
+    +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
+    +  *mazes/VGT* - vertex-based growing tree algorithm implementations
+    +  *mazes/Wallbuilders* - wall building algorithms
 *  *movies* - algorithm animation examples
 *  *stats* - tools and one-shot modules for gathering statistics.  The one-shot modules have date stamps in their filenames. Gathered statistics are found in the *csv* folder.
 *  *tests* - testing to make sure things work as expected
@@ -92,7 +91,7 @@ The following maze generation algorithms have been implemented:
     + module *bfs* (class *BFS*) - a simple vertex-based breadth-first search implementation.
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
 * module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
-* module *simple\_binary\_tree* (class *BinaryTree*)
+* module *simple\_binary\_tree* (class *BinaryTree*) - a simple passage-carving algorithm for constructing binary spanning tree mazes.  There is a also wall-building implementation in the *mazes/WallBuilders* folder.
 * module *sidewinder* (class *Sidewinder*)
     +  module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
     + *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.

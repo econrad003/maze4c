@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.10.12 - 8 November 2025
+1. New algorithm - wallbuilding simple binary tree
+2. New class - *AlgorithmWB* for wallbuilding algorithms
+3. Corrections to animation modules needed for wallbuilding animation
+
 ## Release 0.10.11-2 - 8 November 2025
 1. Animations for outward Eller and recursive division.
 

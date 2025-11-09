@@ -1,0 +1,1 @@
+for wall building maze algorithms inherited from class AlgorithmWB

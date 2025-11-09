@@ -150,12 +150,12 @@ class Animation(object):
                 self.__nodes.add(cell)
                 loops += 1
             elif isinstance(join, Arc):
-                cell0, cell1 = cells
+                cell1, cell2 = cells                    # 8 Nov 2025
                 self.draw_arc(cell1, cell2)
                 self.__nodes.add(cell1)
                 self.__nodes.add(cell2)
             elif isinstance(join, Edge):
-                cell0, cell1 = cells
+                cell1, cell2 = cells                    # 8 Nov 2025
                 self.draw_edge(cell1, cell2)
                 self.__nodes.add(cell1)
                 self.__nodes.add(cell2)

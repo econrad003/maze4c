@@ -11,7 +11,7 @@ IMPLEMENTATION
 
     Two classes are implemented here:
 
-        Algorithm - contains a single class method 'on'  In most cases
+        Algorithm - contains a single class method 'on'.  In most cases
             this should be adequate for maze generation.
 
         Algorithm.Status - in most cases, subclassing this is all that is

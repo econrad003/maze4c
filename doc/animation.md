@@ -362,7 +362,11 @@ A BFS search tree always produces branches of minimum length -- use of a FIFO qu
 
 ### The output
 
-File: *movies/capture-BinTree-r.mkv*
+File #1: *movies/capture-BinTree-r.mkv*  (passage carver)
+File #2: *movies/capture-BinTree-r-wb.mkv*  (wall builder)
+
+The session for the second animation is detailed in the following document:
+*  *doc/Wallbuilders/simple\_binary\_tree.md*
 
 ### Capture session highlights
 
@@ -383,9 +387,11 @@ File: *movies/capture-BinTree-r.mkv*
                               bias        0.5000
 ```
 
-### Notes on the video
+### Notes on the videos
 
 Note how passages pop up in with cells in pairs running either west to east or south to north.  The direction (either east or north) is determined by the first cell in the pair (respectively either to the left or below).  Without the *randomize* option (and depending on how dictionaries happen to be implemented in a particular version of *Python*), this behavior might be less apparent.
+
+In the wall builder video, we start with a complete maze (with cells and passages placed on the lattice in black).  As passages are removed, the endpoints are displayed in blue and the connecting passage is erased.
 
 ## Example 7 - Sidewinder (animation)
 

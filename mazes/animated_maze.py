@@ -101,6 +101,10 @@ class AnimatedMaze(Maze):
         for join in self.__maze.joins:
              yield join
 
+    def __len__(self):
+        """number of joins"""
+        return len(self.__maze)
+
             # OTHER INHERITED METHODS
 
     @property

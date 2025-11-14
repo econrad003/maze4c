@@ -27,6 +27,11 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    11 November 2025 - EC
+        Tag the hidden cells in the str() interface with '█'.
 """
 
 from mazes import Cell, Grid
@@ -169,7 +174,10 @@ class OblongGrid(Grid):
             yield self[i, j]
 
     def __str__(self):
-        """string representation"""
+        """string representation
+
+        Masking is ignored.  (See also: OblongGrid.mask_to_str property)
+        """
         leader = self.format("leader")
         s = leader
         for i in self.rows(reverse=True):
@@ -186,7 +194,13 @@ class OblongGrid(Grid):
             else:
                 s += "|"
             for cell in self._row(i):
-                s += ' ' + cell.char + ' '
+                if cell.hidden:
+                    if cell.char == ' ':
+                        s += "███"
+                    else:
+                        s += '█' + cell.char + '█'
+                else:
+                    s += ' ' + cell.char + ' '
                 if cell.east and cell.is_linked(cell.east):
                     s += " "
                 else:

@@ -16,6 +16,7 @@ Below is a sketch of what has been done.  Check the documentation folder (*doc*)
 *  *mazes* - the package; the modules in this folder are base classes
     +  *mazes/AGT* - arc-based growing tree algorithm implementations
     +  *mazes/Algorithms* - algorithm implementations (mainly passage carvers)
+    +  *mazes/Cellular* - maze generating cellular automata
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazes/Graphics* - graphics drivers
     +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.

@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.10.14 - 11 November 2025
+1. dead end tools: *mazes.tools.dead\_ends*
+2. *OblongGrid* *str()* method: tag hidden cells
+3. First maze-generating cellular automata
+
 ## Release 0.10.13 - 9 November 2025
 1. New algorithm - wallbuilding recursive division
 2. Cosmetic correction to *mazes/WallBuilders/simple_binary_tree.py*

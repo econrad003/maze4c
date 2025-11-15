@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.10.14-1 - 14 November 2025
+1. animate the cellular automata (*mazes.Graphics.animation2* + two videos).
+2. improvements to the animation module (*mazes.Graphics.animation*), also some refactoring for item (1).
+3. test modules (*tests.animation*, *tests.animation2*)
+
 ## Release 0.10.14 - 11 November 2025
 1. dead end tools: *mazes.tools.dead\_ends*
 2. *OblongGrid* *str()* method: tag hidden cells

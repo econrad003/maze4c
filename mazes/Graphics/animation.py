@@ -1,7 +1,7 @@
 """
 mazes.Graphics.animation - an animation driver using Python turtle
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2025 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
@@ -120,6 +120,7 @@ class Animation(object):
         self.screen.clearscreen()
         self.spider.speed(0)                # fastest speed
         self.spider.hideturtle()            # even faster...
+        self.screen.tracer(False)
             # sketch the grid
         self.penup()
         color1, color2 = "black", "grey"
@@ -140,9 +141,22 @@ class Animation(object):
         for j in range(1, n):               # grid columns
             # print(f"column {j}")
             self.draw_line(j, 0, j, m)
+        self.quick_draw()
+        # self.spider.showturtle()            # slow down
+        self.spider.speed(self.speed)       # animation speed
+        self.screen.update()
+        self.screen.tracer(True)
+        self.__nodes = set()
+        if self.verbose:
+            print("Spider setup complete...")
+            print("Run your algorithm using 'spider.maze'")
+            print("Then run the animation: spider.animate()")
+
+    def quick_draw(self):
+        """a sketch of the initial maze"""
         errors = 0
         loops = 0
-        self.__nodes = set()
+        self.__nodes = set()            # to avoid displaying cells twice
         for join in self.maze:
             cells = list(join)
             if len(cells) == 1:
@@ -161,13 +175,6 @@ class Animation(object):
                 self.__nodes.add(cell2)
             else:
                 errors += 1
-        self.spider.showturtle()            # slow down
-        self.spider.speed(self.speed)       # animation speed
-        self.__nodes = set()
-        if self.verbose:
-            print("Spider setup complete...")
-            print("Run your algorithm using 'spider.maze'")
-            print("Then run the animation: spider.animate()")
         if loops:
             print(f"{loops} loops detected -- node is colored red")
         if errors:

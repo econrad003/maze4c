@@ -3,7 +3,17 @@
 Module: *mazes.Cellular.etc\_automaton*
 Classes: *Automaton*, *Automaton2*
 
-## The theory
+## Contents
+
+* Introduction: Theory
+* Example 1: Generating a maze using the incident edges automaton
+* Example 2: Same automaton with different rules...
+* Example 3: the *StopIteration* exception
+* Example 4: the 8-neighbor automaton
+* Example 5: 8 neighbors, new rules
+* Example 6: Animation
+
+## Introduction: Theory
 
 ### What does the "etc" mean?
 
@@ -493,3 +503,159 @@ Warning: generation 9: stable configuration
 +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
 
+## Example 6: Animation
+
+Two video captures have been added to the movies folder:
+
+* *movies/CA-etc6-12345-3.mkv*
+* *movies/CA-etc6-1234-3.mkv*
+
+The first was a video capture using the test module *tests.animation2*.  The second was made with a modified copy of the module.  (This was a trivial one-line modification, so the copy has been discarded.)
+
+### Example 6a: *CA-etc6-12345-3*
+
+We will look first at the session, and then we will look at the main programming steps.
+
+**Session** (edited):
+```
+$ python -m tests.animation2
+birth rule: {3}
+death rule: {1, 2, 3, 4, 5} (any other, then live cell dies)
+keyword options: {'border': 3, 'bias': 0.4}
+Spider setup in progress. Please stand by...
+Spider setup complete...
+Run your algorithm using 'spider.maze'
+Then run the animation: spider.animate()
+generation 0: (automaton) 109 alive; (maze) 52 passages.
+generation 1: (automaton) 149 alive; (maze) 69 passages.
+generation 2: (automaton) 179 alive; (maze) 85 passages.
+generation 3: (automaton) 181 alive; (maze) 85 passages.
+generation 4: (automaton) 194 alive; (maze) 95 passages.
+generation 5: (automaton) 208 alive; (maze) 100 passages.
+generation 6: (automaton) 214 alive; (maze) 103 passages.
+generation 7: (automaton) 212 alive; (maze) 105 passages.
+generation 8: (automaton) 215 alive; (maze) 108 passages.
+generation 9: (automaton) 219 alive; (maze) 112 passages.
+generation 10: (automaton) 219 alive; (maze) 112 passages.
+generation 11: (automaton) 221 alive; (maze) 114 passages.
+generation 12: (automaton) 224 alive; (maze) 117 passages.
+generation 13: (automaton) 226 alive; (maze) 119 passages.
+generation 14: (automaton) 225 alive; (maze) 118 passages.
+generation 15: (automaton) 227 alive; (maze) 120 passages.
+generation 16: (automaton) 229 alive; (maze) 122 passages.
+generation 17: (automaton) 230 alive; (maze) 123 passages.
+generation 18: (automaton) 232 alive; (maze) 125 passages.
+generation 18: stable configuration
+Simulation stopped after 18 generations.
+Ten second timeout -- set up the video capture:
+t=10... t=9...  (etc.)   <---- VIDEO CAPTURE SETUP HAPPENS HERE
+t=2... t=1...
+When maze is complete, click on the screen to exit...
+Bye-bye!
+```
+
+Note that only eighteen of the thirty requested generations were actually run.  A "stable configuration" *Warning* exception ended the loop.  (See Step 4 in the Python code below.)
+
+**Video**:
+
+* As the generations progress, some passages are added and some passages are removed.  Blue edges are added when a passage is created and partially erased when the passage is discarded.  (The erasures leave a small stub near the center of the cells.)
+
+**Programming**:
+
+We will highlight the key parts of the code.
+```python
+        # Step 1.  Import the data structures
+from mazes.Cellular.etc_automaton import Automaton
+from mazes.Graphics.animation2 import SimpleAnimation
+
+        # Step 2.  Set up the automaton
+        #     Rule set 12345/3
+BIRTHS = {3}                # birth rule - when a passage is born
+DEATHS = {1, 2, 3, 4, 5}    # death rule - when a passage stays alive
+ROWS, COLS = 10, 10
+ca = Automaton(BIRTHS, DEATHS, ROWS, COLS, border=3, bias=0.4)
+
+        # Step 3.  Prepare the animation
+spider = SimpleAnimation(ca.maze, speed=3, foreground="blue", pen_width=4)
+spider.title(f"{BIRTHS=}, {DEATHS=}")  # For title bar
+spider.set_window_size(400, 400)       # Nice size for 10 by 10
+
+        # Step 4.  Change the maze object from ca.maze to spider.maze
+ca.maze = spider.maze    # IMPORTANT!
+
+        # Step 5.  Run the automaton
+        #     Inside a program we need to trap the exceptions...
+        #     In Spider or Idle, we only need the two lines of the loop
+try:
+    for n in range(30):          # Loop for 30 generations
+        ca.next_generation()
+except Warning:
+    print(f"Simulation stopped after {n} generations.")
+except StopIteration:
+    print(f"No live cells after {n} generations.")
+
+        # Step 6.  Set up the video capture software
+    # In a program, you'll either need to trap some events or include
+    # timer (with a message).  Here is a simple 10 second timer.
+    # If you won't need to save the animation, then omit this step.
+from time import sleep
+sleep(10)
+
+        # Step 7.  Run the animation
+spider.animate()
+```
+
+### Example 6b: *CA-etc6-1234-3*
+
+**Modifications**:
+
+The only thing that changed in the copy of the program was the following line:
+```python
+RULES = "12345/3"
+```
+It was changed to:
+```python
+RULES = "1234/3"
+```
+The affect was to change the death rule (a set of integers) from {1,2,3,4,5} to {1,2,3,4}.
+
+In the programming script above, this amounts to changing the value of the constant *DEATHS* in step 2 to:
+```python
+DEATHS = {1, 2, 3, 4}      # death rule - when a passage stays alive
+```
+
+**Session** (edited):
+```
+$ python -m animation2_copy
+birth rule:, {3}
+death rule:, {1, 2, 3, 4}
+keyword options: {'border': 3, 'bias': 0.4}
+Spider setup in progress. Please stand by...
+Spider setup complete...
+Run your algorithm using 'spider.maze'
+Then run the animation: spider.animate()
+generation 0: (automaton) 138 alive; (maze) 59 passages.
+generation 1: (automaton) 174 alive; (maze) 77 passages.
+generation 2: (automaton) 181 alive; (maze) 87 passages.
+generation 3: (automaton) 193 alive; (maze) 92 passages.
+generation 4: (automaton) 185 alive; (maze) 93 passages.
+generation 5: (automaton) 187 alive; (maze) 98 passages.
+generation 6: (automaton) 193 alive; (maze) 94 passages.
+generation 7: (automaton) 188 alive; (maze) 97 passages.
+generation 8: (automaton) 195 alive; (maze) 100 passages.
+generation 9: (automaton) 202 alive; (maze) 104 passages.
+generation 10: (automaton) 198 alive; (maze) 105 passages.
+generation 11: (automaton) 208 alive; (maze) 111 passages.
+generation 12: (automaton) 206 alive; (maze) 109 passages.
+generation 13: (automaton) 198 alive; (maze) 102 passages.
+generation 14: (automaton) 199 alive; (maze) 103 passages.
+generation 14: stable configuration
+Simulation stopped after 14 generations.
+Ten second timeout -- set up the video capture:
+t=10... t=9...  (etc.)   <---- VIDEO CAPTURE SETUP HAPPENS HERE
+t=2... t=1...
+When maze is complete, click on the screen to exit...
+Bye-bye!
+```
+
+*Video* details and the *programming* steps are as described above in Example 6a (with the small *modification* above).

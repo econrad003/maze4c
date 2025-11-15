@@ -276,11 +276,6 @@ class Automaton(object):
         return self.__topology
 
     @property
-    def maze(self):
-        """the maze being shaped by the automaton (target maze)"""
-        return self.__maze
-
-    @property
     def grid(self):
         """the grid being shaped by the automaton (target grid)"""
         return self.__grid
@@ -289,6 +284,25 @@ class Automaton(object):
     def generation(self):
         """returns the number of generations since configuration"""
         return self.__generation
+
+            # MUTABLE PROPERTIES
+
+    @property
+    def maze(self):
+        """the maze being shaped by the automaton (target maze)"""
+        return self.__maze
+
+    @maze.setter
+    def maze(self, other:Maze):
+        """maze setter
+
+        The new target maze must own the same grid.  This setter is intended
+        for use with animations.
+        """
+        if self.__maze.grid is other.grid:
+            self.__maze = other
+        else:
+            raise ValueError("The new target maze must work with the same grid")
 
         # Other methods
 

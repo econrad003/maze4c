@@ -22,4 +22,8 @@ This experiment is similar to the October 7 experiment.  The list of algorithms 
 
 Essentially a repeat of the 9 October experiment with on significant change.  Instead of four 2×2 tiling passes, 4 passes with alternating 2×3 and 3x2 tilings were used to create 36×36 fractal mazes.
 
+## Cellular Automata - 16 November 2025
+
+Study some sample mazes produced by cellular automata.  Eleven automata were studied with 100 samples each.  The mazes produced were 25×25 rectangular mazes.  Four automata were selected as "suitable" maze generators.  An algorithm for turning an imperfect maze (such as one produced by a cellular automaton) into a perfect maze is outlined in the final section of the report.
+
 

@@ -285,6 +285,20 @@ class Automaton(object):
         """returns the number of generations since configuration"""
         return self.__generation
 
+    @property
+    def living(self):
+        """the number of living cells in the automaton
+
+        This can be used to indicate oscillations.  The indication
+        is only probabilistic.
+        """
+        return len(self.__curr)
+
+    @property
+    def current_state(self):
+        """a copy of the current state"""
+        return dict(self.__curr)
+
             # MUTABLE PROPERTIES
 
     @property

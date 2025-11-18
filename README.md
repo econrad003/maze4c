@@ -22,7 +22,7 @@ Below is a sketch of what has been done.  Check the documentation folder (*doc*)
     +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.
     +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
     +  *mazes/VGT* - vertex-based growing tree algorithm implementations
-    +  *mazes/Wallbuilders* - wall building algorithms
+    +  *mazes/WallBuilders* - wall building algorithms
 *  *movies* - algorithm animation examples
 *  *stats* - tools and one-shot modules for gathering statistics.  The one-shot modules have date stamps in their filenames. Gathered statistics are found in the *csv* folder.
 *  *tests* - testing to make sure things work as expected
@@ -37,7 +37,7 @@ For example, for *demos/simple\_binary\_tree.py* run it from the folder that con
 ```
 Note that the slashes are replaced by dots and the *.py* extension is discarded.  The demonstration modules use *argparse* for argument parsing -- the *-h* option will display usage information.  The *gallery* folder contains at least one output image from each demonstration program.
 
-> [!NOTE]  
+> [!NOTE]
 > I don't recommend modifying the Python path as this is a great way to break things.  Unfortunately there does not seem to be *simple* way of using Python 3 to write scripts which are not stored in the current working directory.
 
 For the time being, the graphics drivers use *matplotlib* and *numpy*.  These will need to be installed if you don't already have them.
@@ -130,7 +130,6 @@ In the *mazes* folder are a couple of scheduling algorithms.  Module *tournament
 ## Planned but not yet implemented:
 
 * Eller's algorithm should come with an inward variant corresponding to inwinder.
-* An algorithm based on cellular automata (See the last example in the Kruskal's algorithm documentation for a preview.)
 
 ## Helper methods for growing trees
 

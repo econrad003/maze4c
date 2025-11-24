@@ -1,7 +1,9 @@
-# The basic wall builder
+# The basic wall builder (INTRODUCTION)
 
 * module *mazes.WallBuilders.basic\_wallbuilder*
 * class *BasicWallbuilder*
+
+More detailed are found in the companion document *doc/basic\_wallbuilders.md*.  (Note the difference in name: singular *vs* plural.)
 
 ## The algorithm
 

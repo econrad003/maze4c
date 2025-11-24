@@ -40,7 +40,8 @@ LICENSE
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from mazes import Algorithm
-from mazes.Algorithms.dfs_circuit_locator import CircuitFinder
+from mazes.Algorithms.qs_circuit_locator import CircuitFinder
+from mazes.gqueue import GeneralizedQueue
 
 class BasicWallbuilder(Algorithm):
     """a simple wallbuilding algorithm to use with a circuit locator"""
@@ -48,14 +49,31 @@ class BasicWallbuilder(Algorithm):
     class Status(Algorithm.Status):
         """where all the work is done"""
 
-        __slots__ = ("__more", "__shuffle")
+        __slots__ = ("__more", "__shuffle", "__start",
+                     "__qType", "__qargs", "__qkwargs")
+
+        @property
+        def MyCircuitFinder(self):
+            """returns the circuit finder class"""
+            return CircuitFinder
+
+        @property
+        def locator_name(self):
+            """get a name for the locator"""
+            Locator = self.MyCircuitFinder
+            return getattr(Locator.Status, "NAME", Locator.__name__)
 
         def find_edge(self) -> "Edge":
             """wrapper for the circuit locator
 
             returns either an edge or None
             """
-            status = CircuitFinder.on(self.maze, shuffle=self.__shuffle)
+            status = self.MyCircuitFinder.on(self.maze, shuffle=self.__shuffle, \
+                         start_cell=self.__start, QueueType=self.__qType, \
+                         qargs=self.__qargs, qkwargs=self.__qkwargs) \
+                if self.__qType else \
+                     self.MyCircuitFinder.on(self.maze, shuffle=self.__shuffle, \
+                         start_cell=self.__start)
             self["finder passes"] += status["visits"]
             if status.result:
                 _1, edge, _2 = status.result
@@ -80,10 +98,61 @@ class BasicWallbuilder(Algorithm):
             else:
                 self.__more = False
 
-        def parse_args(self, shuffle:bool=True):
-            """parse the setup arguments"""
+        def parse_args(self, shuffle:bool=True, start_cell:'Cell'=None,
+                       QueueType:"class"=None, qargs=tuple(), qkwargs=dict()):
+            """parse the setup arguments
+
+            REQUIRED ARGUMENTS
+
+                maze - a maze object in which walls need to be erected
+
+            KEYWORD ARGUMENTS
+
+                shuffle (default: True) - if False, a cell's neighbors will
+                    be traversed in dictionary order.  If true, the neighborhood
+                    will be shuffled.
+
+                start_cell (default: None) - if a starting cell is supplied,
+                    all circuit location passes will start there.
+
+                    If the maze is disconnected, the search will always start
+                    in the component containing the start cell.  For the
+                    remaining components, the search will start in a random cell.
+
+                QueueType (default: None) - if None, then the queuing class will
+                    be the default, if any, for the CircuitFinder class.  (This
+                    will normally be a stack.)  If a class is specified, then the
+                    queue will be set up as:
+                        q = QueueType(*qargs, **qkwargs)
+
+                    The default for qargs, an empty tuple, results in queue setup
+                    as:
+                        q =QueueType(**qkwargs)
+
+                    The default for qkwargs, an empty dictionary, results in queue
+                    setup as:
+                        q =QueueType(*qargs)
+
+                    If the default is taken for both qargs and qkwargs, the setup
+                    is:
+                        q =QueueType()
+
+                qargs - see QueueType
+
+                qkwargs - see QueueType
+            """
+            self["locator"] = self.locator_name
             super().parse_args()
             self.__shuffle = shuffle
+            if QueueType != None:
+                if not issubclass(QueueType, GeneralizedQueue):
+                    raise TypeError("QueueType must be derived from GeneralizedQueue")
+            if start_cell != None:
+                self["start cell"] = start_cell.index
+            self.__start = start_cell
+            self.__qType = QueueType
+            self.__qargs = qargs
+            self.__qkwargs = qkwargs
 
         def initialize(self):
             """initialization"""
@@ -92,3 +161,4 @@ class BasicWallbuilder(Algorithm):
             self["unlinks"] = 0
             self.__more = True
 
+# END mazes.Wallbuilders.basic_wallbuilder

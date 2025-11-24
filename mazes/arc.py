@@ -31,6 +31,8 @@ MODIFICATIONS
 
     1 December 2024 - EC
         added unlink method, removed __delete__.
+    20 November 2025 - EC
+        bock parallel joins.
 """
 
 class Arc(object):
@@ -86,6 +88,8 @@ class Arc(object):
     def _configure(self):
         """configuration (stub)"""
         cell1, cell2 = self.__cells
+        if cell1.block_parallel(cell2):
+            raise NotImplementedError("parallel joins are not permitted")
         cell1._link(self, cell2)
 
     def unlink(self):

@@ -1,5 +1,18 @@
 # Change Log
 
+## Release 0.11.0 - 20 November 2025
+<ol>
+<li>Circuit location</li>
+    <ol type="a">
+    <li>module *qs\_circuit\_locator* based on class *GeneralizedQueue* -- defaults to depth-first search for circuit location</li>
+    <li>module *dfs_circuit_locator*, rewritten as a wrapper (not a decorator!) for module *qs\_circuit\_locator*, with *circuit* and *label\_circuit* methods</li>
+    <li>*bfs_circuit_locator*, a breadth-first search circuit locator.  It is a wrapper module (not a decorator) for module *qs\_circuit\_locator*.  Note that it locates an edge in a circuit, but not the entire circuit.</li>
+    <li>*pq_circuit_locator*, a priority queue-based circuit locator.  It is also a wrapper module (not a decorator) for module *qs\_circuit\_locator*.  It likewise locates an edge in a circuit, but not the entire circuit.</li>
+    </ol>
+<li>basic wall building modules for the above.</li>
+<li>some statistics to help evaluate the wall building modules.</li>
+</ol>
+
 ## Release 0.10.15 - 18 November 2025
 1. Circuit location -- finding a circuit in a maze...
 2. Basic wall building by breaking circuits...

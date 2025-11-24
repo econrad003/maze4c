@@ -1,5 +1,5 @@
 """
-mazes.Algorithms.dfs_circuit_locator - a depth-first search maze circuit locator
+mazes.Algorithms.bfs_circuit_locator - a breadth-first search maze circuit locator
 Eric Conrad
 Copyright ©2025 by Eric Conrad.  Licensed under GPL.v3.
 
@@ -31,10 +31,10 @@ LICENSE
 import mazes
 from mazes import Algorithm
 import mazes.Algorithms.qs_circuit_locator as QS
-from mazes.Queues.stack import Stack
+from mazes.Queues.queue import Queue
 
 class CircuitFinder(Algorithm):
-    """a depth-first search circuit-locator algorithm
+    """a breadth-first search circuit-locator algorithm
 
     USAGE
 
@@ -53,45 +53,14 @@ class CircuitFinder(Algorithm):
         If you want to break the circuit:
             maze.unlink(join)
 
-        The circuit can always be reproduced from the stack.
+        There is not generally enough information in the queue to reconstruct
+        the circuit.
     """
 
     class Status(QS.CircuitFinder.Status):
         """the bulk of the work is in the parent"""
 
-        NAME = "DFS Circuit Locator"
-
-        slots = ("__circuit")
-
-                # POST MORTEM QUEUE ANALYSIS
-
-        @property
-        def circuit(self) -> tuple:
-            """returns the circuit"""
-            if self.__circuit != None:
-                return self.__circuit
-            _1, _2, target = self.result
-            dump = self.post_mortem_dump
-            n = 0
-            trail = list()
-            trail.append(target)
-            for item in dump:
-                if item[1] == target:
-                    break
-                trail.append(item[1])
-                
-            self.__circuit = tuple(trail)
-            return self.__circuit
-
-        def label_circuit(self, label="*", source="S", target="T"):
-            """label cells in the circuit that was found"""
-            if self.result:
-                trail = self.circuit
-                for cell in trail:
-                    cell.label = label
-                src, _, tgt = self.result
-                src.label = source
-                tgt.label = target
+        NAME = "BFS Circuit Locator"
 
                 # INITIALIZATION
 
@@ -111,8 +80,7 @@ class CircuitFinder(Algorithm):
                     as being served, so "the first shall be last" and
                     "the last shall be first".)  The default is True.
             """
-            self.__circuit = None       # see property circuit()
             super().parse_args(start_cell=start_cell, shuffle=shuffle, \
-                QueueType=Stack, qargs=tuple(), qkwargs=dict())     # chain to parent
+                QueueType=Queue, qargs=tuple(), qkwargs=dict())     # chain to parent
 
-# end module mazes.Algorithms.dfs_circuit_locator
+# end module mazes.Algorithms.bfs_circuit_locator

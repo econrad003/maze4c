@@ -31,6 +31,8 @@ MODIFICATIONS
 
     1 December 2024 - EC
         Corrected unlink.
+    20 November 2025 - EC
+        Block parallel joins.  (The block is in Edge and Arc)
 """
 
 class Cell(object):
@@ -178,11 +180,20 @@ class Cell(object):
 
             # MAZE (GRAPHIC PROPERTIES)
 
+    def block_parallel(self, cell):
+        """don't permit parallel joins
+
+        In a subclass that admits parallel joins, just return False.
+        """
+        return self.join_for(cell) != None
+
     def _link(self, join:'Edge', cell:'Cell'):
         """create an arc joining the cell
 
         This is called by Edge.configure -- there should be no need to call
         this directly.
+
+        Parallel joins are not supported.
         """
         self.__passages[join] = cell
         self.__linked[cell] = join

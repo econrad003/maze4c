@@ -31,6 +31,8 @@ MODIFICATIONS
 
     1 December 2024 - EC
         added unlink method, removed __delete__.
+    20 November 2025 - EC
+        bock parallel joins.
 """
 
 class Edge(object):
@@ -94,9 +96,16 @@ class Edge(object):
         """configuration (stub)"""
         cells = list(self.__cells)
         if len(cells) == 1:                         # loop
-            cells[0]._link(self, cells[0])
+            cell1 = cells[0]
+                    # block parallel joins (20 Nov 2025)
+            if cell1.block_parallel(cell1):
+                raise NotImplementedError("parallel loops are not permitted")
+            cells1._link(self, cells1)
         else:                                       # ordinary edge
             cell1, cell2 = cells
+                    # block parallel joins (20 Nov 2025)
+            if cell1.block_parallel(cell2) or cell2.block_parallel(cell1):
+                raise NotImplementedError("parallel joins are not permitted")
             cell1._link(self, cell2)
             cell2._link(self, cell1)
 

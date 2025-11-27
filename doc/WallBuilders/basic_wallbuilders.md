@@ -26,6 +26,8 @@ All the wallbuilders described here work in essentially the same way:
 
 The implementation of the algorithm used to find the edge strongly influences the resulting maze.
 
+The algorithm is somewhat *impractical*.  For more on that (including a more precise statement of what it means to be *practical*, see the introductory notes in *doc/basic\_wallbuilder.md*.  For some weak evidence for this claim, see my statistics from 23 November 2025.
+
 ## Section 1. Depth-first search
 
 Depth-first search is a practical method for finding an edge contained in a circuit.  It has the added advantage that the entire circuit is contained in the stack.  If implemented iteratively, the stack can be inspected to reveal the entire circuit.

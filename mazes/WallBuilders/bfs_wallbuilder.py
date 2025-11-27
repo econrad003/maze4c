@@ -24,6 +24,12 @@ DESCRIPTION
     The algorithm may fail in one or more ways if the maze contains directed
     arcs.
 
+NOTE ON EFFICIENCY
+
+    This algorithm will generally not be practical for trimming grids
+    with large numbers of passages.  In short, it tends to require far more
+    time than a practical algorithm.
+
 LICENSE
 
     This program is free software: you can redistribute it and/or modify

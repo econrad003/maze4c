@@ -24,6 +24,23 @@ Equivalently:
 * the number of connected components in *M'* is the same as the number of connected components in *M*, and
 * each component of *M* is has a spanning tree in a component of *M'*.
 
+### Efficiency
+
+The circuit finder is inside a loop.  If the starting maze doesn't have many circuits, then this may be acceptable.  If we assume the circuit finder has O(*v*) average time complexity (where *v* is the number of cells) and that O(*e*) passages (where *e* is the number of passages) must be deleted to remove all circuits, then this naïve wall builder will have O(*ve*) time complexity.
+
+For a complete graph on a set of cells:
+
+* *e* = C(*v*, 2) = *v*(*v*-1)/2 = O(*v*²)
+* *ev* = O(*v*³) or overall cubic time.
+
+For an ordinary rectangular grid with *v* cells, the number of edges is at least *v-1* for a grid with either a single row or single column and less than 2*v* since cells have at most 4 neighbors and cells along the perimeter have fewer than 4 neighbors.  (The degree sum is strictly less than 4*v*, so, by **Euler's Lemma**, the number of passage must be less that 4*v*/2=2*v*.)  Hence for an ordinary rectangular grid, the circuit locator would be O(*v*) and the wall builder would then be O(*v*²) or quadratic in time.
+
+In either case, the algorithm is *feasible* (where *feasible* means worst case polynomial time) but *impractical* (where *practical* means worst case log-linear time, *i.e.* O(*v*&nbsp;log*v*)).  Note that when we use these expressions, we are speaking *asymptotically* -- *i.e.* for a sufficiently large number of cells.
+
+For *Von Neumann*-type rectangular mazes, we speak of mazes with "sufficiently large" numbers of rows or columns.  We are moreover assuming that the numbers of rows and of columns are both larger than 1, since if either is 1, then there won't be any circuits.  The same also applies to *Moore*-type (at most 8 neighbors per cell) rectangular mazes.
+
+Despite the impracticality, the biases in the resulting mazes may have some appeal in their own right.
+
 ## The circuit locator
 
 * Module: *mazes.Algorithms.dfs\_circuit\_locator*

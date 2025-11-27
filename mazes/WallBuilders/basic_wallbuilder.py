@@ -24,6 +24,16 @@ DESCRIPTION
     The algorithm may fail in one or more ways if the maze contains directed
     arcs.
 
+NOTE ON EFFICIENCY
+
+    Unless the circuit locator is especially fast, this algorithm will
+    generally not be practical for trimming grids with large numbers
+    of passages.   In short, it will tend to require far more time than
+    a practical algorithm.
+
+    The default circuit locator, based on depth-first search, is not
+    "especially fast". 
+
 LICENSE
 
     This program is free software: you can redistribute it and/or modify

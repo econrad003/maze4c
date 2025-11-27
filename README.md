@@ -76,7 +76,7 @@ Theta (or polar or circular) grids are supported as class *ThetaGrid* in module 
 
 ## Algorithms
 
-### Maze generation
+### Maze generation (passage carvers)
 
 The following maze generation algorithms have been implemented:
 
@@ -102,6 +102,16 @@ The following maze generation algorithms have been implemented:
 * module *fractal\_tess* (class *FractalTessellation*) - a fractal-based algorithm which is neither a passage carver nor a wall builder as it does not start with a configured grid.  It might be better described as a recursive tiler as it assembles tiles recursively to produce larger tiles.  Some passage carving is used to glue tiles together.
 
 These are documented in *doc/Algorithms*.
+
+### Maze generation (wall builders)
+
+These are found in the *mazes/WallBuilders* folder and are documented in the *doc/WallBuilders* folder.
+
+* module *mazes.WallBuilders.pruning\_tree* (class *PruningTree*) - an inverse growing tree.  This is a family of algorithms implemented to work with queuing structures like stacks, queues, and priority queues.  (The default in class *PruningTree* is class *Stack* in module *mazes.Queues.stack*.  So, by default, class *PruningTree* is an implementation of a wall-adding depth-first search.) This family of algorithms can be used to prune mazes that are grid complete, or to remove redundant edges from mazes that happen to have a few unwanted circuits.
+* module *mazes.WallBuilders.recursive\_division* (class *RecursiveDivision*) - a wall building implementation of recursive division.  It only works on complete 4-connected (or Von Neumann) rectangular grids.
+* module *mazes.WallBuilders.simple\_binary\_tree* (class *BinaryTree*) - a wall building implementation of the simple binary tree algorithm.  It only works on complete 4-connected (or Von Neumann) rectangular grids.
+* module *mazes.WallBuilders.basic\_wallbuilder* (class *BasicWallbuilder*) - a generally *time inefficient* wall adder that uses circuit locators to detect edges that are contained in circuits.  These algorithms are generalizations of the pruning tree algorithms.  *BasicWallbuilder* uses class *Stack* by default in its circuit locator.  Derived classes *BFSWallbuilder* and *PQWallbuilder* (in modules *bfs\_wallbuilder* and *pq\_wallbuilder*, respectively) use classes *Queue* and class *PriorityQueue* (respectively) as their queuing structures.
+
 
 #### Specialized maze generation algorithms
 

@@ -936,3 +936,191 @@ Now all the cells have been processed.  But we need a 5 more passages for *perfe
 |           |   |           |                   |   |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
+
+### Example 4.3 Simple binary tree on a torus (sometimes!)
+
+If we run the simple binary tree algorithm on a toroidal grid we have two problems:
+
+1. we will *always* produce a maze with one too many edges to be a tree; and
+2. we will *sometimes* produce a maze which is disconnected.
+
+Algorithm class *PruningTree* can easily fix the first problem.  Although it cannot fix the second problem, it can detect the condition.
+
+First an example of a successful run.  We start by running simple binary tree
+on a toroidal grid:
+```
+$ python
+>>> from mazes.Grids.torus import TorusGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.simple_binary_tree import BinaryTree
+>>> maze = Maze(TorusGrid(8,13))       # create the grid and maze
+>>> print(BinaryTree.on(maze))         # run simple binary tree
+          Simple Binary Tree (statistics)
+                            visits      105
+                             cells      104
+                          passages      104
+                            onward  east
+                            upward  north
+                              bias        0.5000
+```
+For this to be a binary tree we would need to satisfy the following three conditions:
+
+* the maze should be connected;
+* the number of passages should be less than the number of cells; and
+* the maze should have no cells of degree greater than three.
+
+From the information given so far, we cannot immediately verify that the maze is connected.  But class *PruningTree* does check and indirectly report a problem.
+
+We can immediately see that the number of passages is equal to the number of cells, and thus the maze cannot be a tree.
+
+Knowing how the algorithm works tells us immediately that every cell has degree one, two, or three.  In each cell we carve a passage either north or east, but never both.  The torus grid respects direction: stepping west then east returns us to place; likewise stepping north then south.  From another cell, we can only enter from the south or the west.  That gives a minimum of one and a maximum of three incident passages.  (This proof would fail if, for example, two steps east from some cell returned us to the same cell.)
+
+Now we run the pruning tree algorithm.  We will use depth-first search, but any valid queue-based search will work:
+```
+>>> from mazes.WallBuilders.pruning_tree import PruningTree
+>>> print(PruningTree.on(maze))
+          maze algorithm (statistics)
+                            visits      312
+                 queuing structure  Stack
+                           unlinks        1
+                          arrivals      104
+                        departures      104
+                        visit type  cell
+                        start cell  (7, 4)
+                       unprocessed        0  <--- NOTE!
+                          passages      103
+              maximum queue length       31
+              average queue length       16.7596
+```
+Every cell was processed, so we know the maze was connected.  One passage was removed, so we know we have a tree (as it is connected as there are fewer passages than cells).  *PruningTree* cannot remove edges that are not contained in circuits, so we know that the maze remains connected and as a result, (i) every cell that was a dead end before remains a dead end after (as connected implies no isolated cells) and (ii) no cell can have more than three incident passages (as this would require that some cell previously had at least four incident passages). Hence it is a binary tree.
+
+Here is our maze.  (Imagine playing *PacMan*™ in this maze!)
+```
+>>> print(maze)
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+    ┏   ┳   ┳━━━┳   ┳━━━┳━━━┳   ┳━━━┳━━━┳━━━┳   ┳━━━┳━━━┓
+  7     ┃   ┃       ┃       ┃   ┃               ┃         7
+    ┣   ╋   ╋━━━╋   ╋   ╋   ╋   ╋━━━╋   ╋   ╋   ╋   ╋   ┫
+  6 ┃   ┃   ┃       ┃   ┃   ┃   ┃       ┃   ┃   ┃   ┃   ┃ 6
+    ┣━━━╋━━━╋   ╋━━━╋   ╋   ╋━━━╋   ╋   ╋   ╋━━━╋   ╋━━━┫
+  5             ┃       ┃   ┃       ┃   ┃   ┃       ┃     5
+    ┣   ╋   ╋   ╋━━━╋━━━╋   ╋   ╋━━━╋   ╋   ╋━━━╋   ╋   ┫
+  4 ┃   ┃   ┃   ┃           ┃   ┃       ┃   ┃       ┃   ┃ 4
+    ┣━━━╋   ╋   ╋━━━╋   ╋   ╋━━━╋━━━╋   ╋━━━╋━━━╋━━━╋   ┫
+  3 ┃       ┃   ┃       ┃   ┃           ┃               ┃ 3
+    ┣   ╋━━━╋━━━╋━━━╋   ╋━━━╋━━━╋   ╋   ╋━━━╋━━━╋   ╋   ┫
+  2 ┃   ┃               ┃           ┃   ┃           ┃   ┃ 2
+    ┣━━━╋   ╋   ╋━━━╋   ╋   ╋   ╋━━━╋   ╋━━━╋━━━╋━━━╋━━━┫
+  1         ┃   ┃       ┃   ┃   ┃       ┃                 1
+    ┣━━━╋   ╋━━━╋━━━╋   ╋   ╋━━━╋   ╋   ╋━━━╋   ╋   ╋━━━┫
+  0         ┃           ┃   ┃       ┃   ┃       ┃   ┃     0
+    ┗   ┻   ┻━━━┻   ┻━━━┻━━━┻   ┻━━━┻━━━┻━━━┻   ┻━━━┻━━━┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+```
+
+### Example 4.4-1 Simple binary tree on a torus (failure example)
+
+So how could a simple binary tree fail to produce a connected maze on a toroidal grid?  Just one way is to suppose that there were two columns in which all the coin flips were heads (carve north!).  In that case we would have two hard walls blocking eastward movement.
+
+Using that discussion as inspiration, let's try to create such a scenario.  We could certainly use a bias of 1 (*i.e.* 100% heads) to guarantee that we could never move east, but that seems drastic.  Let's try 80%:
+```
+>>> maze = Maze(TorusGrid(8,13))
+>>> print(BinaryTree.on(maze, bias=0.8))
+          Simple Binary Tree (statistics)
+                            visits      105
+                             cells      104
+                          passages      104
+                            onward  east
+                            upward  north
+                              bias        0.8000
+>>> print(PruningTree.on(maze))
+          maze algorithm (statistics)
+                            visits      120
+                 queuing structure  Stack
+                           unlinks        1
+                          arrivals       40
+                        departures       40
+                        visit type  cell
+                        start cell  (1, 5)
+                       unprocessed       64      <--- NOTE!
+                          passages      103
+              maximum queue length       21
+              average queue length       10.3000
+```
+Success!  (When you're trying to fail and succeed in doing so, I think it counts as a success and not as a failure.  Oh, I do love paradox!)  Let's look at our maze:
+```
+>>> print(maze)
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+    ┏   ┳━━━┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┓
+  7 ┃   ┃       ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃ 7
+    ┣   ╋   ╋━━━╋   ╋   ╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  6 ┃   ┃   ┃       ┃   ┃       ┃   ┃   ┃   ┃   ┃   ┃   ┃ 6
+    ┣━━━╋━━━╋   ╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  5 ┃           ┃       ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃ 5
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋━━━╋   ╋   ┫
+  4 ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃       ┃   ┃ 4
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋━━━╋   ╋   ╋   ╋   ╋   ╋   ┫
+  3 ┃   ┃   ┃   ┃   ┃   ┃   ┃       ┃   ┃   ┃   ┃   ┃   ┃ 3
+    ┣   ╋   ╋━━━╋   ╋   ╋━━━╋   ╋━━━╋━━━╋   ╋   ╋   ╋   ┫
+  2 ┃   ┃   ┃       ┃   ┃       ┃           ┃   ┃   ┃   ┃ 2
+    ┣   ╋   ╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋━━━╋━━━╋   ╋   ┫
+  1 ┃   ┃   ┃       ┃   ┃   ┃   ┃   ┃   ┃   ┃       ┃   ┃ 1
+    ┣   ╋   ╋   ╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋━━━╋   ╋   ┫
+  0 ┃   ┃   ┃   ┃       ┃   ┃   ┃   ┃   ┃   ┃       ┃   ┃ 0
+    ┗   ┻━━━┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+
+   W1                   W2                  W3      W4  W1  (long walls)
+```
+We have four complete long walls running north and south, so we have at least three components.  (The rightmost and leftmost long walls are the same long wall, so they should be counted as one.
+
+### Example 4.4-2 Simple binary tree on a torus (another failure example)
+
+Here is another example, this one with just two long hard walls:
+```
+>>> maze = Maze(TorusGrid(8,13))
+>>> print(BinaryTree.on(maze, bias=0.8))
+          Simple Binary Tree (statistics)
+                            visits      105
+                             cells      104
+                          passages      104
+                            onward  east
+                            upward  north
+                              bias        0.8000
+>>> print(PruningTree.on(maze))
+          maze algorithm (statistics)
+                            visits      264
+                 queuing structure  Stack
+                           unlinks        1
+                          arrivals       88
+                        departures       88
+                        visit type  cell
+                        start cell  (3, 5)
+                       unprocessed       16
+                          passages      103
+              maximum queue length       42
+              average queue length       24.8182
+>>> print(maze)
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+    ┏   ┳   ┳   ┳   ┳━━━┳   ┳   ┳   ┳   ┳   ┳━━━┳   ┳   ┓
+  7 ┃   ┃   ┃   ┃   ┃       ┃   ┃   ┃   ┃   ┃       ┃   ┃ 7
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋━━━╋   ╋   ╋   ╋   ╋━━━╋━━━┫
+  6     ┃   ┃   ┃   ┃   ┃   ┃       ┃   ┃   ┃   ┃         6
+    ┣━━━╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋━━━╋━━━╋   ╋   ┫
+  5 ┃           ┃   ┃   ┃   ┃   ┃   ┃   ┃           ┃   ┃ 5
+    ┣   ╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  4 ┃   ┃       ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃ 4
+    ┣   ╋   ╋━━━╋   ╋   ╋   ╋   ╋   ╋━━━╋━━━╋   ╋━━━╋   ┫
+  3 ┃   ┃   ┃       ┃   ┃   ┃   ┃   ┃           ┃       ┃ 3
+    ┣   ╋━━━╋   ╋━━━╋   ╋━━━╋━━━╋   ╋   ╋   ╋   ╋━━━╋   ┫
+  2 ┃   ┃       ┃       ┃   ┃       ┃   ┃   ┃   ┃       ┃ 2
+    ┣━━━╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  1 ┃       ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃ 1
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋━━━╋   ┫
+  0 ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃       ┃ 0
+    ┗   ┻   ┻   ┻   ┻━━━┻   ┻   ┻   ┻   ┻   ┻━━━┻   ┻   ┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+
+                            W1      W2                      (long walls)
+```
+The sixteen unprocessed cells lie in the component east of W1 and west of W2.  It is easy to check that this is a single component.

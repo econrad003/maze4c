@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.11.1 - 27 November 2025
+1. (New module) Pruning tree algorithms (wall building counterparts of growing tree algorithms) - class *PruningTree* in module *mazes.WallBuilders.pruning\_tree*
+2. (New modules) A few "new" queuing methods in the *mazes/Queues* folder - median queues, split stacks, split queues.
+3. (Documentation) Notices about time inefficiency for the "basic wallbuilder" algorithms.
+
 ## Release 0.11.0 - 20 November 2025
 <ol>
 <li>Circuit location</li>

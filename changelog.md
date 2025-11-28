@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.11.1-1 - 27 November 2025
+* Fix handling of corner squares in the projective grid.
+* Documentation: projective grid.
+* Documentation: (pruning tree) using *BinaryTree* and *PruningTree* to create simple binary trees on the projective grid.
+
 ## Release 0.11.1 - 27 November 2025
 1. (New module) Pruning tree algorithms (wall building counterparts of growing tree algorithms) - class *PruningTree* in module *mazes.WallBuilders.pruning\_tree*
 2. (New modules) A few "new" queuing methods in the *mazes/Queues* folder - median queues, split stacks, split queues.

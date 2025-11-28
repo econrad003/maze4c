@@ -1,7 +1,7 @@
 """
 print_tools.py - console display tools
 Eric Conrad
-Copyright ©2020 by Eric Conrad
+Copyright ©2025 by Eric Conrad
 
 DESCRIPTION
 
@@ -35,6 +35,7 @@ LICENSE
 HISTORY
 
     22 Aug 2025 - Initial version
+    27 Nov 2025 - Corrected docstring for unicode_str
 """
 
 from mazes.grid import Grid
@@ -64,9 +65,9 @@ def unicode_str(maze:(Maze, Grid), **kwargs):
             The choices are:
                 "A" - alphabetic labels
                 "N" - numeric digit labels
-                "RA" - reverse alphabetic labels
-                "RN" - reverse numeric digit labels
-            "RA" can be abbreviated to "R".
+                "AR" - reverse alphabetic labels
+                "AN" - reverse numeric digit labels
+            "AR" can be abbreviated to "R".
 
             Numeric digit labels run from "0" to "9".  If more than
             ten rows or columns are to receive a label, labelling

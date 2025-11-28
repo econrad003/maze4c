@@ -35,6 +35,27 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+HISTORY
+
+    27 November 2025 - EC
+        Consider a 5 by 5 maze.  In the BEFORE setup, the corners in the
+        lower left ar diagonally adjacent in two ways:
+
+                            N[1,0]
+                            |
+                            SW[0,0]--E[0,1]
+                          /
+               W[4,3]--NE[4,4]
+                       |
+                       S[3,4]
+        The other two corners form a similar configuration.  In our 5 by 5
+        maze, we have 21 cells with four distinct neghbors and 4 cells with
+        just three distinct neighbors.  Geographic considerations suggest
+        that is a problem.  In the AFTER configuration, we consider a pair
+        of diagonally opposite cells to be the same cell.  So we have 23
+        cells, each with exactly four neighbors.  To avoid problems with
+        trivial we insist on at least three rows and at least three columns.
 """
 
 from mazes.Grids.oblong import SquareCell, OblongGrid
@@ -42,16 +63,18 @@ from mazes.console_tools import unicode_str
 
 class ProjectiveGrid(OblongGrid):
 
-    __slots__ = ("__format",)
+    __slots__ = ("__format", "__label_corners")
 
         # CONSTRUCTION AND INITIALIZATION
 
-    def _parse_args(self, *args, fmt:str='N', **kwargs):
+    def _parse_args(self, rows:int, cols:int, fmt:str='N',
+                    label_corners:bool=False, **kwargs):
         """argument parser for CylinderGrid class
 
         ARGUMENTS
 
-            rows, cols - for the OblongGrid constructor
+            rows, cols - for the OblongGrid constructor.  Both values
+                must be at least three.
 
         KEYWORD ARGUMENTS
 
@@ -59,10 +82,34 @@ class ProjectiveGrid(OblongGrid):
                 the format to use in the string representation.  The
                 permissible values are "N", "A", "U" or None.
 
+            label_corners (default: False)
+                the four corners of the grid are especially confusing. If
+                this is set, the four corners (just two cells) and their
+                neighbors are labelled.  The cell occupying the bottom
+                left and top right corners is labelled "O" (for "origin")
+                and its four directed neighbors are labelled in capital
+                letters with their respective compass directions.  The
+                cell occupying the bottom right and top left corners is
+                labelled "x" (to suggest a unit vector on the x-axis) and
+                its four neighbors are labelled in minuscule with their
+                respective compass directions.
+
         The additional arguments are discarded, for now.
         """
-        super()._parse_args(*args, **kwargs)
+        if rows < 3 or cols < 3:
+            raise ValueError("the grid must be 3×3 or larger")
+        self.__label_corners = label_corners        # used by _configure()
+        super()._parse_args(rows, cols, **kwargs)
         self.fmt = fmt
+
+    def __getitem__(self, index):
+        """get a cell"""
+        cell = super().__getitem__(index)
+        if cell == None:
+            if index in {(self.m-1, 0), (self.m-1, self.n-1)}:
+                new_index = (0, self.n - index[1] - 1)
+                cell = super().__getitem__(new_index)
+        return cell
 
     @property
     def fmt(self) -> (str, None):
@@ -103,6 +150,40 @@ class ProjectiveGrid(OblongGrid):
         super()._configure()                    # configure parent
         self.__configure_NS_twist()
         self.__configure_EW_twist()
+            # merge the diagonally opposite corners
+            #       SW, NE
+        m, n = self.m, self.n
+        SW, NE = self[0, 0], self[m-1, n-1]
+        SW.south = NE.south
+        NE.south.north = SW
+        SW.west = NE.west
+        NE.west.east = SW
+            #       SE, NW
+        SE, NW = self[0, n-1], self[m-1, 0]
+        SE.south = NW.south
+        NW.south.north = SE
+        SE.east = NW.east
+        NW.east.west = SE
+            # remove the top corners
+        del self[m-1, 0]
+        del self[m-1, n-1]
+            # debugging
+        if self.__label_corners:
+            self.label_corners()
+
+    def label_corners(self):
+        """label the corners for debugging"""
+        SW, SE = self[0, 0], self[0, self.n-1]
+        SW.label = "O"
+        SW.north.label = "N"
+        SW.south.label = "S"
+        SW.east.label = "E"
+        SW.west.label = "W"
+        SE.label = "x"
+        SE.north.label = "n"
+        SE.south.label = "s"
+        SE.east.label = "e"
+        SE.west.label = "w"
 
     def __configure_EW_twist(self):
         """E/W sides are oppositely directed"""

@@ -1124,3 +1124,198 @@ Here is another example, this one with just two long hard walls:
                             W1      W2                      (long walls)
 ```
 The sixteen unprocessed cells lie in the component east of W1 and west of W2.  It is easy to check that this is a single component.
+
+### Example 4.5 a Moebius binary tree maze (with caveats)
+
+Getting more exotic, we can also do this with a Moebius strip maze to obtain a binary spanning tree.  The same caveats apply: the maze carved by class *BinaryTree* might be disconnected.  But if it is connected, then after pruning one offending edge, you will have a binary tree maze on a Moebius strip:
+```
+$ python
+Python 3.10.12 (main, Nov  4 2025, 08:48:33) [GCC 11.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from mazes.Grids.moebius import MoebiusGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.simple_binary_tree import BinaryTree
+>>> maze = Maze(MoebiusGrid(8, 13))
+>>> print(BinaryTree.on(maze))
+          Simple Binary Tree (statistics)
+                            visits      105
+                             cells      104
+                          passages      104
+                            onward  east
+                            upward  north
+                              bias        0.5000
+>>> from mazes.WallBuilders.pruning_tree import PruningTree
+>>> print(PruningTree.on(maze))
+          maze algorithm (statistics)
+                            visits      312
+                 queuing structure  Stack
+                           unlinks        1
+                          arrivals      104
+                        departures      104
+                        visit type  cell
+                        start cell  (3, 4)
+                       unprocessed        0    <--- NOTE!
+                          passages      103
+              maximum queue length       24
+              average queue length       12.4231
+```
+All cells were processed, so pruning gave us our binary spanning tree.  Getting a nice printout is a bit tricky:
+```
+>>> from mazes.console_tools import unicode_str
+>>> print(unicode_str(maze, w="AR", e="A"))
+    ┏━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┳━━━┓
+  A ┃                                                     H
+    ┣━━━╋━━━╋   ╋   ╋━━━╋   ╋━━━╋   ╋   ╋   ╋   ╋━━━╋   ┫
+  B ┃           ┃   ┃       ┃       ┃   ┃   ┃   ┃       ┃ G
+    ┣   ╋━━━╋━━━╋━━━╋━━━╋   ╋   ╋   ╋   ╋━━━╋   ╋   ╋━━━┫
+  C     ┃                   ┃   ┃   ┃   ┃       ┃   ┃     F
+    ┣   ╋━━━╋━━━╋━━━╋   ╋━━━╋   ╋━━━╋━━━╋   ╋   ╋   ╋   ┫
+  D     ┃               ┃       ┃           ┃   ┃   ┃   ┃ E
+    ┣━━━╋━━━╋   ╋━━━╋   ╋━━━╋   ╋━━━╋   ╋   ╋━━━╋━━━╋━━━┫
+  E ┃           ┃   ┃   ┃       ┃       ┃   ┃             D
+    ┣   ╋━━━╋   ╋   ╋   ╋━━━╋━━━╋   ╋━━━╋━━━╋━━━╋   ╋━━━┫
+  F     ┃       ┃   ┃   ┃           ┃               ┃     C
+    ┣━━━╋   ╋   ╋   ╋━━━╋   ╋━━━╋━━━╋   ╋━━━╋   ╋━━━╋   ┫
+  G ┃       ┃   ┃   ┃       ┃           ┃       ┃       ┃ B
+    ┣━━━╋━━━╋━━━╋   ╋   ╋   ╋   ╋━━━╋   ╋   ╋━━━╋━━━╋   ┫
+  H                 ┃   ┃   ┃   ┃       ┃   ┃           ┃ A
+    ┗━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┻━━━┛
+```
+
+### Example 4.6 Binary trees on a Klein grid (with caveats)
+
+We can also create simple binary spanning trees on Klein grids.  If the simple binary tree algorithm doesn't create a disconnected maze, then it suffices to prune a redundant edge:
+```
+$ python
+>>> from mazes.Grids.moebius import MoebiusGrid
+>>> from mazes.Grids.klein import KleinGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.simple_binary_tree import BinaryTree
+>>> maze = Maze(KleinGrid(8, 13))
+>>> print(BinaryTree.on(maze))
+          Simple Binary Tree (statistics)
+                            visits      105
+                             cells      104
+                          passages      104
+                            onward  east
+                            upward  north
+                              bias        0.5000
+>>> from mazes.WallBuilders.pruning_tree import PruningTree
+>>> print(PruningTree.on(maze))
+          maze algorithm (statistics)
+                            visits      312
+                 queuing structure  Stack
+                           unlinks        1
+                          arrivals      104
+                        departures      104
+                        visit type  cell
+                        start cell  (5, 0)
+                       unprocessed        0       <--- NOTE!
+                          passages      103
+              maximum queue length       29
+              average queue length       15.2308
+>>> print(maze)
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+    ┏   ┳━━━┳   ┳   ┳   ┳━━━┳━━━┳   ┳━━━┳━━━┳   ┳━━━┳━━━┓
+  7 ┃   ┃       ┃   ┃   ┃           ┃           ┃         0
+    ┣   ╋━━━╋━━━╋━━━╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  6 ┃   ┃               ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃   ┃ 1
+    ┣   ╋   ╋━━━╋   ╋━━━╋━━━╋━━━╋━━━╋━━━╋   ╋━━━╋   ╋   ┫
+  5     ┃   ┃       ┃                       ┃       ┃   ┃ 2
+    ┣   ╋   ╋━━━╋━━━╋   ╋━━━╋   ╋━━━╋   ╋   ╋━━━╋━━━╋   ┫
+  4 ┃   ┃   ┃           ┃       ┃       ┃   ┃           ┃ 3
+    ┣   ╋━━━╋━━━╋━━━╋━━━╋━━━╋━━━╋   ╋━━━╋━━━╋   ╋   ╋   ┫
+  3 ┃   ┃                           ┃           ┃   ┃   ┃ 4
+    ┣━━━╋   ╋   ╋━━━╋━━━╋   ╋   ╋   ╋━━━╋   ╋   ╋━━━╋━━━┫
+  2 ┃       ┃   ┃           ┃   ┃   ┃       ┃   ┃         5
+    ┣━━━╋   ╋   ╋━━━╋   ╋━━━╋   ╋━━━╋━━━╋━━━╋━━━╋━━━╋━━━┫
+  1 ┃       ┃   ┃       ┃       ┃                       ┃ 6
+    ┣   ╋   ╋━━━╋━━━╋   ╋   ╋   ╋━━━╋━━━╋━━━╋━━━╋   ╋   ┫
+  0     ┃   ┃           ┃   ┃   ┃                   ┃   ┃ 7
+    ┗   ┻━━━┻   ┻   ┻   ┻━━━┻━━━┻   ┻━━━┻━━━┻   ┻━━━┻━━━┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+```
+
+I'm sorry to report, however, if you bought a 3-D model of a Klein bottle, pasting this on the surface will be well nigh impossible.  I suggest forking over the extra money required to purchase a true 4-D model.  (And I also suggest that if you find someone who sells 4-D Klein bottles, investigate the seller very carefully.)
+
+### Example 4.7 Binary trees on a projective grid (with caveats)
+
+The projective grid is even weirder than the toroidal grid and the Klein bottle grid.  The grid is especially weird because each pair of diagonally opposite corners is a single cell.  If the grid forms an *m*×*n* rectangle, then their are actually just *mn*-2 cells in the grid.  The square at bottom left and the square at top right both represent a single cell which I'll refer to as the origin.   Similarly, the square at bottom right and the square at top left both represent a single cell which I'll refer to as the unit $x$ point.  More on that in a moment...
+
+First we'll import a few classes:
+```
+$ python
+>>> from mazes.Grids.projective import ProjectiveGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.simple_binary_tree import BinaryTree
+>>> from mazes.WallBuilders.pruning_tree import PruningTree
+```
+
+Next we set up the grid.  We will set the *label\_corners* option as that will ultimately make it easier to explain what is happening at the four corners.
+```
+>>> maze = Maze(ProjectiveGrid(8, 13, label_corners=True))
+```
+
+Next we run the binary tree carver:
+```
+>>> print(BinaryTree.on(maze))
+          Simple Binary Tree (statistics)
+                            visits      103
+                             cells      102
+                          passages      102
+                            onward  east
+                            upward  north
+                              bias        0.5000
+```
+Note that 8 × 13 = 104, but there are only 102 cells.  Since there are more than 101 passages, this maze is not a tree,  And of course we cannot even be sure at this point that is even connected,
+
+Now we prune.  If we are lucky, we will process every cell.
+```
+>>> print(PruningTree.on(maze))
+          maze algorithm (statistics)
+                            visits      306
+                 queuing structure  Stack
+                           unlinks        1
+                          arrivals      102
+                        departures      102
+                        visit type  cell
+                        start cell  (2, 8)
+                       unprocessed        0        <--- NOTE!
+                          passages      101
+              maximum queue length       29
+              average queue length       14.0784
+```
+We were lucky.  The simple binary tree algorithm guaranteed that no cell has more than three incident passages,  Since pruning only deletes passages, that condition stays.  Since every cell was processed, class *PruningTree* was able to reach every cell -- the maze is connected.  And *PruningTree* guarantees that there are no circuits.  Thus the maze is a binary tree which spans the projective grid.
+
+Here is the maze:
+```
+>>> print(maze)
+      M   L   K   J   I   H   G   F   E   D   C   B   A
+    ┏━━━┳━━━┳   ┳━━━┳━━━┳   ┳   ┳   ┳   ┳   ┳━━━┳   ┳━━━┓
+  7   x   e     ┃           ┃   ┃   ┃   ┃   ┃     W ┃ O   0
+    ┣━━━╋━━━╋   ╋   ╋━━━╋   ╋   ╋━━━╋━━━╋━━━╋━━━╋   ╋   ┫
+  6 ┃ s         ┃   ┃       ┃   ┃                   ┃ S ┃ 1
+    ┣   ╋   ╋   ╋━━━╋   ╋   ╋   ╋   ╋━━━╋━━━╋   ╋━━━╋━━━┫
+  5 ┃   ┃   ┃   ┃       ┃   ┃   ┃   ┃           ┃         2
+    ┣   ╋━━━╋━━━╋━━━╋━━━╋   ╋   ╋━━━╋   ╋   ╋   ╋━━━╋━━━┫
+  4 ┃   ┃                   ┃   ┃       ┃   ┃   ┃         3
+    ┣━━━╋   ╋━━━╋━━━╋━━━╋━━━╋━━━╋━━━╋   ╋━━━╋   ╋━━━╋   ┫
+  3         ┃                           ┃       ┃       ┃ 4
+    ┣━━━╋━━━╋   ╋━━━╋   ╋━━━╋━━━╋━━━╋━━━╋━━━╋━━━╋   ╋   ┫
+  2             ┃       ┃                           ┃   ┃ 5
+    ┣━━━╋   ╋━━━╋   ╋━━━╋━━━╋   ╋━━━╋   ╋   ╋━━━╋   ╋   ┫
+  1 ┃ N     ┃       ┃           ┃       ┃   ┃       ┃ n ┃ 6
+    ┣━━━╋━━━╋━━━╋━━━╋━━━╋━━━╋   ╋━━━╋━━━╋━━━╋━━━╋━━━╋━━━┫
+  0 ┃ O   E                     ┃               ┃ w   x   7
+    ┗   ┻   ┻━━━┻   ┻   ┻   ┻   ┻   ┻━━━┻━━━┻   ┻━━━┻━━━┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+```
+The two corner squares (bottom left and top right) marked with the capital letter "O" (for "origin") both represent one cell.  Its four neighbors are labelled in capital letters.  For example, its neighbor to the north (the first square in the row labelled *on the left* as 1) is labelled "N".  Similarly, the two corner squares (top left and bottom right) marked with a lower case "x" (for "*x*-axis") represent a second cell.  Its four neighbors are indicated by direction in lower case.
+
+If we go west from the first cell in the row labelled "2" *on the left*, we find ourselves in the last cell in the row labelled "2" *on the right*.  Rows 5 and 2 are really just one long row.   Note that long row 1, 2 and 3 each have 26 cell, but long row 0 has 24.  Rows 4  through 7 are continuations of rows 3 down to 0.
+
+The columns work the same way.  If we leave from the bottom to a particular label (for example column D) by going south, we enter through the top using the same label (*e.g.* D).  Note that column G has just 8 cells, columns B thru F have 16 cells, and column A has 14 cells.  Columns H through N are continuations of columns F down to A,
+
+If this is disorienting, it may be because the projective plane is a non-orientable surface.  (Moebius strips and Klein bottles are also non-orientable.)  Within the rectangle direction has meaning.  But when you leave and re-enter, the diretions on the left and the right may change.
+
+(Now consider playing *PacMan*™ on a projective planar maze!)

@@ -25,6 +25,12 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATION HISTORY
+
+    29 November 2025 - add a flag which enables parallel passages.  Associated
+        with this flag are a property and a setter.  Cells can check this flag
+        before adding parallel edges.
 """
 
 from mazes.cell import Cell
@@ -33,7 +39,7 @@ class Grid(object):
 
     CELL = Cell                             # default cell type
 
-    __slots__ = ("__cells", "__fmt", "__cons")
+    __slots__ = ("__cells", "__fmt", "__cons", "__parallels_disabled")
 
         # CONSTRUCTION AND INITIALIZATION
 
@@ -50,6 +56,7 @@ class Grid(object):
         self.__cells = dict()               # index : cell
         self.__fmt = dict()
         self.__cons = dict()                # save constructor information
+        self.parallels_disabled = True
         self.__cons["cls"] = self.__class__.__name__
         self.__cons["args"] = args
         self.__cons["kwargs"] = kwargs
@@ -80,6 +87,16 @@ class Grid(object):
     def newcell(self, *args, **kwargs):
         """called by initialize to create cells"""
         return self.CELL(self, *args, **kwargs)
+
+    @property
+    def parallels_disabled(self) -> bool:
+        """are parallel passages prohibited?"""
+        return self.__parallels_disabled
+
+    @parallels_disabled.setter
+    def parallels_disabled(self, disable:bool):
+        """enable or disanle parallel passages"""
+        self.__parallels_disabled = bool(disable)
 
             # TOPOLOGY (NEIGHBORHOOD)
 

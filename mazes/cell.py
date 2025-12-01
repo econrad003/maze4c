@@ -33,6 +33,8 @@ MODIFICATIONS
         Corrected unlink.
     20 November 2025 - EC
         Block parallel joins.  (The block is in Edge and Arc)
+    29 November 2029 - EC
+        Conditionally enable parallel joins.
 """
 
 class Cell(object):
@@ -180,12 +182,9 @@ class Cell(object):
 
             # MAZE (GRAPHIC PROPERTIES)
 
-    def block_parallel(self, cell):
-        """don't permit parallel joins
-
-        In a subclass that admits parallel joins, just return False.
-        """
-        return self.join_for(cell) != None
+    def block_parallel(self, cell) -> bool:
+        """don't permit parallel joins unless they have been enabled in the grid"""
+        return self.grid.parallels_disabled      # what does the grid say?
 
     def _link(self, join:'Edge', cell:'Cell'):
         """create an arc joining the cell
@@ -193,10 +192,12 @@ class Cell(object):
         This is called by Edge.configure -- there should be no need to call
         this directly.
 
-        Parallel joins are not supported.
+        Parallel joins are now supported.
         """
         self.__passages[join] = cell
-        self.__linked[cell] = join
+        if cell not in self.__linked:
+            self.__linked[cell] = set()
+        self.__linked[cell].add(join)
 
     def _unlink(self, join:'Edge'):
         """delete an arc joining the cell
@@ -206,7 +207,9 @@ class Cell(object):
         """
         cell = self.__passages[join]
         del self.__passages[join]
-        del self.__linked[cell]
+        self.__linked[cell].remove(join)
+        if len(self.__linked[cell]):
+            del self.__linked[cell]
 
     def is_linked(self, cell:'Cell') -> bool:
         """is the cell linked?"""
@@ -214,11 +217,19 @@ class Cell(object):
 
     def join_for(self, cell:'Cell') -> 'Edge':
         """return the edge or arc, if any"""
-        return self.__linked.get(cell, None)
+        if cell in self.__linked:
+            return next(iter(self.__linked[cell]))      # return the first join
+        return None
 
     def cell_for(self, join:'Edge') -> 'Cell':
         """return the joined cell"""
         return self.__passages.get(join, None)
+
+    def tally_joins(self, cell:'Cell') -> int:
+        """how many joins?"""
+        if cell in self.__linked:
+            return len(self.__linked[cell])
+        return 0
 
     @property
     def passages(self):

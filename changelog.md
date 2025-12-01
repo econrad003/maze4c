@@ -1,5 +1,15 @@
 # Change Log
 
+## Release 0.11.2 - 1 December 2025 (loo[s & parallel passages)
+
+For theoretical purposes and a cleaner basic interface:
+
+Pseudomazes (mazes with loops), multimazes (mazes with parallel edges) and pseudomultimazes (mazes with loops and parallel edges) are now supported.  For pseudomazes, use class Pseudomaze in module *mazes.Mazes.pseudomaze*.  For multimazes and pseudomultimazes, use class Multimaze in module *mazes.Mazes.multimaze*.  Loops are disabled by default, but can be enabled at any time in either class.  Method *make\_loop()* can be used instead of *link()* to create a loop even if loops are disabled.
+
+The methods *make\_Pseudomaze* and *make\_Multimaze* in these same two modules can be used to turn a class derived from *Maze* into a pseudomaze or multimaze class.
+
+A loop is a circuit which encompasses a single cell.  Loops are potentially annoying, but probably harmless.  A parallel passage is a passage encompassing the same pair of cells as another passage,  (If both passages are directed, they are in the same direction -- oppositely directed passages are "anti-parallel".)  Parallel passages are generally worse than annoying, but they may be useful in some contexts, especially in testing.  Undirected parallel edges form circuits.  (Anti-parallel arcs form directed circuits.)
+
 ## Release 0.11.1-1 - 27 November 2025
 * Fix handling of corner squares in the projective grid.
 * Documentation: projective grid.

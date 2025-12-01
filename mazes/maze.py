@@ -30,11 +30,10 @@ LICENSE
 
 MODIFICATIONS
 
-    2 December 2024 - EC
-        Added link_all and unlink_all methods.
-    5 November 2025 - EC
-        Added two do-nothing methods called visit_cell and visit_join
-        which do something in module animated_maze
+    30 November 2025 - EC - refactoring to prepare for Multimaze derived class.
+        The main change is to change the joins list from a dictionary whose
+        indices are cell-pairs and whose values are edges and arcs to a set
+        of edges and arcs.
 """
 
 from mazes.arc import Arc
@@ -55,7 +54,7 @@ class Maze(object):
             _initialize, or _configure.
         """
         self.__grid = grid
-        self.__joins = dict()               # frozenset : edge
+        self.__joins = set()                        # edges and arcs
         self._parse_args(*args, **kwargs)           # pass remaining arguments
         self._initialize()
         self._configure()
@@ -90,55 +89,36 @@ class Maze(object):
 
             # TOPOLOGY (NEIGHBORHOOD)
 
-    def __getitem__(self, pair:'hashable') -> 'Edge':
-        """returns an cell with the given index ('pair'), if any.
-
-        If the index is not present, the value None is returned.
-        """
-        return self.__joins.get(pair, None)
-
-    def __setitem__(self, pair:'hashable', join:'Edge'):
-        """sets the edge in the given pair"""
-        if join == None:
-            del self[pair]
-        else:
-            self.__joins[pair] = join
-        return join
-
-    def __delitem__(self, pair):
-        """removes the index from the joins"""
-        del self.__joins[pair]
-
     def __iter__(self):
         """visits the joins (edges or arcs)"""
-        for join in self.__joins.values():
+        for join in self.__joins:
             if not join.hidden:
                 yield join
 
     @property
     def pairs(self):
-        """visits the indices"""
-        for pair, join in self.__joins.items():
+        """generator for the cell pairs (tuple/frozenset)"""
+        for join in self.__joins:
             if not join.hidden:
-                yield pair
+                yield join.cells
 
     @property
     def _pairs(self):
-        """visits all the indices, including the hidden ones"""
-        for pair in self.__joins:
-            yield pair
+        """generator for all the cell pairs, including the hidden ones"""
+        for join in self.__joins:
+            yield join.cells
 
     @property
     def joins(self):
-        """visits the joins (edges/arcs, same as __iter__)"""
-        for join in self.__joins.values():
+        """generators for the joins (edges/arcs, same as __iter__)"""
+        for join in self.__joins:
             if not join.hidden:
                 yield join
 
     @property
     def _joins(self):
-        """visits all the joins, including the hidden ones"""
-        for join in self.__cells.values():
+        """generator for all the joins, including the hidden ones"""
+        for join in self.__joins():
             yield join
 
     def link(self, cell1, cell2,
@@ -147,13 +127,12 @@ class Maze(object):
         """link two cells"""
         Join = Arc if directed else Edge
         join = Join(self, cell1, cell2, label=label, weight=weight)
-        self[join.index] = join
+        self.__joins.add(join)
         return join                 # added 5 November 2025
 
     def unlink(self, join):
         """delete a join"""
-        index = join.index
-        del self[index]
+        self.joins.remove(join)
         join.unlink()
 
     def link_all(self, label:str="link_all"):

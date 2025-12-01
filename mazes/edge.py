@@ -100,12 +100,13 @@ class Edge(object):
                     # block parallel joins (20 Nov 2025)
             if cell1.block_parallel(cell1):
                 raise NotImplementedError("parallel loops are not permitted")
-            cells1._link(self, cells1)
+            cell1._link(self, cell1)                    # 28 Nov 2025 correct typo
         else:                                       # ordinary edge
             cell1, cell2 = cells
                     # block parallel joins (20 Nov 2025)
-            if cell1.block_parallel(cell2) or cell2.block_parallel(cell1):
-                raise NotImplementedError("parallel joins are not permitted")
+            if cell1.is_linked(cell2) or cell2.is_linked(cell1):
+                if cell1.block_parallel(cell2) or cell2.block_parallel(cell1):
+                    raise NotImplementedError("parallel joins are not permitted")
             cell1._link(self, cell2)
             cell2._link(self, cell1)
 
@@ -124,13 +125,9 @@ class Edge(object):
 
     @property
     def index(self) -> 'hashable':
-        """return the index of the edge
-
-        For an edge, this is the frozenset for the cells.  Note that this
-        precludes parallel edges.  (For parallel edges, some other indexing
-        scheme is required.)
-        """
-        return self.__cells
+        """return the index of the edge"""
+        return self
+#        return self.__cells
 
     @property
     def cells(self) -> frozenset:

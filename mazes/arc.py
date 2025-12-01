@@ -88,7 +88,7 @@ class Arc(object):
     def _configure(self):
         """configuration (stub)"""
         cell1, cell2 = self.__cells
-        if cell1.block_parallel(cell2):
+        if cell1.is_linked(cell2) and cell1.block_parallel(cell2):
             raise NotImplementedError("parallel joins are not permitted")
         cell1._link(self, cell2)
 
@@ -102,7 +102,8 @@ class Arc(object):
     @property
     def maze(self):
         """return the owner of the arc"""
-        return self.__maze
+        return self
+#        return self.__maze
 
     @property
     def index(self) -> 'hashable':

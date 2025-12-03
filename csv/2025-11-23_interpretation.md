@@ -376,9 +376,7 @@ WB/PQ(a) seq center            71.19     5.87      10%
 WB/PQ(a) seq SW                72.86     5.88      10%
 ```
 
-# APPENDICES
-
-## 6. Diamter.
+## 6. Diameter.
 
 The diameter of a maze is the length of a longest path.  (The cells in a (simple) path must be unique.  Repeated cells are permitted in a trail (no repeated passages), or a walk, or a circuit (but only first and last) or a cycle (a walk that starts and ends in the same place).  Terminology does vary, so beware.)
 
@@ -408,6 +406,8 @@ DFS                           381.75    38.10
 WB/DFS seq center             707.00     0.00  constant
 WB/DFS seq SW                 713.00     0.00  constant
 ```
+
+# APPENDICES
 
 ## Appendix A. Efficiency (time)
 
@@ -467,7 +467,7 @@ For comparison, here is a table of some functions evaluated at the numbers of gr
 ```
 They might be of some use in forming conjectures.
 
-## Appendix N. Euler analysis.
+## Appendix B. Euler analysis.
 
 The mazes in our samples all have *v*=714=21•34 cells.  For a perfect maze, we must have *e*=*v-1*=713 edges.  The sum of the degrees of the cells in any undirected maze is twice the number of passages: 2e=1426.
 

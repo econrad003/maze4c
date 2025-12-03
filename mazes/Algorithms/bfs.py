@@ -109,10 +109,8 @@ class BFS(Algorithm):
 
                 start_cell - an optional starting cell
 
-                shuffle - if False, neighbors are processed first come,
-                    first served.  (Being pushed onto the stack counts
-                    as being served, so "the first shall be last" and
-                    "the last shall be first".)
+                shuffle (default True) - if False, neighbors are processed
+                    first come, first served.
             """
             super().parse_args()                # chain to parent
             self.__visit = self.visit_shuffled if shuffle \
@@ -136,7 +134,7 @@ class BFS(Algorithm):
 
         @property
         def more(self):
-            """returns True if the stack is empty
+            """returns True if the queue is empty
 
             Overrides Algorithm.more.
             """

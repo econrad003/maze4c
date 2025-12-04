@@ -1,6 +1,11 @@
 # Change Log
 
-## Release 0.11.2 - 1 December 2025 (loo[s & parallel passages)
+## Release 0.11.3 - 3-4 December 2025 (binary growing trees)
+1. Binary growing tree (two new modules in *mazes/Algorithms* + documentation + README updates).
+2. Statistics for some binary growing tree runs.
+3. Some cosmetic fixes (typos, documentation fixes).
+
+## Release 0.11.2 - 1 December 2025 (loops & parallel passages)
 
 For theoretical purposes and a cleaner basic interface:
 

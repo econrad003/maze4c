@@ -93,6 +93,11 @@ The following maze generation algorithms have been implemented:
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
 * module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
 * module *simple\_binary\_tree* (class *BinaryTree*) - a simple passage-carving algorithm for constructing binary spanning tree mazes.  There is a also wall-building implementation in the *mazes/WallBuilders* folder.
+* There are two algorithms based on queue search (*e.g.* depth-first and breadth-first search) for constructing spanning binary trees in the *mazes/Algorithms* folder.  These algorithms may be used on any grid and are guaranteed to produces a binary tree on a subset of the cells in some connected part of the grid.  In most runs on the basic 4-neighbor rectangular grid, it will produce a spanning binary tree.  There are some more unusual grids, such as the 4-pointed star, which do not admit spanning binary trees.
+    + Module *binary\_growing\_tree1* is greedy in the sense that it uses as many unvisited neighbors (up to two for binary) to create children before returning control to the queue.
+    + Module *binary\_growing\_tree2* is "fair" in the sense that control is returned to the queue as neighbors are visited.
+    + Both modules define a class named *BinaryGrowingTree*.
+    + Using the *arity* parameter other child-limited trees can be produced.  (For example ternary trees can be produced by setting *arity=3*.  But note that on the rectangular 4-grid, every tree is a ternary tree (1 parent for all but the root cell and at most 3 children for all cells.)
 * module *sidewinder* (class *Sidewinder*)
     +  module *inwinder* (class *Inwinder*) - a sidewinder variant that organizes the rectangular grid in rings instead of rows and columns.
     + *outwinder* - an outward version of *inwinder - not as interesting, but it's needed for completeness.

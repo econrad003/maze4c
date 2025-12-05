@@ -1,5 +1,16 @@
 # Binary (and other arity) spanning trees
 
+## Contents
+
+* Introduction
+* Section 1. Simple binary trees
+* Section 2. Greedy binary growing trees
+* Section 3. Deferred reward (or "fair") binary growing trees
+* Appendices
+    + A. Changing the arity
+    + B. Failures
+    + C. Open questions
+
 ## INTRODUCTION
 
 ### Definitions
@@ -294,7 +305,7 @@ A split stack with a split length of 10 (the default) was used above.  Contrast 
 +---+---+---+---+---+---+---+---+---+---+---+---+---+
 ```
 
-## Section 3. Deferred reward binary growing trees
+## Section 3. Deferred reward (or "fair") binary growing trees
 
 In module *mazes.Algorithms.binary_growing_tree2*, the cell in the front of the queue takes control for just one iteration in its neighborhood.  Whatever happens to be in front gains control in the next visit.  This increases the number of visits.  Apart from a negligible amount of additional overhead, the time complexity is the same as for the greedy algorithm.  The results will have different characteristics.
 
@@ -567,4 +578,175 @@ This maze is a spanning termary tree on the underlying grid.
 
 ## APPENDIX B: Failures
 
-I have not encountered a case where either algorithm as implemented failed to produce a spanning tree on a grid which admitted spanning binary trees.  If at some point I do, I will endeavor to include the example here,
+One failure to complete a perfect maze on the rectangular 4-grid did occur in the 3 December 2025 statistical experiments, but the raw data (*i.e.* the maze) is too big to display and is, in any case, not saved.
+
+Cases where either algorithm as implemented fails to produce a spanning tree on a rectangular 4-grid seem to be exceedingly rare.  But after a brute force trial where I failed to produce a 6×6 after 10,000 tries, I did finally manage to produce an 8×8 example after just 7839.  Here is the script -- first the imports:
+
+### Example B.1 a failure that can be fixed
+```
+>>> from mazes.Grids.oblong import OblongGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.binary_growing_tree1 import BinaryGrowingTree
+>>> from mazes.Queues.split_queue import SplitQueue
+```
+In the 3 December 2025 statistics, the greedier algorithm failed in one instance using a split queue with a target length of 1.  So that seemed to be a good place to search.
+
+Here I failed to fail on 6×6 after 10,000 tries:
+```
+>>> for _ in range(10000):
+...     maze = Maze(OblongGrid(6, 6))
+...     status = BinaryGrowingTree.on(maze, QueueType=SplitQueue, qargs=(1,))
+...     if status["passages"] != 35:
+...         print(status)
+...         break
+...
+>>>
+```
+Note that I would have printed the status if fewer than 35 passages were carved.
+
+And I succeeded to fail on 8×8:
+```
+>>> for _ in range(10000):
+...     maze = Maze(OblongGrid(8, 8))
+...     status = BinaryGrowingTree.on(maze, QueueType=SplitQueue, qargs=(1,))
+...     if status["passages"] != 63:
+...         print(status)
+...         break
+...
+          Binary Growing Tree (statistics)
+                            visits       63
+                        start cell  (3, 5)
+                             cells       63
+                          passages       62
+>>> print(maze)
++---+---+---+---+---+---+---+---+
+|   |   |   |   |   |       |   |
++   +   +   +   +   +   +---+   +
+|               |       |       |
++---+---+---+   +---+   +---+   +
+|                               |
++---+---+---+---+   +---+   +---+
+|           |       |   |       |
++---+---+   +---+   +---+   +   +
+|       |       |   |       |   |
++---+   +   +---+---+   +   +---+
+|                       |       |
++---+---+---+   +   +   +   +---+
+|               |   |   |       |
++---+   +   +   +   +   +   +   +
+|       |   |   |   |   |   |   |
++---+---+---+---+---+---+---+---+
+```
+And to show that this was after 7839 failed failures:
+```
+>>> print(_)
+7840
+```
+Let's take a closer look at this maze.  First note that the failure cell is just above the starting cell.  If we focus on the cells that surround the failure cell, we can obtain a 4x4 configuration which forces a failure:
+```
++---+---+---+---+---+---+---+---+
+|   |   |   |   |   |       |   |
++   +   +   +   +   +   +---+   +
+|               |     5 |       |
++---+---+---+   +---+   +---+   +
+|             6   5   4   3   4 |
++---+---+---+---+   +---+   +---+
+|           | 7   6 | F | 2   3 |
++---+---+   +---+   +---+   +   +
+|       |       | 7 | S   1 |   |
++---+   +   +---+---+   +   +---+
+|                     1 |       |
++---+---+---+   +   +   +   +---+
+|               |   |   |       |
++---+   +   +   +   +   +   +   +
+|       |   |   |   |   |   |   |
++---+---+---+---+---+---+---+---+
+```
+Here is the 5x5 configuration
+```
+            +---+
+            x 3 x               Legend:
+        + x +   + x +              S = start cell (root)
+        x 1   2   3 x              F = orphan cell
+    + x +   +---+   + x +          1 = first generation children
+    | 1   S | F | 4   5 |          2 = second generation children
+    + x +---+---+   + x +          3, 4, 5, 6, 7 etc.
+        x 7   6   5 x              x = don't care (wall or passage
+        + x +   + x +
+        x   x 7 x
+            +---+
+```
+At this point each of the four neighbors of the failure cell has two children.  Except for the starting cell each also has one parent.  Can you see the fix?
+
+<center>**SPOILER**</center>
+
+### Example B.2 Fixing the failure
+
+We can fix this by carving a wall from the failure cell to the starting cell.  In the 5x5 configuration:
+```
+            +---+
+            x 3 x               Legend:
+        + x +   + x +              S = original start cell
+        x 1   2   3 x              F = original orphan cell (root)
+    + x +   +---+   + x +          1 = first generation children
+    | 1   S   F | 4   5 |          2 = second generation children
+    + x +---+---+   + x +          3, 4, 5, 6, 7 etc.
+        x 7   6   5 x              x = don't care (wall or passage
+        + x +   + x +
+        x   x 7 x
+            +---+
+```
+And here is the *perfect* binary maze -- a spanning *binary* tree on the 8x8 Von Neumann rectangular grid:
+```
++---+---+---+---+---+---+---+---+
+|   |   |   |   |   |       |   |
++   +   +   +   +   +   +---+   +
+|               |       |       |
++---+---+---+   +---+   +---+   +
+|                               |
++---+---+---+---+   +---+   +---+
+|           |     S   F |       |
++---+---+   +---+   +---+   +   +
+|       |       |   |       |   |
++---+   +   +---+---+   +   +---+
+|                       |       |
++---+---+---+   +   +   +   +---+
+|               |   |   |       |
++---+   +   +   +   +   +   +   +
+|       |   |   |   |   |   |   |
++---+---+---+---+---+---+---+---+
+```
+
+## APPENDIX C: Open questions
+
+* What kinds of configurations lead to failure cells?  Note that the example could be extended to an example in which several failure cells are surrounded, for example:
+```
+            +---+---+---+---+---+---+
+            |         9 | 8         |   Legend:
+            +---+---+   +   +---+---+     S = the start cell
+            |     9   8   7   6     |     1, 2, 3, ... = generations of
+            +---+---+---+---+---+---+             children
+            | 1   S | F | F | 5   6 |     F = failure cells
+            +---+---+---+---+---+---+     space = cells that can be
+            | 2   1   2   3   4     |             ignored
+            +---+---+   +   +---+---+
+            |         3   4         |
+            +---+---+---+---+---+---+
+```
+Connecting the blank cells *binarily* in a different way does not structurally change the configuration.  For example, this is essentially the same failure:
+```
+            +---+---+---+---+---+---+
+            |         9 | 8 |       |   Legend:
+            +   +---+   +   +   +---+     S = the start cell
+            |   | 9   8   7   6     |     1, 2, 3, ... = generations of
+            +---+---+---+---+---+---+             children
+            | 1   S | F | F | 5   6 |     F = failure cells
+            +---+---+---+---+---+   +     space = cells that can be
+            | 2   1   2   3   4 |   |             ignored
+            +   +---+   +   +   +---+
+            |       | 3   4 |       |
+            +---+---+---+---+---+---+
+```
+And in a weaker sense, both of these conditions reduce to the failure described in Example B.1.
+* Is the starting cell always adjacent to a failure cell?
+

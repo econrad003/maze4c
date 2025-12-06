@@ -6,6 +6,7 @@
 * Section 1. Simple binary trees
 * Section 2. Greedy binary growing trees
 * Section 3. Deferred reward (or "fair") binary growing trees
+* Section 4. Construction of binary spanning trees using Kruskal's algorithm
 * Appendices
     + A. Changing the arity
     + B. Failures
@@ -471,6 +472,202 @@ For comparison with Example 2.5:
 +   +   +   +---+---+---+   +   +   +---+---+---+   +
 |   |   |   |               |   |           |       |
 +---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+## Section 4. Construction of binary spanning trees using Kruskal's algorithm
+
+Recall Kruskal's alogorithm for finding a minimum weight spanning tree on a connected grid:
+```
+    while there are edges in the queue:
+        remove the cheapest edge from the queue
+        let cell1 and cell2 be the endpoints of the edge
+        if cell1 and cell2 are in different components:
+            carve a passage along the edge
+            merge the two components
+```
+Note that we can end the loop before the queue is exhausted the number of components is 1.  We can also end the loop early if the number of passages in one less than the number of cells.  We never need to exhaust the queue unless the grid is disconnected or it is circuit-free.
+
+We can use any reasonable queuing structure in place of a min-priority queue.  If we use a stack, then the "cheapest" edge is the edge that was most recently added.  If we use a queue, the "cheapest" is the least recently entered.  A max-priority queue produces a maximum weight spanning tree,
+
+<blockquote>
+If it is disconnected, then the algorithm will produce a spanning forest. If it is both connected and circuit-free, then it is a tree - in this case, its only spanning tree is the entire grid.
+</blockquote>
+
+We can modify the loop so to insure that the resulting tree is binary, though in doing so, the algorithm is no longer guaranteed to end in a tree.
+```
+    while there are edges in the queue:
+        remove the cheapest edge from the queue
+        let cell1 and cell2 be the endpoints of the edge
+        if degree(cell1) >= 3 or degree(cell2) >= 3:
+            continue
+        if cell1 and cell2 are in different components:
+            carve a passage along the edge
+            merge the two components
+```
+
+Changing 3 to 4 gives ternary trees.  (The degree includes the parent as well as the children, so a maximum of 3 is correct for binary trees.  And a Euler's Degree-Sum Lemma makes it easy to prove that every tree with more than one cell has a cell of degree 1, so there is always at least one cell that can be taken as root..)
+
+When the modified algorithm fails, the end product is a binary forest (*i.e.* each component is a binary tree.)
+
+Our implementation is basically a wrapper for our implementation of Kruskal's algorithm.
+
+### Example 4.1 A quasi-Kruskal binary tree
+
+We start with a few imports:
+```
+$ python
+>>> from mazes.Grids.oblong import OblongGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.binary_kruskal import BinaryKruskal
+```
+
+We next create an empty maze on a grid, and then carve the maze:
+```
+>>> maze = Maze(OblongGrid(8, 13))
+>>> print(BinaryKruskal.on(maze))
+          Binary Kruskal's Algorithm (statistics)
+                            visits      178
+                 components (init)      104
+               queue length (init)      187
+                             cells      104
+                          passages      103
+                             arity        2
+                components (final)        1
+              queue length (final)        9
+```
+We know that the maze is a binary *tree* (*i.e.* not a *forest*) because there is just one component.  The queue started with 187 edges; all but 9 were visited to find the required 103 edges.
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |                   |       |   |           |   |
++   +   +---+   +---+---+   +---+   +   +   +---+   +
+|       |   |   |                   |   |       |   |
++   +   +   +   +   +---+---+   +   +   +---+   +   +
+|   |   |           |           |       |       |   |
++   +---+   +---+   +---+---+   +---+   +---+---+   +
+|       |       |   |       |       |       |       |
++---+   +   +---+---+   +---+   +   +   +---+   +---+
+|       |   |   |   |           |   |               |
++   +   +   +   +   +---+---+---+---+   +---+---+   +
+|   |   |                   |           |           |
++---+---+   +---+---+   +   +---+---+---+---+   +   +
+|           |           |           |       |   |   |
++   +   +   +---+   +---+   +   +---+   +---+   +---+
+|   |   |       |   |       |       |               |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### Example 4.2 A quasi-Kruskal binary tree on a Moore grid
+
+We can use other kinds of grids: theta (polar) grids, upsilon grids, Moore grids.  Let's try a Moore grid (rectangular, eight neighbors).  We start with a few imports:
+
+```
+$ python
+>>> from mazes.Grids.oblong8 import MooreGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.binary_kruskal import BinaryKruskal
+```
+
+We create the grid and the empty maze, and the carve away:
+```
+>>> maze = Maze(MooreGrid(8, 13))
+>>> print(BinaryKruskal.on(maze))
+          Binary Kruskal's Algorithm (statistics)
+                            visits      216
+                 components (init)      104
+               queue length (init)      355
+                             cells      104
+                          passages      103
+                             arity        2
+                components (final)        1
+              queue length (final)      139
+```
+Success!  The number of components was 1 on completion.  We started with a lot of edges, so there were a lot more remaining in the queue when the last required passage was carved.
+
+Here is the maze.  *Note* that this *binary* tree has a lot of diagonal passages -- it even has several crossing diagonals!
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+|       |   |       |   |   |       |   |   |       |
++---/   /---/---+   \   +   \   +   /---+   \---\---+
+|   |       |       |   |   |   |   |   |   |   |   |
++   \---+---+---+---+   /---+   +---\   +---+---X---+
+|   |       |   |   |       |       |   |   |   |   |
++---+---\---+   +   +---/---+---X---+---X---/   /   +
+|   |   |   |       |   |   |   |   |   |   |   |   |
++---\   /---/---+   +---/---+---+---+   \   +   +---+
+|   |   |       |       |   |       |   |   |   |   |
++---\---+---\---+---+---\   +   \---/---\---+   X---+
+|           |   |   |   |       |   |   |   |   |   |
++   +---/---/---/---\---\---+---+---\   +   +---/---+
+|   |   |       |   |   |   |       |   |   |       |
++---/---\---/---/   +---\---X---+   +---\---+---+   +
+|   |       |   |           |           |   |       |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+
+### Example 4.2 A quasi-Kruskal ternary tree on a Moore grid
+
+Since the usual (Von Neumann) rectangular grid limits the degree of each cell to 4, there is no point in trying to create a ternary tree maze on one -- any spanning tree will do.  Using the modified algorithm just reduces to Kruskal's algorithm with some unnecessary overhead.  Note the following conditional in the pseudocode for ternary Kruskal that reads:
+```
+        if degree(cell1) >= 4 or degree(cell2) >= 4:
+            continue
+```
+The condition can never be satisfied on the Von Neumann grid: without the current edge, neither cell would have degree greater than 3.
+
+But the condition can arise on an 8-connected (Moore neighborhoods) rectangular grid.
+
+The imports are as in the previous example:
+```
+$ python
+>>> from mazes.Grids.oblong8 import MooreGrid
+>>> from mazes.maze import Maze
+>>> from mazes.Algorithms.binary_kruskal import BinaryKruskal
+```
+
+We use the "arity" option to specify ternary trees.  Note the first line in the status display:
+```
+>>> maze = Maze(MooreGrid(8, 13))
+>>> print(BinaryKruskal.on(maze, arity=3))
+          Ternary Kruskal's Algorithm (statistics)
+                            visits      211
+                 components (init)      104
+               queue length (init)      355
+                             cells      104
+                          passages      103
+                             arity        3
+                components (final)        1
+              queue length (final)      144
+```
+Success (as components = 1).  Before displaying the result, let's label the high-degree cells:
+```
+>>> for cell in maze.grid:
+...     if len(list(cell.passages)) >= 4:
+...         cell.label = "4"
+...
+```
+
+Here is the maze.  You should convince yourself that the labelled cells all have exactly four neighbors (one parent + three children), no more and no less.
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+|       |   |       |       |       |         4     |
++   +---X---/---+---/---/---+---\---\---+---+   \---+
+|   |       |       |   |           |   |   |   |   |
++---+---\---/---+---/   +---+---+---+---\   /---/---+
+|   |   | 4 |   |   |   |   |   |   |   | 4 |   |   |
++---\   +   X---+---+   X---+   /---/---X---/   /---+
+|   |   | 4 |   |   |   |   |   |   |   |   | 4     |
++---\   /   +---+---\---\---X---+---/---+   +   +---+
+|     4 |   |       |       |       |       |       |
++---+---+   /---+   +   +---+   +---+---X---+---\---+
+|   |     4     |   |   |     4 |   |   |   |   |   |
++---\---\---+---X---+---\---+   X---\---+---X   \---+
+|   |     4 |   |       |   |   | 4 |   |   |   |   |
++   \---/   +   +---/   +---+---/   \---+   +---/---+
+|   |   |   |   |   |       |   |   |   |   |       |
++---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
 
 ## APPENDIX A: Changing the arity
 
@@ -479,7 +676,7 @@ The binary growing tree modules can produce mazes with arities other than 2.  Fo
 **Lemma A.1**:  Every spanning tree on a Von Neumann (N/S/E/W) rectangular grid has arity 3.
 
 **Proof**:  Since every cell has just four neighbors, the degree of every cell must be at most 4.  If the arity is not 3, then the root cell must have degree 4.  But a corner cell has maximum degree 2, so we can take any corner a the root.  Since the root of the tree has degree 2 and every cell has degree at most 4, the spanning tree has arity 3.
-```
+
 Another way to establish a contradiction is to use a counting argument to establish the following useful lemma:
 
 **Lemma A.2**:  Every tree with at least two cells has at least one cell of degree 1.
@@ -602,7 +799,7 @@ Here I failed to fail on 6×6 after 10,000 tries:
 ...
 >>>
 ```
-Note that I would have printed the status if fewer than 35 passages were carved.
+Note that the script would have displayed the status if fewer than 35 passages were carved.
 
 And I succeeded to fail on 8×8:
 ```

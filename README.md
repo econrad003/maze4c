@@ -92,6 +92,7 @@ The following maze generation algorithms have been implemented:
     + module *bfs* (class *BFS*) - a simple vertex-based breadth-first search implementation.
 * module *growing\_tree2* (class *ArcGrowingTree*) - arc-based
 * module *kruskal* (class *Kruskal*) - Kruskal's algorithm - like Prim's algorithm, this is a minimum-weight spanning tree algorithm.  It can perform a number of other tricks as well.
+    + module *binary\_kruskal* (class *BinaryKruskal*) - a variant to create binary spanning trees.  (It will *almost* always produce a binary spanning tree on standard grids, but it is only guaranteed to produce a binary *forest* on any given run.)
 * module *simple\_binary\_tree* (class *BinaryTree*) - a simple passage-carving algorithm for constructing binary spanning tree mazes.  There is a also wall-building implementation in the *mazes/WallBuilders* folder.
 * There are two algorithms based on queue search (*e.g.* depth-first and breadth-first search) for constructing spanning binary trees in the *mazes/Algorithms* folder.  These algorithms may be used on any grid and are guaranteed to produces a binary tree on a subset of the cells in some connected part of the grid.  In most runs on the basic 4-neighbor rectangular grid, it will produce a spanning binary tree.  There are some more unusual grids, such as the 4-pointed star, which do not admit spanning binary trees.
     + Module *binary\_growing\_tree1* is greedy in the sense that it uses as many unvisited neighbors (up to two for binary) to create children before returning control to the queue.

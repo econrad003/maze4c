@@ -89,6 +89,16 @@ class Algorithm(object):
             pass
 
         @property
+        def name(self):
+            """name getter"""
+            return self.__name
+
+        @name.setter
+        def name(self, new_name:str):
+            """name setter"""
+            self.__name = new_name
+
+        @property
         def maze(self):
             """returns the maze to be carved"""
             return self.__maze

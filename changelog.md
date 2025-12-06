@@ -1,9 +1,16 @@
 # Change Log
 
+## Release 0.11.4 - 6 December 2025 (binary trees)
+1. A quasi-Kruskal binary tree carving algorithm. See module *mazes/Algorithms/binary_kruskal*, class *BinaryKruskal*.  As with the binary growing tree algorithms in release 0.11.3, trees  of other "airities" can be specified.  And as in the binary growing trees, the algorithm sometimes fails, ending with a forest instead of a tree.
+2. Documentation is in section 4 of *doc/Algorithms.binary\_growing\_tree.py*.
+3. A small amount of refactoring was done to make the module in (1) do almost all of its work inside the *Kruskal* class.
+
 ## Release 0.11.3 - 3-4 December 2025 (binary growing trees)
 1. Binary growing tree (two new modules in *mazes/Algorithms* + documentation + README updates).
 2. Statistics for some binary growing tree runs.
 3. Some cosmetic fixes (typos, documentation fixes).
+
+An addendum to the documentation mentioned in point 1 (Appendices B and C) was checked in on 4 December 2025 as v0.10.3.  It is really a late addition to v0.11.3.
 
 ## Release 0.11.2 - 1 December 2025 (loops & parallel passages)
 

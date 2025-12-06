@@ -256,6 +256,25 @@ class Kruskal(Algorithm):
                 return False
             return not self.is_empty
 
+        def end_visit(self, cell1, cell2):
+            """for derived classes
+
+            This should be called if the edge is otherwise permissible.
+
+            If the cells are in different components, then the edge is carved.
+
+            If the cells are in the same component, then the edge is not carved.
+            """
+            registry = self.__registry
+            k1 = registry.component_for(cell1)
+            k2 = registry.component_for(cell2)
+            if k1 != k2:
+                        # carve a passage"""
+                self.maze.link(cell1, cell2)
+                self.increment_item("passages")
+                registry.merge(k1, k2)
+                self.__k -= 1
+
         def visit(self):
             """pop an edge; if it joins two components, carve it"""
             cell, nbr = self.leave()

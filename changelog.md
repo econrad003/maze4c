@@ -1,5 +1,8 @@
 # Change Log
 
+## Release 0.11.5 - 8 December 2025 (GraphViz drivers)
+Two graphViz drivers and a lot of documentation.
+
 ## Release 0.11.4 - 6 December 2025 (binary trees)
 1. A quasi-Kruskal binary tree carving algorithm. See module *mazes/Algorithms/binary_kruskal*, class *BinaryKruskal*.  As with the binary growing tree algorithms in release 0.11.3, trees  of other "airities" can be specified.  And as in the binary growing trees, the algorithm sometimes fails, ending with a forest instead of a tree.
 2. Documentation is in section 4 of *doc/Algorithms.binary\_growing\_tree.py*.

@@ -19,6 +19,7 @@ Below is a sketch of what has been done.  Check the documentation folder (*doc*)
     +  *mazes/Cellular* - maze generating cellular automata
     +  *mazes/Grids* - grid implementations and grid support classes
     +  *mazes/Graphics* - graphics drivers
+        + *mazes/Graphics/dot* - GraphViz graphics drivers
     +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.
     +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
     +  *mazes/VGT* - vertex-based growing tree algorithm implementations

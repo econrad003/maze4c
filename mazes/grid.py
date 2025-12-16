@@ -31,9 +31,11 @@ MODIFICATION HISTORY
     29 November 2025 - add a flag which enables parallel passages.  Associated
         with this flag are a property and a setter.  Cells can check this flag
         before adding parallel edges.
+    14 December 2025 - add property graphviz_dot.
 """
 
 from mazes.cell import Cell
+from mazes.maze import Maze
 
 class Grid(object):
 
@@ -136,6 +138,53 @@ class Grid(object):
     def set_format(self, name, value):
         """set print formatting, if supported"""
         self.__fmt[name] = value
+
+    def _joins_from_maze(self):
+        """try to get the joins from the maze object"""
+        maze = self.format("maze")
+        if maze == 0 or not isinstance(maze, Maze) or maze.grid != self:
+            return None
+        return set(maze)
+
+    def _get_joins(self):
+        """get the passages for the maze"""
+        joins = self._joins_from_maze()
+        if isinstance(joins, set):
+            return joins
+        # print("getting joins")
+        joins = set()
+        for cell in self:
+            for join in cell.joins:
+                joins.add(join)
+        # print(len(joins))
+        return joins
+
+    def _display_joins(self, joins) -> str:
+        """build the passage display"""
+        s = str()
+        for join in joins:
+            cells = join.cells
+            if len(cells) == 1:
+                cell1 = list(cells)[0]
+                s += f'"{cell1.index}" -> "{cell1.index}" [dir="none"]\n'
+            elif isinstance(cells, frozenset):
+                cell1, cell2 = cells
+                s += f'"{cell1.index}" -> "{cell2.index}" [dir="none"]\n'
+            elif isinstance(cells, tuple):
+                cell1, cell2 = cells
+                s += f'"{cell1.index}" -> "{cell2.index}"\n'
+            else:
+                s += f"// unknown join type\n"
+        return s
+
+    @property
+    def graphviz_dot(self) -> str:
+        """return a simple graphviz representation"""
+        s = "digraph D {\n"
+        joins = self._get_joins()
+        s += self._display_joins(joins)
+        s += "}"
+        return s
 
     @property
     def indices(self):

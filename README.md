@@ -59,6 +59,11 @@ Moore neighborhoods (including diagonal compass directions) are available on the
 
 Theta (or polar or circular) grids are supported as class *ThetaGrid* in module *polar*.
 
+### Miscellaneous Grids
+
+* The complete grids K(*n*) and complete partite grids K(*m*,*n*,...) based on Kuratowski graphs (*e.g.* K(5) and K(3,3), important in deciding whether a graph is planar).  These are theoretically important and may prove useful at some point in testing.  (Module *mazes.Grids.complete*, classes *Complete* and *Partite*.)
+* The multilevel grids.  (Module *mazes.Grids.multilevel* with class *Multilevel* and subclass *Multistory*.)
+
 ## Graphics
 
 * *matplot\_driver* - a base class for drivers based on *matplotlib*. Defines class *Spider*.

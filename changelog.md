@@ -1,5 +1,14 @@
 # Change Log
 
+## Release 0.11.6 - December 2025 (Borůvka's algorithm; grids)
+1. Borůvka's algorithm - another minimum cost spanning tree algorithm.  Unlike Kruskal and Prim, this algorithm requires the edge costs to be distinct, or, in the presence of equal cost edges, edge traversal must be stable.  If both conditions are violated, the resulting maze may contain circuits. (*Algorithm* class *Boruvka* in module *mazes.Algorithms.boruvka*.)
+2. Complete grids K(*n*).  (*Grid* class *Complete* in module *mazes.Grids.complete*.)
+3. Complete *k*-partite grids K(*n*₀,*n*₁,...,*nₖ*), with *k*≥2.  (*Grid* class *Partite* in module *mazes.Grids.complete*.)
+4. Added property *graphviz_dot* to class *Grid* in module *mazes.Grid*.  It produces a very crude *graphviz* representation.  The output (a string) can be used to produce images with the command-line *graphviz* engines such as *dot*, *fdp*, *neato*, *twopi*, or *circo*.  Quality will vary considerably.  The output can also be used as a representation as a graph (or matroid) of a maze on a grid.  Isolated cells (cells with no incident passages) are normally omitted in this representation.  The output can also be edited to produce fancier image representions.
+5. Multilevel grids in module *mazes.Grids.multilevel* (class *Multilevel* and subclass *Multistory*).  Class *Multistory* builds multilevel grids with one basic floorplan while class *Multilevel* admits multiple floorplans.  See the test module *tests.multilevel* for a simple example.
+
+The grids in items (2) and (3) are based on *Kuratowski* graphs and are included mainly for a mix of completeness and a few demonstrations.
+
 ## Release 0.11.5 - 8 December 2025 (GraphViz drivers)
 Two graphViz drivers and a lot of documentation.
 

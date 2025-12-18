@@ -208,7 +208,7 @@ class Cell(object):
         cell = self.__passages[join]
         del self.__passages[join]
         self.__linked[cell].remove(join)
-        if len(self.__linked[cell]):
+        if len(self.__linked[cell]) == 0:
             del self.__linked[cell]
 
     def is_linked(self, cell:'Cell') -> bool:

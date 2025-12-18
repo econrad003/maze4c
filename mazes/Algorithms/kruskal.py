@@ -63,6 +63,13 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATION
+
+    18 Dec 2025 - EC
+        correct some of the verbage, plus make sure that __q.enter is only
+        called in Kruskal.enter.  (This insures that the prioririty is
+        passed correctly.)
 """
 import mazes
 from mazes import rng, Algorithm
@@ -162,11 +169,10 @@ class Kruskal(Algorithm):
                     using class GeneralizedQueue from mazes.gqueue.
                     The default is PriorityQueue.
 
-                priority - a lookup function which maps a cell to a
-                    priority (e.g. for VertexPrim).  If this is provided,
-                    the priority will be passed to enter using the keyword
-                    priority, e.g.:
-                        q.enter(cell, priority=priority(cell))
+                priority - a lookup function which maps an edge {cell, nbr} to a
+                    priority.  If this is provided, the priority will be passed
+                    to enter using the keyword priority, e.g.:
+                        q.enter(cell, nbr, priority=priority({cell, nbr}))
 
                 init -- arguments to be used in initializing QueueClass.
                     These take the form of a list or a tuple consisting of a
@@ -235,7 +241,7 @@ class Kruskal(Algorithm):
                         continue
                     if component_for(cell) != component_for(nbr):
                         edge = (cell, nbr)
-                        self.__q.enter(edge)
+                        self.enter(edge)            # 18 Dec 2025
 
         def configure(self):
             """configuration"""

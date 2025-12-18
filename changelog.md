@@ -1,5 +1,11 @@
 # Change Log
 
+## Release 0.11.6-1 - 18 December 2025 (small bug fixes)
+1. Borůvka's algorithm: the implementation had the key inequality reversed.  The result: maximum cost instead of minimum cost.  FIXED!
+2. Maze and Cell class: unlinking had a few bugs.  FIXED!
+3. Kruskal: the wrong queue entry call was used -- as a result, edge weights were ignored.  FIXED!
+4. new test module: *tests.minweight1* verifies that Kruskal and Boruvka class now work as intended.  Also, this module uses *maze.unlink\_all()* method, verifying that *Maze.unlink()* and *Cell.\_unlink()* work.
+
 ## Release 0.11.6 - December 2025 (Borůvka's algorithm; grids)
 1. Borůvka's algorithm - another minimum cost spanning tree algorithm.  Unlike Kruskal and Prim, this algorithm requires the edge costs to be distinct, or, in the presence of equal cost edges, edge traversal must be stable.  If both conditions are violated, the resulting maze may contain circuits. (*Algorithm* class *Boruvka* in module *mazes.Algorithms.boruvka*.)
 2. Complete grids K(*n*).  (*Grid* class *Complete* in module *mazes.Grids.complete*.)

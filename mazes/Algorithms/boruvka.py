@@ -47,6 +47,12 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    18 December 2025 - EC
+        Correct direction of inequality.  Previously: max cost spanning tree.
+        Now: min cost spanning tree.
 """
 from mazes import rng, Algorithm
 from mazes.maze import Maze
@@ -120,7 +126,8 @@ class Boruvka(Algorithm):
         def update(self, edge, component) -> bool:
             """is the edge preferred for the component?"""
             w = self.cheapest.get(component)
-            if w == None or self.__weights[edge] > self.__weights[w]:
+                # 18 Dec 2025 - EC: change > to < for min cost in next line
+            if w == None or self.__weights[edge] < self.__weights[w]:
                 self.cheapest[component] = edge
 
         def visit(self):

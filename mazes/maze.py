@@ -132,7 +132,7 @@ class Maze(object):
 
     def unlink(self, join):
         """delete a join"""
-        self.joins.remove(join)
+        self.__joins.remove(join)
         join.unlink()
 
     def link_all(self, label:str="link_all"):

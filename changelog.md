@@ -1,5 +1,8 @@
 # Change Log
 
+## Release 0.11.6-2 - 19 December 2025 (added tests)
+* added a couple of additional checks in the test module *tests.minweight1* (see item 4 in v0.11.6-1).
+
 ## Release 0.11.6-1 - 18 December 2025 (small bug fixes)
 1. Borůvka's algorithm: the implementation had the key inequality reversed.  The result: maximum cost instead of minimum cost.  FIXED!
 2. Maze and Cell class: unlinking had a few bugs.  FIXED!

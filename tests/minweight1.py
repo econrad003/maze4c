@@ -107,6 +107,20 @@ def costs(edges:set, epsilon:float=1e-5):
         weight += max(epsilon, rng.random())
     return weights
 
+def modify_costs(weights:dict):
+    """returns a slightly different cost table
+
+    The lowest cost entry is becomes the highest weight...
+    """
+    cheapest = next(iter(weights.keys()))
+    new_weights = dict()
+    for edge in weights:
+        new_weights[edge] = weights[edge]
+        if weights[edge] < weights[cheapest]:
+            cheapest = edge
+    new_weights[cheapest] = float("inf")
+    return new_weights
+
 def check(maze):
     """verify the maze (return False for failure or True for success)"""
     v = len(maze.grid)
@@ -149,9 +163,11 @@ from mazes.Algorithms.bfs import BFS
 from mazes.Algorithms.dfs_better import DFS
 from mazes.Algorithms.dff import DFF
 from mazes.Algorithms.hunt_kill import HuntKill
+from mazes.Algorithms.growing_tree1 import VertexGrowingTree as VGT
 from mazes.Algorithms.growing_tree2 import ArcGrowingTree as AGT
 
 from mazes.Queues.priority_queue import PriorityQueue
+from mazes.Queues.random_queue import RandomQueue
 
 carvers = dict()
 carvers["Borůvka"] = (Boruvka, tuple(), dict(), "edge_weights", dict)
@@ -162,6 +178,8 @@ carvers["breadth-first search"] = (BFS, tuple(), dict(), None, None)
 carvers["depth-first search"] = (DFS, tuple(), dict(), None, None)
 carvers["depth-first forest"] = (DFF, tuple(), dict(), None, None)
 carvers["hunt & kill"] = (HuntKill, tuple(), dict(), None, None)
+carvers["simplified Prim"] = (VGT, tuple(), {"QueueClass":RandomQueue}, None, None)
+carvers["vertex Prim"] = (VGT, tuple(), {"QueueClass":PriorityQueue}, None, None)
 
 results = list()
 
@@ -184,15 +202,48 @@ def carve(maze, carver, weights):
         results.append(result)
     return status
 
+def alt_carve(maze, carver, weights, use_name, use_weights):
+    """modified carvers"""
+    print(f"carver='{use_name}': ", end="")
+    maze.unlink_all()
+    Carver, args, kwargs, warg, wargtype = carvers[carver]
+    if wargtype == dict:
+        kwargs[warg] = use_weights
+    elif wargtype == "edge":
+        kwargs[warg] = lambda edge: use_weights[edge]
+    elif wargtype == "edge2":
+        kwargs[warg] = lambda cell, nbr: use_weights[frozenset([cell,nbr])]
+    status = Carver.on(maze, *args,**kwargs)
+    ok = check(maze)
+    if ok:
+        cost = weigh(maze, weights)
+        result = (cost, use_name, "passage carver")
+        results.append(result)
+    return status
+
 from mazes.Grids.oblong import OblongGrid
 
 def test1():
     maze = Maze(OblongGrid(5, 8))
     weights = costs(edge_set(check_grid(maze.grid)))
+    minus = dict()
+    for edge in weights:
+        minus[edge] = - weights[edge]
+    modified = modify_costs(weights)
     for carver in carvers:
         status = carve(maze, carver, weights)
         print(status)
         print(maze)
+        if carver in {"Borůvka", "Kruskal", "Prim"}:
+            name = carver + " (max cost)"
+            status = alt_carve(maze, carver, weights, name, minus)
+            print(status)
+            print(maze)
+        if carver == "Borůvka":
+            name = carver + " (modified weights)"
+            status = alt_carve(maze, carver, weights, name, modified)
+            print(status)
+            print(maze)
     sorted_results = sorted(results)
     print("Summary of Costs:")
     n = 0
@@ -200,13 +251,14 @@ def test1():
         n += 1
         cost, name, kind = result
         print(n, "\t%10.3f" % cost, name, kind)
-        if n == 3:
+        if n == 3 or n == len(results) - 3:
             print("\t", "-"*50)
     print("Borůvka, Kruskal and Prim should have the lowest cost!")
-    print("They will always produce identical mazes!")
+    print("These three algorithms can also be used to find max cost spanning trees.")
     print("Floating point rounding errors create small differences.")
     sys.exit()
 
-test1()
+if __name__ == "__main__":
+    test1()
 
 # END tests.minweight1

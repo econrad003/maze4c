@@ -35,6 +35,8 @@ MODIFICATIONS
     25 October 2025 - EC
         Correct the spelling of the class name.  The misspelling is retained
         as an alias.
+    21 December 2025 - EC
+        Handle hidden cells on the south and west boundaries
 """
 
 from mazes.maze import Maze
@@ -103,7 +105,11 @@ class Pholcidae(Spider):
         for cell in self.__grid:
             i, j = cell.index
             x, y = j+h, i+k
-            self.goto(x+1, y)             # southeast corner
+            if cell.south and cell.south.hidden:
+                self.goto(x, y)             # southwest corner
+                self.draw_segment(x+1, y)
+            else:
+                self.goto(x+1, y)           # southeast corner
                     # from SE corner to NE corner
             if cell.is_linked(cell.east):
                 self.goto(x+1, y+1)
@@ -114,6 +120,8 @@ class Pholcidae(Spider):
                 self.goto(x, y+1)
             else:
                 self.draw_segment(x, y+1)
+            if cell.west and cell.west.hidden:
+                self.draw_segment(x, y)
 
                 # draw the south boundary
         for cell in self.__grid.row(0):

@@ -1,5 +1,11 @@
 # Change Log
 
+## Release 0.11.7 21 December 2025 (The Königsberg bridges maze)
+* Every graph theory package needs an Easter egg dedicated to Leonhard Euler (1707-1783; the surname sounds like oiler and rhymes with boiler).  The Königsberg bridges maze is an attempt at one.  It's a 24 row by 80 column rectangular maze with hidden cells to represent the River Pregel running though Königsberg in Prussia - and over the river are seven bridges...  The maze is a spanning tree created using Wilson's algorithm, so it is planar, but it has some odd-degree cell (so there is no Eulerian tour; and there are more than two odd-degree cells, so there is also no Eulerian path).
+* The saved maze is *gallery/Konigsberg_bridges.svg* (capital K; sorry! no umlaut)...  It was created using module *demos.Konigsberg_bridges* and the text was added using Inkscape.
+* The spider graphics module *mazes.Graphics.oblong1* had a bug when displaying rectangular mazes with hidden cells -- soft south and west walls leading to hidden cells weren't drawn.  That bug has been squashed and fed to the spider's offspring.  (Technically a rectangular maze with hidden cells is no longer necessarily rectangular, so perhaps that bug was a feature; but in my opinion it was a bug.  Arachnologists, both amateur and professional, may offer differing opinions.)
+* Have a safe and pleasant Christmas season.
+
 ## Release 0.11.6-2 - 19 December 2025 (added tests)
 * added a couple of additional checks in the test module *tests.minweight1* (see item 4 in v0.11.6-1).
 

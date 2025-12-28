@@ -32,6 +32,7 @@ MODIFICATION HISTORY
         with this flag are a property and a setter.  Cells can check this flag
         before adding parallel edges.
     14 December 2025 - add property graphviz_dot.
+    27 December 2025 - add method reveal_all().
 """
 
 from mazes.cell import Cell
@@ -211,5 +212,10 @@ class Grid(object):
         """visits all the cells, including the hidden ones"""
         for cell in self.__cells.values():
             yield cell
+
+    def reveal_all(self):
+        """turn off all cell masks"""
+        for cell in self.__cells.values():
+            cell.reveal()
 
 # end module mazes.grid

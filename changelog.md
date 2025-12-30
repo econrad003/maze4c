@@ -1,8 +1,9 @@
 # Change Log
 
-## Release 0.11.8 - 23 December 2025
+## Release 0.11.8 - 23-30 December 2025
 1. **v 0.11.8-1**: Metrics on the rectangular grid. Module: *mazes.Metrics.oblong*.  Several metrics have been defined: classes *Metric* (Pythagorean), *TaxicabMetric* (Manhattan), *MaximumMetric* (Chebyshev or king's move), *KnightMetric* (knight's move).  Examples of the knight's move metric used with vertex Prim are found in the document *doc/Algorithms/vertex\_prim.md*.  A large gallery example is saved as *gallery/vprim-knight.svg*.
 2. **v 0.11.8-2**: (a) *added reveal_all()* method to class *Grid*; (b) Floyd/Warshall transitive closure; (c) "hop tree" algorithm (uses Floyd's algorithm to initialize distances if there are existing passages; a growing tree algorithm that uses distances than are changing as the maze grows).
+3.  **v 0.11.8-3**:  A room-wall-pillar partitioning tool was introduced for maze design work.  This is working, but it's still in a preliminary stage.  See the modules *demos.tulleken* and *tests.tulleken* and the documentation in *doc/tulleken.md* for more information.
 
 ## Release 0.11.7 - 21 December 2025 (The Königsberg bridges maze)
 * Every graph theory package needs an Easter egg dedicated to Leonhard Euler (1707-1783; the surname sounds like oiler and rhymes with boiler).  The Königsberg bridges maze is an attempt at one.  It's a 24 row by 80 column rectangular maze with hidden cells to represent the River Pregel running though Königsberg in Prussia - and over the river are seven bridges...  The maze is a spanning tree created using Wilson's algorithm, so it is planar, but it has some odd-degree cell (so there is no Eulerian tour; and there are more than two odd-degree cells, so there is also no Eulerian path).

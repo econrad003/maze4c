@@ -199,7 +199,7 @@ def main(argv:list):
         default=(8,13), metavar=("ROWS", "COLS"), \
         help="the dimensions of the maze (default: 8,13)")
     parser.add_argument("-p", "--pattern", type=int, default=0,
-        help="the pattern to use (default:0, values in [0,0])")
+        help="the pattern to use (default:0, values in [0,2])")
     args = parser.parse_args(argv)
     rows, cols = args.dim
     carve_maze(rows, cols, patterns[args.pattern])

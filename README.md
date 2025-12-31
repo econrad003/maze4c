@@ -190,15 +190,17 @@ In addition, *q.enter()* and *q.leave()* methods add and remove entries from the
 
 The *q.top()* methods returns the top entry without removing it.  The *q.jettison()* entry removes the most recent *q.top()* element providing the queue has not changed.  (A *JettisonError* exception is raised by *jettison* if the queue has changed in the interim.  The *top-jettison* pair is needed to that the top entry of a FIFO queue can be inspected without disturbing the current order.)
 
+## Tools
+
+* Partitioning tool inspired by Tulleken `[6]`: module *tools.tulleken* class *Tulleken*.  This tool partitions a maze into rooms, walls, and pillars.  With rectangular (Von Neumann) grids, it can produce mazes in the style of games like *MineCraft* or *DigDug*.  As implemented here, the tool works with arbitrary grids.
+
 ## REFERENCES
 
 1. Jamis Buck. Mazes for programmers.  Pragmatic Bookshelf, 2015.
-2. Lucia Costantini.  *Algorithms for sampling spanning trees uniformly at random* (master's thesis).  Polytechnic University of Catalonia.  Web. Accessed 20 December 2024.
-URL: [https://upcommons.upc.edu/bitstream/handle/2117/328169/memoria.pdf](https://upcommons.upc.edu/bitstream/handle/2117/328169/memoria.pdf)
+2. Lucia Costantini.  *Algorithms for sampling spanning trees uniformly at random* (master's thesis).  Polytechnic University of Catalonia.  Web. Accessed 20 December 2024. URL: [https://upcommons.upc.edu/bitstream/handle/2117/328169/memoria.pdf](https://upcommons.upc.edu/bitstream/handle/2117/328169/memoria.pdf)
 3. Yiping Hu, Russell Lyons and Pengfei Tang.  *A reverse Aldous/Broder
-        algorithm.*  Preprint.  Web: arXiv.org.  24 Jul 2019.
-URL:[http://arxiv.org/abs/1907.10196v1](http://arxiv.org/abs/1907.10196v1)
-4. Jamis Buck. "Maze Generation: Wilson's algorithm" in *the Buckblog*.  Web. Accessed 21 December 2024.
-URL: [http://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm.html](http://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm.html) 
+        algorithm.*  Preprint.  Web: *arXiv.org*.  24 Jul 2019. URL: [http://arxiv.org/abs/1907.10196v1](http://arxiv.org/abs/1907.10196v1)
+4. Jamis Buck. "Maze Generation: Wilson's algorithm" in *the Buckblog*.  Web. Accessed 21 December 2024.  URL: [http://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm.html](http://weblog.jamisbuck.org/2011/1/20/maze-generation-wilson-s-algorithm.html)
 5. Jamis Buck.  "Maze Algorithms".  Web.  Accessed 21 December 2024.
 URL: [https://www.jamisbuck.org/mazes/](https://www.jamisbuck.org/mazes/)
+6. Herman Tulleken.  "Algorithms for making more interesting mazes" in *Game Developer*.  Web: *game\_developer.com*.  Accessed 31 December 2025.  URL: [https://www.gamedeveloper.com/programming/ - algorithms-for-making-more-interesting-mazes](https://www.gamedeveloper.com/programming/algorithms-for-making-more-interesting-mazes)

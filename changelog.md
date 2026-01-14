@@ -1,5 +1,24 @@
 # Change Log
 
+## Release 0.11.9 - 14 January 2025
+<ol type="A">
+<li>Hunt and kill algorithm:
+    <ol type="1">
+    <li>(cosmetic) module <em>mazes/Algorithms/hunt_kill</em>: corrected the program docstring; in this implementation, the algorithm keeps track of the frontier with each kill; the hunt simply selects a random frontier element</li>
+    <li>(new module) module <em>mazes/Algorithms/hunt_kill2</em> class <em>HuntKill</em>: in this implementation, the algorithm, the algorithm does not maintain the frontier set; the hunt instead involves a "left-to-right" search of the unvisited nodes for a node which has a visited neighbor.  The result is a less random hunt.</li>
+    </ol>
+<li>Jupyter notebooks: The <em>mazes</em> package is compatible with Jupyter notebooks.  I saved a sample notebook in the <em>notebooks</em> folder along with a markdown export.  The first executable line shows one way of loading the <em>mazes</em> package without polluting the <em>PYTHONPATH</em> environment variable.</li>
+<li>Inform 7 code: (<em>EXPERIMENTAL</em>) Inform 7 is a declarative programming language, developed by Graham Nelson, which is used primarily for writing text adventure games.  See the file <em>Inform-README.md</em> for some information and links to some references.
+    <ol type="1">
+    <li>module <em>mazes.Inform.room</em> classes <em>RoomPlan</em> and <em>Room</em> - the room plan is a wrapper for a maze -- the rooms are the individual cells in the maze.  The <em>Room</em> class admits renaming the rooms and giving them descriptions.</li>
+    <li>module <em>mazes.Inform.treasure</em> class <em>Treasures</em> - the treasures class maintains a list of things (such as treasure, weapons, containers, supporters, vehicles) -- the objects can be placed in rooms and given descriptions.</li>
+    <li>module <em>tests.inform</em>: a few simple tests of the room plan and treasures.</li>
+    <li>module <em>demos.inform</em>: a simple demonstration of what the two <em>mazes.Inform</em> modules can do -- basically the just generate code.  Turning a generated maze into a text adventure requires some artistic creativity and programming ability.  Look at the Python code for the module and the generated output for some programming tips.  (As for the artistic creativity, I'm afraid I cannot help you with that.)</li>
+    <li>file <em>Inform-README.md</em>: contains a sample Inform 7 program. sample output, and some links for further information.  (I haven't actually compiled or run the sample program...
+    </ol>
+The Inform 7 interfaces are all experimental at this point in time!</li>
+</ol>
+
 ## Release 0.11.8 - 23-30 December 2025
 1. **v 0.11.8-1**: Metrics on the rectangular grid. Module: *mazes.Metrics.oblong*.  Several metrics have been defined: classes *Metric* (Pythagorean), *TaxicabMetric* (Manhattan), *MaximumMetric* (Chebyshev or king's move), *KnightMetric* (knight's move).  Examples of the knight's move metric used with vertex Prim are found in the document *doc/Algorithms/vertex\_prim.md*.  A large gallery example is saved as *gallery/vprim-knight.svg*.
 2. **v 0.11.8-2**: (a) *added reveal_all()* method to class *Grid*; (b) Floyd/Warshall transitive closure; (c) "hop tree" algorithm (uses Floyd's algorithm to initialize distances if there are existing passages; a growing tree algorithm that uses distances than are changing as the maze grows).

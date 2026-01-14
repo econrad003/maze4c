@@ -1,12 +1,15 @@
 """
-mazes.Algorithms.hunt_kill - the hunt and kill algorithm
+mazes.Algorithms.hunt_kill - the hunt and kill algorithm (scanning version)
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2025 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
-    This is an implementation of the hunt and kill maze carving algorithm.
-    The algorithm is as follows:
+    This is an alternate implementation of the hunt and kill maze carving
+    algorithm, perhaps more in line with the description in [1].  The
+    difference is in the hunting phase.  Instead of choosing a random frontier
+    cell, the cells are scanned and the first frontier cell found is the
+    result of the hunt.  The algorithm is as follows:
 
         Preparation:
             get a list of cells to be visited;
@@ -21,17 +24,23 @@ DESCRIPTION
                 now the neighbor is the current cell;
             otherwise:
                         (hunt)
-                choose a random unvisited cell that has a visited neighbor;
+                scan for an unvisited cell that has a visited neighbor;
                 carve a passage from the cell to a visited neighbor.
                 now the cell is the current cell.
+
+    There is less overhead as the algorithm does not maintain a frontier
+    set, but the overhead reduction does entail a cost: the hunt potentially
+    scans all unvisited cells.  How this change affects time complexity is
+    hard to predict, as choosing a random frontier element requires converting
+    a set into a list.
 
     (See [1], pages 67-71 and 251.)
 
 NOTES
 
-    If the grid is not connected, the resulting maze will be a forest
-    consisting of a tree in the starting component and isolated cells
-    in the remaining components.
+    If the grid is not connected, the algorithm will terminate with a
+    tree in the starting component and isolated cells in the remaining
+    components.
 
 IMPLEMENTATION
 
@@ -60,17 +69,17 @@ LICENSE
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import mazes
-from mazes import rng, Algorithm
+from mazes import rng, Algorithm, Cell
 
 class HuntKill(Algorithm):
-    """the hunt and kill maze carving algorithm"""
+    """the hunt and kill maze carving algorithm (with scanning)"""
 
     class Status(Algorithm.Status):
         """this is where most of the work is done"""
 
-        NAME = "Hunt and Kill"
+        NAME = "Hunt/Scan and Kill"
 
-        __slots__ = ("__visited", "__frontier", "__current_cell")
+        __slots__ = ("__unvisited", "__current_cell", "__hunt_failed")
 
         def parse_args(self, start_cell:'Cell'=None):
             """parse constructor arguments
@@ -88,10 +97,16 @@ class HuntKill(Algorithm):
 
         def initialize(self):
             """initialization"""
-            self.__visited = set()
+            self.__unvisited = list(self.maze.grid)
             if self.__current_cell == None:
-                self.__current_cell = rng.choice(list(self.maze.grid))
-            self.__frontier = {self.__current_cell}
+                self.__current_cell = rng.choice(self.__unvisited)
+            self.__unvisited = set(self.__unvisited)
+            self.__hunt_failed = False
+
+        @property
+        def unvisited(self) -> frozenset:
+            """returns the unvisited set as a frozen set"""
+            return frozenset(self.__unvisited)
 
         def configure(self):
             """configuration"""
@@ -100,11 +115,12 @@ class HuntKill(Algorithm):
             self.store_item("passages", 0)
             self.store_item("hunt", 0)
             self.store_item("kill", 0)
+            self.store_item("scans", 0)
             self.store_item("starting cell", self.__current_cell.index)
                 # process the starting cell
             if self.__current_cell not in self.maze.grid:
                 raise ValueError("The starting cell was not found.")
-            self.update_frontier(self.__current_cell)
+            self.__unvisited.remove(self.__current_cell)
 
         @property
         def more(self):
@@ -112,30 +128,44 @@ class HuntKill(Algorithm):
 
             Overrides Algorithm.more.
             """
-            return bool(self.__frontier)
+            return len(self.__unvisited) > 0 and not self.__hunt_failed
 
-        def visited(self, cell):
+        def visited(self, cell:Cell):
             """returns True if the cell has been visited"""
-            return cell in self.__visited
+            return cell not in self.__unvisited
 
-        @property
-        def random_frontier_cell(self):
-            """get a random cell from the frontier"""
-            return rng.choice(list(self.__frontier))
+        def hunt_failed(self):
+            """log a hunt failure and return two nothings
+
+            Called by scan if a frontier cell is not found.  Subclasses
+            should call this in the event of a hunt failure.
+            """
+            self.__hunt_failed = True
+            self["hunt failed"] = True
+            return None, None
+
+        def scan(self):
+            """returns a frontier cell and a visited neighbor
+
+            This scanning operation searches the unvisited region for
+            a frontier cell.  Each access is counted in the "scans" status
+            variable.
+
+            Subclasses may redefine this.  See also property "unvisited" and
+            method "hunt_failed".
+            """
+            for cell in self.__unvisited:
+                for nbr in cell.neighbors:
+                    self["scans"] += 1          # for status 
+                    if nbr not in self.__unvisited:
+                        return cell, nbr
+                # failed hunt!
+            return self.hunt_failed()
 
         def link(self, cell, nbr):
             """carve a passage"""
             self.maze.link(cell, nbr)
             self.increment_item("passages")
-
-        def update_frontier(self, cell):
-            """update the frontier"""
-            self.__visited.add(cell)
-            self.__frontier.remove(cell)
-            for nbr in cell.neighbors:
-                if nbr not in self.__visited:
-                    self.__frontier.add(nbr)
-            self.__current_cell = cell
 
         def kill(self, cell, nbrs):
             """kill phase
@@ -149,19 +179,18 @@ class HuntKill(Algorithm):
             self.increment_item("kill")
             nbr = rng.choice(nbrs)
             self.link(cell, nbr)
-            self.update_frontier(nbr)
+            self.__unvisited.remove(nbr)
+            self.__current_cell = nbr
 
         def hunt(self):
             """hunt phase"""
             self.increment_item("hunt")
-            cell = self.random_frontier_cell
-            nbrs = []
-            for nbr in cell.neighbors:
-                if self.visited(nbr):
-                    nbrs.append(nbr)
-            nbr = rng.choice(nbrs)          # nbrs is a non-empty list
+            cell, nbr = self.scan()
+            if cell == None:
+                return                      # failed hunt
             self.link(cell, nbr)
-            self.update_frontier(cell)
+            self.__unvisited.remove(cell)
+            self.__current_cell = cell
 
         def _visit(self, cell):
             """hunt or kill?"""
@@ -178,4 +207,4 @@ class HuntKill(Algorithm):
             """a single pass -- wrapper for _visit"""
             self._visit(self.__current_cell)
 
-# end module mazes.Algorithms.hunt_kill
+# end module mazes.Algorithms.hunt_kill2

@@ -1,6 +1,16 @@
 # Change Log
 
-## Release 0.11.9 - 14 January 2025
+## Release 0.12.0 - 4 Apr 2026 - Eulerian tools
+There are a number of hard problems associated with Eulerian graphs.  This toolbox is just a start. Items 1 and 5 represent the easy part.  Item 2 is a simple introduction into one of the hard prolems.
+
+1. *eulerian* - new module - (1) test whether a maze is Eulerian; (2) test whether an Eulerian maze in a grid is maximally Eulerian.
+2. *Grids.eulerian_oblong* - new module - produces non-random maximally Eulerian mazes on rectangular grids.
+3. *Algorithms.hierholzer* - new module - Hierholzer's algorithm to produce Eulerian tours and Eulerian trails.
+4. *demos.hierholzer* - a demo of Hierholzer's algorithm.
+5. *demos.maximally_eulerian* - demo of the *eulerian_oblong* module.
+6. *doc.eulerian_oblong* and *doc.Algorithms.hierholzer* - documentation with background and examples.
+
+## Release 0.11.9 - 14 January 2026
 <ol type="A">
 <li>Hunt and kill algorithm:
     <ol type="1">

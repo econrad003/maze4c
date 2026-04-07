@@ -1,7 +1,13 @@
 # Change Log
 
+## Release 0.12.1 - 7 Apr 2026 - Cretan algorithm
+
+1. **Documentation:** Add information about creating complete Eulerian mazes on toroidal, Klein bottle, and projective grids.  See *doc/Algorithms/hierholzer.md* for more details.  No programs were added or modified for this particular change.
+2. **Programming:** A variation of depth-first forest (which I am calling the Cretan algorithm) was added.  This produces mazes that are *vaguely* reminiscent of Cretan labyrinths.  Module: *mazes.Algorithms.crete*.  Documentation: *doc/Algorithms/crete.md*.  See the documentation for more information.
+3. **Correction:** Depth-first forest - there was a bug in the Kruskal algorithm code used to connect the snakes.  Module: *mazes.Algorithms.dff*.
+
 ## Release 0.12.0 - 4 Apr 2026 - Eulerian tools
-There are a number of hard problems associated with Eulerian graphs.  This toolbox is just a start. Items 1 and 5 represent the easy part.  Item 2 is a simple introduction into one of the hard prolems.
+There are a number of hard problems associated with Eulerian graphs.  This toolbox is just a start. Items 1 and 5 represent the easy part.  Item 2 is a simple introduction into one of the hard problems.
 
 1. *eulerian* - new module - (1) test whether a maze is Eulerian; (2) test whether an Eulerian maze in a grid is maximally Eulerian.
 2. *Grids.eulerian_oblong* - new module - produces non-random maximally Eulerian mazes on rectangular grids.

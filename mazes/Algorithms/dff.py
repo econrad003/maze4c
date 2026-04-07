@@ -47,11 +47,16 @@ LICENSE
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+MODIFICATIONS
+
+    5 Apr 2026 - EC - Use Kruskal's algorithm module to merge the components.
 """
 import mazes
 from mazes import rng, Cell, Algorithm
 from mazes.tournament import Tournament
 from mazes.Queues.stack import Stack
+from mazes.Algorithms.kruskal import Kruskal
 
 class Task(object):
     """keeps track of the queue associated with a single seed"""
@@ -227,28 +232,12 @@ class DFF(Algorithm):
             self.__task_iter = iter(self.__scheduler)
 
         def _link_components(self):
-            """cleanup by linking the growing trees"""
-                # KRUSKAL'S ALGORITHM
-            n = len(self.__tasks)
-            edges = list(self.__edges)      # edges between components
-            if self.__shuffle:
-                rng.shuffle(edges)
-            self.store_item("border edges", len(edges))
-            self.store_item("accept edges", 0)
-            self.store_item("reject edges", 0)
-            tasks = set()
-            while len(tasks) < n and len(edges) > 0:
-                edge = edges.pop()
-                cell1, cell2 = edge
-                task1, task2 = self.__visited[cell1], self.__visited[cell2]
-                if task1 in tasks and task2 in tasks:
-                        # reject the edge
-                    self.increment_item("reject edges")
-                else:
-                    self.increment_item("accept edges")
-                    tasks.add(task1)
-                    tasks.add(task2)
-                    self.link(cell1, cell2)
+            """  """
+            status = Kruskal.on(self.maze)
+            # print(status)
+            self["passages"] += status["passages"]
+            self["Kruskal edges"] = status["passages"]
+            self["merged components"] = status["components (init)"]
 
         def _task_stats(self):
             """collect the task statistics"""

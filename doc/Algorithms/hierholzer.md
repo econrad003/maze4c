@@ -39,7 +39,7 @@ The demonstration module creates a (non-random) maximally Eulerian maze in a rec
 
 ## Examples
 
-### Example 1(a) - a small Eulerian tour
+### Example1(a) - a small Eulerian tour
 
 ```
     $ python -m demos.hierholzer -d 2 2
@@ -71,7 +71,7 @@ In the maze itself, we labelled the terminal cell as "0", its successor in the t
 
 The tour starts in the NW corner cell (1,0), and proceed clockwise around the maze.  The statistics displayed after the tour confirm that all four edges wer included in the tour.
 
-### Example 1(a) - a small Eulerian trail
+### Example 1(b) - a small Eulerian trail
 
 ```
     $ python -m demos.hierholzer -d 2 2 --trail
@@ -103,7 +103,7 @@ If we delete one edge from an Eulerian maze, we get two odd-degree cells and a m
 
 The trail starts in the SE corner in cell "X" and proceeds clockwise to cell "Y".
 
-### Example 2 (a) - A long tour
+### Example 2(a) - A long tour
 
 The default is an 8-row 13-column maze with 164 edges,
 
@@ -189,7 +189,7 @@ And here is confirmation that all was accounted for:
     Passages spanned: 164
 ```
 
-### Example 2 (b) - a long Eulerian trail
+### Example 2(b) - a long Eulerian trail
 
 ```
     $ python -m demos.hierholzer --trail
@@ -279,7 +279,7 @@ The degree 2 cells are all in the first, second, and last columns, or in the top
 ```
 The cells of degree 3 or 4 appear in 6 rows and 10 columns, for a total of 60 cells which must be traversed twice in the trail.  Note that 60+44=104, the total number of cells.  And since the 60 degree 3 or 4 cells are traversed exactly twice, we have accounted for all of the repetitions.
 
-### Example 3 - the devil is in the details
+### Example 3(a) - the devil is in the details
 
 Let's do an example.  First we need an Eulerian maze, but preferably one we haven't seen before.  Although finding a maximally Eulerian maze in an arbitrary grid seems to be a hard problem, the *eulerian_oblong* module actually works on oblong toroidal grids when the number of rows and columns is even.  Note that for a Von Neumann oblong toroidal grid, all we need to do is include every edge.  The *eulerian_oblong* module does check that the grid is oblong, but it only assumes that the grid has north/south/east/west connections.  For the both dimensions even case, it detects border cells by checking for missing neighbors.  Since there are no missing neighbors, it ends up making every cell a degree-4 cell.  If the one or both of the dimensions are odd, the checks are more complicated, so the results may not be so nice.
 
@@ -422,7 +422,321 @@ In the course of encoding this, we skipped over the to-cells.  They should match
     ...
 ```
 
-### Example 4 - the devil strikes in the details
+### Example 3(b) - the torus (how you should really do it)
+
+In part (a), we showed that the construction of a maximally Eulerian maze on a rectantagular grid happens to work *in some cases* on a toroidal grid -- but only because the *TorusGrid* class is a subclass of class *OblongGrid*.  But a better approach is to supply the needed code.  For the *TorusGrid* class, it's easy enough.  The only requirement is that our grid needs to be constructed from rectangle with at least three rows and at least three columns.
+
+Let's start with the imports:
+```
+    $ python
+    >>> from mazes.Grids.torus import TorusGrid
+    >>> from mazes.maze import Maze
+    >>> from mazes.Algorithms.hierholzer import Hierholzer
+```
+
+In a Von Neumann toroidal grid (*i.e.* rectangular, NSEW), the largest Eulerian maze -- the one with the as many passages as possible -- has one passage connecting each pair of neighbors.  Each cell has four neighbors, so, if we have m rows and n columns, the sum of the degrees of the cells is 4mn.  Then Euler's lemma tells us we need exactly 2mn passages.
+
+#### Example 3.1 (in 3(b)) - the 3×3 torus
+
+The simplest way to create the passages is to use two carefully selected grid edges in each cell.  By "carefully selected", I mean just use the same two perpendicular directions...  Let's try this for the smallest case, namely m=n=3:
+
+```
+    >>> maze = Maze(TorusGrid(3, 3))
+    >>> for cell in maze.grid:
+    ...     join = maze.link(cell, cell.north)
+    ...     join = maze.link(cell, cell.east)
+    ...
+```
+
+*  **NOTE:* If you type this inside a script, the *join =* may be omitted, just use *maze.link(u,v)*.  The *join =* prefix just suppresses the annoying display of the representation of the return value in python or python IDLE session.
+
+Now we have a complete maze on a toroidal grid.  We needed at our dimensions to be at least three to avoid loops and parallel edges.
+
+We have *mn=9* cells and the number of passages is *2mn=18*:
+```
+    >>> len(maze.grid)
+    9
+    >>> len(maze)
+    18
+```
+Now let's find an Eulerian tour:
+```
+    >>> status = Hierholzer.on(maze)
+    >>> tour = status.trail
+```
+We label the terminal cell and display the maze:
+```
+    >>> cell = tour[0][0]
+    >>> cell.label = "X"
+    >>> print(maze)
+          A   B   C
+        ┏   ┳   ┳   ┓
+      2               2
+        ┣   ╋   ╋   ┫
+      1   X           1
+        ┣   ╋   ╋   ┫
+      0               0
+        ┗   ┻   ┻   ┛
+          A   B   C
+```
+And to finish, we print the tour:
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      1A--2A--2C--2B--2A--0A--0B--1B--1C--1A--0A--0C--
+          1C--2C--0C--0B--2B--1B--1A
+```
+
+#### Example 3.2 (in 3(b)) - the 4×4 torus
+
+Let's make sure this code works on the smallest even-case, *m=n=4*.
+
+First carve the maze, find the tour, label the terminal cell, and display the maze:
+```
+    >>> maze = Maze(TorusGrid(4, 4))
+    >>> for cell in maze.grid:
+    ...     join = maze.link(cell, cell.north)
+    ...     join = maze.link(cell, cell.east)
+    ...
+    >>> status = Hierholzer.on(maze)
+    >>> tour = status.trail
+    >>> cell = tour[0][0]
+    >>> cell.label = "X"
+    >>> print(maze)
+          A   B   C   D
+        ┏   ┳   ┳   ┳   ┓
+      3                   3
+        ┣   ╋   ╋   ╋   ┫
+      2       B           2
+        ┣   ╋   ╋   ╋   ┫
+      1                   1
+        ┣   ╋   ╋   ╋   ┫
+      0                   0
+        ┗   ┻   ┻   ┻   ┛
+          A   B   C   D
+```
+Now display the Eulerian tour:
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      2B--2C--2D--3D--3C--0C--0D--3D--3A--2A--1A--1B--
+          1C--2C--3C--3B--0B--0A--1A--1D--1C--0C--0B--
+          1B--2B--2A--2D--1D--0D--0A--3A--3B--2B
+```
+Let's check the numbers:
+```
+    >>> print(len(maze.grid), len(maze), len(tour))
+    16 32 32
+```
+*mn=16* cells and *2mn=32* passage in both the maze and the tour.
+
+#### Example 3.3 (in 3(b)) - the 8×13 torus
+
+For completeness, lets do an example where one dimension is even and the other is odd:
+```
+>>> maze = Maze(TorusGrid(8, 13))
+>>> for cell in maze.grid:
+...     join = maze.link(cell, cell.north)
+...     join = maze.link(cell, cell.east)
+... 
+>>> status = Hierholzer.on(maze)
+>>> tour = status.trail
+>>> cell = tour[0][0]
+>>> cell.label = "X"
+>>> print(maze)
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+    ┏   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┓
+  7                                           X           7
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  6                                                       6
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  5                                                       5
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  4                                                       4
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  3                                                       3
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  2                                                       2
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  1                                                       1
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  0                                                       0
+    ┗   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+```
+Now we display the tour:
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      7K--7L--7M--7A--0A--0B--7B--7C--7D--7E--7F--0F--0G--
+          0H--7H--7G--7F--6F--6E--7E--0E--0D--7D--6D--6E--
+          5E--5D--5C--5B--4B--4A--3A--3M--4M--4L--3L--3M--
+          2M--2A--2B--2C--2D--1D--1E--1F--0F--0E--1E--2E--
+          2F--1F--1G--0G--7G--6G--5G--5F--5E--4E--4F--3F--
+          3G--3H--4H--4G--4F--5F--6F--6G--6H--7H--7I--0I--
+          1I--2I--2H--2G--3G--4G--5G--5H--6H--6I--6J--7J--
+          7I--6I--5I--5J--4J--4I--4H--5H--5I--4I--3I--3H--
+          2H--1H--1G--2G--2F--3F--3E--2E--2D--3D--4D--4E--
+          3E--3D--3C--3B--3A--2A--1A--1B--2B--3B--4B--4C--
+          4D--5D--6D--6C--5C--4C--3C--2C--1C--1D--0D--0C--
+          0B--1B--1C--0C--7C--6C--6B--6A--6M--5M--4M--4A--
+          5A--6A--7A--7B--6B--5B--5A--5M--5L--5K--4K--4L--
+          5L--6L--7L--0L--0M--7M--6M--6L--6K--5K--5J--6J--
+          6K--7K--7J--0J--1J--1I--1H--0H--0I--0J--0K--1K--
+          2K--2L--3L--3K--4K--4J--3J--3K--2K--2J--2I--3I--
+          3J--2J--1J--1K--1L--1M--0M--0A--1A--1M--2M--2L--
+          1L--0L--0K--7K
+    >>> print(len(maze.grid), len(maze), len(tour))
+    104 208 208
+```
+*m=8*, *n=13*, so *mn=104* and *2mn=208*.  This checks.
+
+#### CAUTION (for Example 3(b))
+
+* We did not check that the sequences that were returned were actually tours.  While we can easily see from the displays that the returned sequences started at the same cell as they ended, we could check this programmatically with the following assertion:
+
+```
+            assert tour[0][0] == tour[-1][-1]
+```
+
+* But we should also check that cell1 in a given step agrees with cell2 in the previous step.  This requires a bit of care.  Using the fact that the index -1 references the last entry in the list, we could use the following loop:
+
+```
+            for i in range(len(tour)):
+                assert tour[i][0] == tour[i-1][-1], f"error ({i},{j})"
+```
+
+* The *i=0* case reduces to the assertion that the tour starts and ends on the same cell:
+
+```
+            assert tour[0][0] == tour[-1][-1], "error (0,0)"
+```
+
+So to verify that Example 3.3 returned a tour, we type:
+```
+    >>> for i in range(len(tour)):
+    ...     assert tour[i][0] == tour[i-1][-1], f"error ({i},{j})"
+    ...
+    >>>
+```
+The reply is just a prompt for another line.  Check!
+
+We should also verify that every edge was traversed exactly once.  We know that there were 208 steps, so we actually know that every edge was traversed at most once.  Here is code to verify that each edge was traversed at least once:
+```
+            joins = set()
+            for step in tour:
+                joins.append(tour[1])
+            assert len(joins) == len(maze)
+```
+
+### Example 3(c) - an Eulerian trail
+
+If we delete one passage from our maze, it becomes path-Eulerian and our tour becomes a trail.  In Example 3.3 our tour started in cell 7K and the first step was east to cell 7L.  Let's delete that passage (the associated join is the second element of the tour that was produced).  In addition, we should label the cell 7K since our trail must start in one of these cells and end in the other:
+```
+    >>> cell1, join, cell2 = tour[0]
+    >>> maze.unlink(join)
+    >>> cell2.label = "Y"
+          A   B   C   D   E   F   G   H   I   J   K   L   M
+        ┏   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┓
+      7                                           X ┃ Y       7
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      6                                                       6
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      5                                                       5
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      4                                                       4
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      3                                                       3
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      2                                                       2
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      1                                                       1
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      0                                                       0
+        ┗   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┛
+          A   B   C   D   E   F   G   H   I   J   K   L   M
+```
+The missing passage is marked by two labelled cells.  Now we create the Eulerian trail:
+```
+    >>> status = Hierholzer.on(maze, start_cell=cell1)
+    >>> trail = status.trail
+    >>> print(len(maze.grid), len(maze), len(trail))
+    104 207 207
+```
+We still have *mn=104* cells.  We deleted one passage: *mn-1=207*.  Looks good!
+
+We needed to start in one of the two degree-3 cells.  We chose the cell labelled *X*.  Now let's display the trail:
+```
+    >>> s = "Eulerian trail:\n  "
+    >>> for step in trail:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian trail:
+      7K--0K--1K--1L--1M--2M--2L--2K--3K--3J--2J--2I--1I--
+          1H--1G--1F--1E--0E--0D--1D--1E--2E--2F--1F--0F--
+          7F--6F--6E--7E--7F--7G--6G--5G--5H--6H--7H--0H--
+          0G--0F--0E--7E--7D--0D--0C--0B--1B--2B--2A--3A--
+          3B--4B--4A--3A--3M--2M--2A--1A--1M--0M--7M--7A--
+          7B--6B--6A--5A--4A--4M--5M--6M--7M--7L--6L--5L--
+          4L--3L--3K--4K--4L--4M--3M--3L--2L--1L--0L--0M--
+          0A--0B--7B--7C--0C--1C--2C--3C--4C--5C--5B--6B--
+          6C--6D--7D--7C--6C--5C--5D--4D--4C--4B--5B--5A--
+          5M--5L--5K--4K--4J--5J--5K--6K--6L--6M--6A--7A--
+          0A--1A--1B--1C--1D--2D--2C--2B--3B--3C--3D--4D--
+          4E--3E--2E--2D--3D--3E--3F--3G--2G--1G--0G--7G--
+          7H--7I--7J--7K--6K--6J--6I--5I--5J--6J--7J--0J--
+          0I--7I--6I--6H--6G--6F--5F--4F--3F--2F--2G--2H--
+          2I--3I--3J--4J--4I--5I--5H--4H--4G--5G--5F--5E--
+          6E--6D--5D--5E--4E--4F--4G--3G--3H--4H--4I--3I--
+          3H--2H--1H--0H--0I--1I--1J--1K--2K--2J--1J--0J--0K--0L--7L
+```
+To actually check that this is an Eulerian trail, the assertion code above would fail since we didn't end where we started.  But we can modify the indexing slightly to make it work:
+```
+    >>> for i in range(1, len(tour)):
+    ...     assert tour[i][0] == tour[i-1][-1], f"error ({i},{j})"
+    ...
+    >>>
+```
+We simply start indexing at 1 to avoid the comparison of the terminal cells.  The assertions all pass, and the trail starts and ends where we expected, so we have found an Eulerian trail.
+
+### Example 4(a) - the devil strikes in the details (the Klein bottle)
 
 If we had used a Klein bottle grid instead of a toroidal grid, we wouldn't have been as lucky.
 ```
@@ -461,4 +775,296 @@ And in case someone wants to create a program which produces maximally Eulerian 
       0                                         ┃ 7
         ┗   ┻━━━┻   ┻━━━┻   ┻━━━┻   ┻━━━┻   ┻━━━┛
           A   B   C   D   E   F   G   H   I   J
+```
+
+#### Example 4(b) - the Klein bottle
+
+Our code in Example 3(b) for the torus works just as well on the Klein bottle.  We again need at least 3 rows and 3 columns in the fundamental rectangle in order to avoid deadly loops and parallel edges.
+
+All we need to do is change the grid import and the call to the grid constructor.  First the imports:
+```
+    $ python
+    >>> from mazes.Grids.klein import KleinGrid
+    >>> from mazes.maze import Maze
+    >>> from mazes.Algorithms.hierholzer import Hierholzer
+```
+
+#### Example 4.1 (in 4(b)) - the 3×3 Klein bottle
+
+Now we create the grid and join every pair of cells with a passage:
+```
+    >>> maze = Maze(TorusGrid(3, 3))
+    >>> for cell in maze.grid:
+    ...     join = maze.link(cell, cell.north)
+    ...     join = maze.link(cell, cell.east)
+    ...
+```
+
+Our maze is now Eulerian with *mn=9* cells and *2mn=18* passages.  Let's find a tour and check the number of steps:
+```
+    >>> status = Hierholzer.on(maze)
+    >>> tour = status.trail
+    >>> print(len(maze.grid), len(maze), len(tour))
+    9 18 18
+```
+
+So far, so good!  Now we label the terminal cell and display the maze:
+```
+    >>> tour[0][0].label = "X"
+    >>> print(maze)
+          A   B   C
+        ┏   ┳   ┳   ┓
+      2               0
+        ┣   ╋   ╋   ┫
+      1       X       1
+        ┣   ╋   ╋   ┫
+      0               2
+        ┗   ┻   ┻   ┛
+          A   B   C
+```
+And to finish, we use the row labels on the left (not the ones on the right!) and the alphabetic column labels to display the Eulerian tour.  Note that one step east cell 0C (southeast corner) follows the label on the right to cell 2A (northwest corner).  Similarly one step left from cell 0A (southwest corner) uses the label on the right to step into cell 2C (northeast corner).  North and south behave like the torus.
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      1B--0B--0C--2C--0A--0B--2B--2C--1C--1A--0A--2A--
+          0C--1C--1B--1A--2A--2B--1B
+```
+
+#### Example 4.2 (in 4(b)) - the 4×4 Klein bottle
+
+Prepare the maze and the tour:
+```
+    >>> maze = Maze(KleinGrid(4, 4))
+    >>> for cell in maze.grid:
+    ...     join = maze.link(cell, cell.north)
+    ...     join = maze.link(cell, cell.east)
+    ...
+    >>> status = Hierholzer.on(maze)
+    >>> tour = status.trail
+    >>> tour[0][0].label = "X"
+    >>> print(maze)
+          A   B   C   D
+        ┏   ┳   ┳   ┳   ┓
+      3   X               0
+        ┣   ╋   ╋   ╋   ┫
+      2                   1
+        ┣   ╋   ╋   ╋   ┫
+      1                   2
+        ┣   ╋   ╋   ╋   ┫
+      0                   3
+        ┗   ┻   ┻   ┻   ┛
+          A   B   C   D
+    >>> print(len(maze.grid), len(maze), len(tour))
+    16 32 32
+```
+
+Now we display the tour:
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      3A--0D--1D--1C--2C--2B--3B--3C--2C--2D--1D--2A--
+          2B--1B--1A--2D--3D--0A--1A--2A--3A--3B--0B--
+          0C--0D--3D--3C--0C--1C--1B--0B--0A--3A
+```
+
+Again, we should check the results.
+
+#### Example 4.3 (in 4(b)) - the 8×13 Klein bottle
+
+An even-odd case...  First we prepare the maze and the trail...
+```
+    >>> maze = Maze(KleinGrid(8, 13))
+    >>> for cell in maze.grid:
+    ...     join = maze.link(cell, cell.north)
+    ...     join = maze.link(cell, cell.east)
+    ...
+    >>> status = Hierholzer.on(maze)
+    >>> tour = status.trail
+    >>> tour[0][0].label = "X"
+    >>> print(maze)
+          A   B   C   D   E   F   G   H   I   J   K   L   M
+        ┏   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┓
+      7                                                       0
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      6                                                       1
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      5                                   X                   2
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      4                                                       3
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      3                                                       4
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      2                                                       5
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      1                                                       6
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      0                                                       7
+        ┗   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┛
+          A   B   C   D   E   F   G   H   I   J   K   L   M
+    >>> print(len(maze.grid), len(maze), len(tour))
+    104 208 208
+```
+
+And to finish (without checking):
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      5I--5J--4J--4I--3I--2I--2J--1J--0J--0I--0H--1H--2H--
+          2I--1I--1H--1G--1F--1E--1D--2D--3D--4D--5D--5E--
+          5F--5G--5H--6H--6G--5G--4G--4H--3H--3G--2G--2H--
+          3H--3I--3J--4J--4K--3K--2K--2L--3L--3K--3J--2J--
+          2K--1K--1L--0L--0K--7K--7J--7I--0I--1I--1J--1K--
+          0K--0J--7J--6J--5J--5K--4K--4L--3L--3M--4A--5A--
+          5B--5C--4C--4B--4A--3A--3B--3C--2C--2B--1B--0B--
+          0A--7M--6M--5M--2A--3A--4M--3M--2M--1M--1L--2L--
+          2M--5A--6A--1M--0M--7M--7L--6L--5L--4L--4M--5M--
+          5L--5K--6K--6J--6I--6H--7H--0H--0G--7G--6G--6F--
+          5F--4F--4E--5E--6E--6F--7F--7E--7D--7C--7B--7A--
+          0A--1A--1B--1C--2C--2D--2E--3E--3D--3C--4C--4D--
+          4E--3E--3F--4F--4G--3G--3F--2F--2E--1E--0E--0D--
+          0C--1C--1D--0D--7D--6D--5D--5C--6C--7C--0C--0B--
+          7B--6B--6A--7A--0M--0L--7L--7K--6K--6L--6M--1A--
+          2A--2B--3B--4B--5B--6B--6C--6D--6E--7E--0E--0F--
+          0G--1G--2G--2F--1F--0F--7F--7G--7H--7I--6I--5I--5H--4H--4I--5I
+```
+
+### Example 5 - the 8x13 projective grid
+
+The final example is on the projective grid.  This one is a bit weird since we need to identify diagonally opposite corner cells.
+
+Continuing from Example 3(b), we need to import the projective grid and carve a complete projective maze:
+```
+    >>> from mazes.Grids.projective import ProjectiveGrid
+    >>> maze = Maze(ProjectiveGrid(8, 13))
+    >>> from mazes.Grids.projective import ProjectiveGrid
+    >>> maze = Maze(ProjectiveGrid(8, 13))
+    >>> for cell in maze.grid:
+    ...     join = maze.link(cell, cell.north)
+    ...     join = maze.link(cell, cell.east)
+    ...
+```
+Next we find an Eulerian tour:
+```
+    >>> status = Hierholzer.on(maze)
+    >>> tour = status.trail
+    >>> print(len(maze.grid), len(maze), len(tour))
+    102 204 204
+```
+The numbers require an explanation.  Diagonally opposite corner cells have been identified with each other.  For example, the cell in the southest corner of the rectangle and the cell in the northeast corner are the same cell in the projective grid.  So, instead of 104 cells, we have just 102.  Each cell has degree 4, so the sum of the degrees is 408 and the number of passages is 204.
+
+For emphasis, we will label the corner cells "A" and "B" *before* labelling the tour's terminal cell "X".  (We label the terminal cell after labelling the rectangle's corners in case the tour's terminal happens to be a corner.)
+```
+>>> maze.grid[0,0].label = "A"
+>>> maze.grid[7,0].label = "B"
+>>> tour[0][0].label = "X"
+>>> print(maze)
+      M   L   K   J   I   H   G   F   E   D   C   B   A
+    ┏   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┓
+  7   B                                           X   A   0
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  6                                                       1
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  5                                                       2
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  4                                                       3
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  3                                                       4
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  2                                                       5
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  1                                                       6
+    ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+  0   A                                               B   7
+    ┗   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┛
+      A   B   C   D   E   F   G   H   I   J   K   L   M
+```
+Note that diagonally opposite corners have the same label.  Using the row labels on the left and the column labels at bottom, cell 0A (aka cell 7M) jhas label "A" and cell 0M (aka cell 7A) has label "B".  The labels at top identify the cell in the top row which is south of a given cell in the bottom row,  For example, south of cell 0C we look for the C above the top row to find cell 7K.  Similarly, west of cell 6A is cell 1M.  Now for the tour:
+```
+    >>> s = "Eulerian tour:\n  "
+    >>> for step in tour:
+    ...     cell1, join, cell2 = step
+    ...     i, j = cell1.index
+    ...     j = chr(ord('A')+j)
+    ...     s += f"{i}{j}--"
+    ...
+    >>> i, j = cell2.index
+    >>> j = chr(ord('A')+j)
+    >>> s += f"{i}{j}"
+    >>> print(s)
+    Eulerian tour:
+      7L--0A--0B--1B--2B--3B--3C--3D--2D--1D--1C--0C--0B--
+          7L--6L--6M--1A--1B--1C--2C--2B--2A--5M--6M--0A--
+          1A--2A--3A--4M--5M--5L--5K--4K--3K--3L--4L--5L--
+          6L--6K--5K--5J--6J--6K--7K--7J--7I--0E--0D--7J--
+          6J--6I--7I--7H--6H--5H--5G--6G--7G--7H--0F--0G--
+          7G--7F--6F--6E--6D--5D--5E--5F--6F--6G--6H--6I--
+          5I--4I--4H--4G--5G--5F--4F--3F--3E--4E--5E--6E--
+          7E--7F--0H--0G--1G--1F--2F--2E--3E--3D--4D--4C--
+          4B--3B--3A--4A--5A--2M--3M--3L--2L--2M--1M--0M--
+          6A--6B--6C--6D--7D--7C--7B--6B--5B--4B--4A--3M--
+          4M--4L--4K--4J--5J--5I--5H--4H--3H--2H--2G--2F--
+          3F--3G--2G--1G--1H--0H--0I--0J--0K--0L--0M--7B--
+          0L--1L--1M--6A--5A--5B--5C--6C--7C--0K--1K--1L--
+          2L--2K--3K--3J--3I--2I--1I--1J--2J--2K--1K--1J--
+          0J--7D--7E--0I--1I--1H--2H--2I--2J--3J--4J--4I--
+          3I--3H--3G--4G--4F--4E--4D--5D--5C--4C--3C--2C--
+          2D--2E--1E--0E--0F--1F--1E--1D--0D--0C--7K--7L
+```
+Here we label the first ten cells in the tour with the digits 0 through 9.  (Since there are more passages than cells, labelling all the cells just creates a mess.)
+```
+    >>> for i in range(10):
+    ...     cell = tour[i][0]
+    ...     label = chr(ord('0') + i)
+    ...     cell.label = label
+    ...
+    >>> print(maze)
+          M   L   K   J   I   H   G   F   E   D   C   B   A
+        ┏   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┳   ┓
+      7   B                                           0   1   0
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      6                                                       1
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      5                                                       2
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      4                                                       3
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      3       5   6   7                                       4
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      2       4       8                                       5
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      1       3       9                                       6
+        ┣   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ╋   ┫
+      0   1   2                                           B   7
+        ┗   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┻   ┛
+          A   B   C   D   E   F   G   H   I   J   K   L   M
 ```

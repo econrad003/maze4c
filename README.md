@@ -22,6 +22,7 @@ Below is a sketch of what has been done.  Check the documentation folder (*doc*)
         + *mazes/Graphics/dot* - GraphViz graphics drivers
     +  *mazes/misc* - some modules that consolidate a number of methods.  Most of these can serve as demos as well as callable modules.
     +  *mazes/Queues* - queuing implementations based on class *GeneralizedQueue* defined in module *mazes.gqueue*
+    +  *mazes/tetris* - support for the tile drop algorithm
     +  *mazes/VGT* - vertex-based growing tree algorithm implementations
     +  *mazes/WallBuilders* - wall building algorithms
 *  *movies* - algorithm animation examples
@@ -113,8 +114,9 @@ The following maze generation algorithms have been implemented:
 * module *dff* (for *depth-first forest*; class *DFF*) is the first of a family of *growing forest* algorithm.  Using class *Task* in the same module, it is possible to implement other growing forest algorithms, such as a breadth-first forest, or even a growing forest built from a depth-first tree and a breadth-first tree.  (See the documentation for some examples.  Jamis Buck's name for DFF is *recursive backtracker with parallel seeds*.)
 * module *fractal\_tess* (class *FractalTessellation*) - a fractal-based algorithm which is neither a passage carver nor a wall builder as it does not start with a configured grid.  It might be better described as a recursive tiler as it assembles tiles recursively to produce larger tiles.  Some passage carving is used to glue tiles together.
 * module *hoptree* (class *HopTree*) is a growing tree algorithm that uses distances between cells that change as the tree is growing.  It can start either with a single seed cell or a small, preferably connected maze, which I refer to variously as a "city" -- in contrast to the "undeveloped countryside" -- and as a "downtown" -- in contrast with the "uptown" where "roads" will eventually lead downtown.
+* module *tetris* (class *Tetris*) is a tile drop algorithm that creates disconnected mazes.  (Connecting the tiles can be done using Kruskal's algorithm of a growing tree carving algorithm like Prim's algorithm or depth-first search.)  The folder *mazes/tetris* contains a number of support tools.  The tile types are built using class *Tile* in module *mazes.tetris.tile*.  A full set of Tetris tile shapes may be found in module *mazes.tetris.tetris* and a tile maker which converts rectangular mazes into tiles can be found in module *mazes.tetris.maze2tile*.  The documentation of the tile drop algorithm is found in the file *doc/algorithms/tetris.md*.  Additional documentation of the tools is found in the file *mazes/tetris/tetris.md*.
 
-These are documented in *doc/Algorithms*.
+Algorithms are documented in *doc/Algorithms*.
 
 ### Maze generation (wall builders)
 

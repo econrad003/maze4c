@@ -24,9 +24,21 @@ LICENSE
 """
 import mazes
 from mazes import rng, Algorithm
-from mazes.tetris.tetris import configs as _default_descriptors
-from mazes.tetris.tetris import create_tile
 from mazes.Grids.oblong import OblongGrid
+from mazes.tetris.tile import Tile
+
+def create_tile(descriptor, N=4, verify=True):
+    """create tile from a shape descriptor/bbox pair
+
+    The option defaults assume that the descriptor represents a minimally
+    connected tetronimo (i.e. a tetris tile).  N is the number of cells.
+    If verify is True (default), the tile is checked to insure that it is
+    connected and circuit-free.        
+    """
+    shape, box = descriptor                 # unpack
+    width, height, zero_locator = box       # unpack
+    bbox = (width, height)                  # repack
+    return Tile(N, shape, bbox=bbox, zero=zero_locator, verify=verify)
 
 class Tetris(Algorithm):
     """the Tetris algorithm (passage carver)"""
@@ -38,9 +50,12 @@ class Tetris(Algorithm):
 
         __slots__ = ("__occupied", "__places", "__columns",
                      "__tiles", "__tile", "__tile_num", "__state",
-                     "__drops", "__debug")
+                     "__drops", "__n", "__verify", "__create",
+                     "__debug")
 
-        def parse_args(self, tiles:'TileDescriptorSet'=None, debug=False):
+        def parse_args(self, tiles:'TileDescriptorSet'=None, N:int=4,
+                       verify=True, make_tile=create_tile,
+                       debug=False):
             """parse constructor arguments
 
             POSITIONAL ARGUMENTS
@@ -52,18 +67,25 @@ class Tetris(Algorithm):
             KEYWORD ARGUMENTS
 
                 tiles - the tile descriptors; each descriptor is a
-                    tuple consisting of a tile shape descriptor,
-                    a tile width, a tile height, and the column
-                    location of the start cell for the tile. (The
-                    starting cell, cell 0, is always a cell in the
-                    bottom row.
+                    tuple consisting of a tile shape descriptor, a
+                    tile width, a tile height, and the column location
+                    of the start cell for the tile. (The starting cell,
+                    cell 0, is always a cell in the bottom row.)
 
                     If this argument is None, then the descriptor
                     set is the set named "configs" imported from
                     mazes.tetris.tetris.
 
-                    Method "create_tile" in mazes.tetris.tetris is
-                    used to create the tiles that are dropped.
+                    Method "create_tile" defined above is used to
+                    create the tiles that are dropped.
+
+                N - the number of cells in a tile (default: 4)
+
+                verify - set to False to suppress checks that the
+                    shape is connected and circuit-free.
+
+                make_tile - use this option to change the tile creation
+                    routine.
             """
             super().parse_args()                # chain to parent
             if not isinstance(self.grid, OblongGrid):
@@ -75,6 +97,9 @@ class Tetris(Algorithm):
             self.__places = dict()
             self.__state = 0                    # prepare to drop
             self.more = True
+            self.__n = N
+            self.__verify = verify
+            self.__create = make_tile
             self.__debug = debug
 
         @property
@@ -83,7 +108,8 @@ class Tetris(Algorithm):
 
             The elements are representations of Tetris tiles.
             """
-            return _default_descriptors
+            from mazes.tetris.tetris import configs
+            return configs
 
         @property
         def occupied(self) -> set:
@@ -121,7 +147,8 @@ class Tetris(Algorithm):
             if self.__debug:
                 print(f"{self['tiles']})",
                       f"Create tile {self.__tile_num}/{len(self.__tiles)}")
-            return create_tile(self.__tiles[self.__tile_num])
+            return self.__create(self.__tiles[self.__tile_num], N=self.__n,
+                   verify=self.__verify)
 
         def prepare_drop(self):
             """set up the drop parameters"""

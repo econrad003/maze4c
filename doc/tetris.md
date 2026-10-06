@@ -7,6 +7,7 @@
 3. The *Tile* object
 4. Simplified Tetris
 5. Simulated tiles
+6. Creating a maze with simulated tiles
 
 ## For the reader
 
@@ -623,3 +624,159 @@ The *True* return value indicates that the drop was successful.
     +---+---+---+---+
 ```
 Success!  We reproduced the maze that was used to create the tile.  (The *carve* method returned the number of passages carved.)
+
+## 6. Creating a maze with simulated tiles
+
+Let's use simulated tiles to create a maze.  The idea here is to create a roomy structure using 4x4 square rooms built using Eller's algorithm.  The final structure will exhibit some bias (the square Elleresque rooms) and some randomness, as we will complete the maze using Kruskal's algorithm.
+
+### 6.1 Hexadecominos
+
+We start, as usual, with the imports:
+```
+    maze4c$ python
+    Python 3.10.12
+    >>>     # INITIALIZATION
+    >>> from mazes.Grids.oblong import OblongGrid
+    >>> from mazes.maze import Maze
+    >>>     # PASSAGE CARVING ALGORITHMS
+    >>> from mazes.Algorithms.eller import Eller        # tile carver
+    >>> from mazes.Algorithms.tetris import Tetris      # passage carver 1
+    >>> from mazes.Algorithms.kruskal import Kruskal    # passage carver 2
+    >>>     # TILE ETCHER
+    >>> from mazes.tetris.maze2tile import maze2tile
+```
+
+We need a subroutine to carve our tile essays and etch our 4x4 square tiles:
+```
+    >>> def make_shape():
+    ...     maze = Maze(OblongGrid(4,4))
+    ...     _ = Eller.on(maze)                        # ignore status
+    ...     tile = maze2tile(maze, start=maze.grid[0,0])
+    ...     box = tuple(list(tile.bbox) + [tile.zero])
+    ...     shape = tuple(sorted(tile.shape))
+    ...     return shape, box
+    ...
+```
+
+We use this to create a bag of tiles
+``` 
+    >>> # create ten distinct tile types
+    >>> tiles = list()
+    >>> for _ in range(10):
+    ...     tiles.append(make_shape())
+    ...
+```
+
+Now we drop tiles into a large grid to create our 4x4 rooms:
+```
+>>> maze = Maze(OblongGrid(16,17))
+>>> print(Tetris.on(maze, tiles=tiles, N=16, verify=False))
+          Tetris tile carver (statistics)
+                            visits      256
+                             cells      272
+                          passages      195
+                        tile types       10
+                             tiles       23
+                             drops      222
+                        placements       13
+```
+
+In the options, we set *N=16* to indicate that our *hexadecomino* tiles have 16 cells instead of the usual four.  We also set *verify=False* to indicate that we trust the etcher to produce valid tiles.
+
+Here is the result.  I have numbered the 13 rooms (0 through 9 and A, B, C) in the upper left corner:
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |   | 0 |           | 1             |   |   |   | 2             |
++---+---+   +   +   +   +   +   +---+---+---+---+---+   +   +   +   +
+|   |   |       |   |   |   |           |   |   |   |   |   |   |   |
++---+---+   +---+   +   +---+   +---+---+---+---+---+   +---+---+   +
+|   |   |       |   |   |   |           |   |   |   |   |       |   |
++---+---+   +   +   +---+   +   +---+---+---+---+---+---+   +   +   +
+|   |   |   |   |       |               |   |   |   |       |       |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+| 3 |           |   | 4             | 5     |       | 6 |           |
++   +   +   +   +---+   +---+---+---+---+   +   +---+   +   +---+   +
+|       |   |   |   |   |           |               |   |       |   |
++   +---+   +   +---+   +   +---+---+   +---+   +   +   +   +---+---+
+|       |   |   |   |           |   |   |       |   |               |
++   +   +   +---+---+   +---+---+   +---+   +   +   +   +   +---+   +
+|   |   |       |   |               |       |   |   |   |       |   |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |   |   | 7     |       |   | 8             |   | 9 |           |
++---+---+---+---+   +   +---+---+   +---+---+   +---+   +---+   +   +
+|   |   |   |               |   |   |   |   |   |   |       |   |   |
++---+---+---+   +---+   +   +---+   +   +   +---+---+   +---+---+   +
+|   |   |   |   |       |   |   |       |       |   |   |           |
++---+---+---+---+   +   +   +---+   +---+   +---+---+   +   +   +---+
+|   |   |   |       |   |   |   |               |   |       |       |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |   |   | A     |   |   | B |           |   |   | C     |   |   |
++---+---+---+   +---+   +   +   +   +   +   +---+---+   +---+   +   +
+|   |   |   |               |       |   |   |   |   |               |
++---+---+---+---+   +---+---+   +---+   +   +---+---+---+   +---+---+
+|   |   |   |   |           |       |   |   |   |   |   |           |
++---+---+---+   +---+   +   +   +   +   +---+---+---+   +---+   +   +
+|   |   |   |           |   |   |   |       |   |   |           |   |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+We placed 13x16=208 cells in 13 rooms.  Each room has 15 passages for a total of 13*15=195 passages.  64 cells remain isolated and are not in any room.
+
+To extend this forest to a perfect maze (i.e. a spanning tree), we need 272-195=76 more passages.  Now we run Kruskal's algorithm to connect the forest into a single tree:
+```
+>>> print(Kruskal.on(maze))
+          Kruskal (statistics)
+                            visits      136
+                 components (init)       77
+               queue length (init)      199
+                             cells      272
+                          passages       76
+                components (final)        1
+              queue length (final)       63
+```
+Here is the final result.  I have again identified the upper left corner of each of the 4x4 rooms:
+```
+>>> print(maze)
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+|   |     0 |           | 1                 |   |     2             |
++   +---+   +   +   +   +   +   +---+---+---+   +---+   +   +   +   +
+|       |       |   |   |   |                           |   |   |   |
++---+   +   +---+   +   +---+   +---+---+---+   +---+   +---+---+   +
+|               |   |   |   |               |   |   |   |       |   |
++   +---+   +   +   +---+   +   +---+---+---+---+   +---+   +   +   +
+|   |   |   |   |       |               |           |       |       |
++   +   +---+---+---+   +---+---+---+---+---+---+   +   +---+---+---+
+| 3 |           |   | 4             | 5     |       | 6 |           |
++   +   +   +   +   +   +---+---+---+---+   +   +---+   +   +---+   +
+|       |   |   |       |           |                   |       |   |
++   +---+   +   +---+   +   +---+---+   +---+   +   +   +   +---+---+
+|       |   |   |               |   |   |       |   |               |
++   +   +   +---+---+   +---+---+   +---+   +   +   +   +   +---+   +
+|   |   |           |               |       |   |   |   |       |   |
++---+---+   +   +---+---+---+   +---+   +---+---+---+---+---+   +---+
+|           | 7     |       |   | 8                 | 9 |           |
++---+---+---+---+   +   +---+---+   +---+---+   +---+   +---+   +   +
+|       |                   |   |   |   |   |   |   |       |   |   |
++---+   +---+   +---+   +   +   +   +   +   +---+   +   +---+---+   +
+|               |       |       |       |           |   |           |
++   +---+   +---+   +   +   +---+   +---+   +---+   +   +   +   +---+
+|   |       |       |   |       |               |   |       |       |
++   +   +---+---+---+   +---+---+---+---+---+   +   +---+---+---+---+
+|   |       | A     |   |     B |               |     C     |   |   |
++---+   +---+   +---+   +   +   +   +   +   +   +---+   +---+   +   +
+|           |               |       |   |   |   |                   |
++   +   +   +---+   +---+---+   +---+   +   +---+---+---+   +---+---+
+|   |   |   |   |           |       |   |   |           |           |
++---+   +   +   +---+   +   +   +   +   +---+---+---+   +---+   +   +
+|       |   |           |   |   |   |           |               |   |
++---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+```
+Perhaps rooms A and B are the rooms belong to Hansel and Gretel, and room 2 is the evil hag's kitchen...
+
+Or perhaps just note the boxy structure vaguely reminiscent of the the roomy bias in recursive division, as well as the more random corridors produced by Kruskal's algorithm that connect the rooms.
+
+If we had used the simple binary tree algorithm, the roomy bias might be even more evident.  Recall that sidewinder, generalizes simple binary tree, Eller's algorithm generalizes sidewinder, and Kruskal's algorithm generalizes Eller's algorithm.  In this context, the verb "to generalize" means that the set of choices that can be made by the object algorithm is a proper subset of the list of choices that can be made in the subject algorithm.
+
+### 6.2 Pentominos
+
+For another example of tile simulation, see module *mazes.tetris.pentris* and the code generator *mazes.tetris.pentris_generator*.  These are documented in the file *mazes/tetris/pentris.md*.

@@ -1,7 +1,7 @@
 """
 mazes.demos.tetris - create a maze using the Tetris tile drop algorithm
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2026 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 

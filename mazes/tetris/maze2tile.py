@@ -1,7 +1,7 @@
 """
 mazes.tetris.maze2tile - given a maze, create a tile
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2026 by Eric Conrad.  Licensed under GPL.v3.
 
 LICENSE
     This program is free software: you can redistribute it and/or modify

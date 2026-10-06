@@ -1,7 +1,7 @@
 """
 mazes.tetris.tile - base class implementation for tiles of cells
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2026 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
@@ -87,7 +87,7 @@ class Tile(object):
         self.initialize()
         self.configure()
 
-    def parse_args(self, n:int, shape:set, bbox=None, zero=None):
+    def parse_args(self, n:int, shape:set, bbox=None, zero=None, verify=True):
         """parse the tile description (base)
 
         The dropped flag is set to False.  The shape information for
@@ -96,6 +96,10 @@ class Tile(object):
         If bbox and/or zero are supplied (i.e. not equal to None),
         they are stored.  They are not validated.  (They are intended
         for application use as needed.)
+
+        If verify is False, checks to insure that the shape descriptor
+        represents a perfect maze (connected and circuit-free) are not
+        done.  Some applications may fail if the shape is not connected.
         """
         self.__n = n
         self.__dropped = False
@@ -105,15 +109,20 @@ class Tile(object):
             self.__bbox = bbox
         if zero != None:
             self.__zero = zero
-        self.__verify_shape()
+        if verify:
+            self.__verify_shape()
 
     def __verify_shape(self):
         """verify that the shape vector is well-formed.
 
+        DESCRIPTION
+
+            Checks that the tile represents a perfect maze
+
         BUGS
 
             The direction label is not checked.  (This is handled
-            in the drop reoutine.
+            in the drop routine.
 
         EXCEPTIONS
 

@@ -1,7 +1,7 @@
 """
-mazes,tetris.tetris - a bag of Tetris tiles
+mazes.tetris.tetris - a bag of Tetris tiles
 Eric Conrad
-Copyright ©2024 by Eric Conrad.  Licensed under GPL.v3.
+Copyright ©2026 by Eric Conrad.  Licensed under GPL.v3.
 
 DESCRIPTION
 
@@ -116,9 +116,9 @@ S = [S1, S2]
 shapes = tuple(tuple(x) for x in [O, T, L, M, I, Z, S])
 configs = tuple(O + T + L + M + I + Z + S)
 
-def create_tile(descriptor):
+def create_tile(descriptor, N=n):
     """create tile from a shape descriptor/bbox pair"""
     shape, box = descriptor                 # unpack
     width, height, zero_locator = box               # unpack
     bbox = (width, height)                  # repack
-    return Tile(n, shape, bbox=bbox, zero=zero_locator)
+    return Tile(N, shape, bbox=bbox, zero=zero_locator)

@@ -1,5 +1,10 @@
 # Change Log
 
+## Release 0.12.2 - September/Ocober 2026 - mazes from tilings
+
+1. **Tetris tiles** - using tetris tiles (and similar tiles built from square cells) to create mazes.  A set of "Quintris" tiles has been included as a demonstration of some of the possibilities.  Each tile forms a small connected grid of several cells (four cells for Tetris, or five cells for "Quintris").
+2. **Wang tiles** - instead of combining square cells into a small grid, a Wang tile colors the outgoing edges of a single square cell.  The tiles are placed in a manner so that each edge of the grid has a single color.
+
 ## Release 0.12.1 - 7 Apr 2026 - Cretan algorithm
 
 1. **Documentation:** Add information about creating complete Eulerian mazes on toroidal, Klein bottle, and projective grids.  See *doc/Algorithms/hierholzer.md* for more details.  No programs were added or modified for this particular change.
